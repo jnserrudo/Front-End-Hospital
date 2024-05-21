@@ -1,0 +1,174 @@
+:root {
+  --primary: #456bff;
+}
+
+.header {
+  background-color: var(--primary) !important  ;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+}
+.titulo {
+  font-family: initial !important;
+  font-size: xx-large !important;
+}
+
+.txt {
+  color: white !important;
+}
+.section {
+  padding-left: 1rem;
+  display: flex;
+  padding: 1rem;
+}
+.txt_section {
+  color: grey;
+  margin: 1rem;
+}
+
+.logo_hospital {
+  display: block;
+  width: 110px;
+  height: 110px;
+}
+
+.cont_btn_login {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.btn_login {
+  margin-right: 5rem !important;
+}
+.main_home {
+  position: relative;
+}
+
+.img_fondo {
+  display: block;
+  width: 100%;
+  height: 85vh;
+  position: absolute;
+}
+
+.cont_login {
+  width: 40%;
+  height: 350px;
+  background-color: var(--primary);
+  position: absolute;
+  z-index: 100;
+  margin-top: 3rem;
+
+  left: 30%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.input_login {
+  background-color: white;
+  color: black !important;
+  border-radius: 5px !important;
+  margin: 1rem !important;
+}
+
+.btn_login {
+  border: white;
+}
+
+.list_card {
+  display: flex;
+  /* flex-wrap: wrap; */
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+  text-align: center;
+}
+.card {
+  width: 40%;
+  height: 350px;
+  background-color: var(--primary);
+  cursor: pointer;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem;
+}
+
+.logo {
+  width: 100px;
+  height: 100px;
+}
+
+.cont_usuario {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  width: 100%;
+  margin-right: 2rem;
+}
+.nav_recetas {
+  display: flex;
+}
+
+.cont_recetas {
+  border: 2px grey solid;
+  border-radius: 5px;
+  margin-top: 2rem;
+  padding: 2rem;
+}
+
+.txt_tab {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.select_recetas {
+  padding: 1rem;
+}
+.select_recetas * {
+  color: white !important;
+  font-weight: 700 !important;
+}
+
+/* esta clase, no la cree yo, tuve que fijarme en la clase que 
+usa antd en su select mediante el inspector de elementos para poder identificar al elemento y darle el
+ color que queria */
+.ant-select-selection-item {
+  border: 2px var(--primary) solid !important;
+  background-color: cornflowerblue !important;
+}
+
+.cont_videos {
+  display: flex;
+  flex-wrap: wrap;
+  border: 5px var(--primary) solid;
+  border-radius: 5px;
+  width: 100%;
+  justify-content: start;
+  text-align: center;
+}
+
+.cont_video {
+  margin: 1rem !important;
+  border-radius: 5px;
+  overflow: hidden;
+  width: 250px;
+  height: 150px;
+}
+
+
+
+.tabla {
+    width: 65%;
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
+      rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    border-radius: 5px;
+  }
