@@ -16,6 +16,11 @@ import { Ejercicio } from "./Ejercicio";
 import { Info } from "./Info";
 import { Recetas } from "./Recetas";
 import { Administracion } from "./Administracion";
+
+import { ChakraProvider } from "@chakra-ui/react";
+
+
+
 export const MainApp = () => {
 
   const [tabIndex, setTabIndex] = useState(0)
@@ -32,6 +37,7 @@ export const MainApp = () => {
       <Header />
 
       <Nav bandLogin={false} bandHospital={true} />
+      <ChakraProvider>
 
       <Tabs index={tabIndex}  onChange={handleTabsChange} position="relative" variant="unstyled">
         <TabList>
@@ -70,6 +76,7 @@ export const MainApp = () => {
           </TabPanel>
         </TabPanels>
       </Tabs>
+      </ChakraProvider>
     </div>
   );
 };

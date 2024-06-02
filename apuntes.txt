@@ -1,0 +1,15 @@
+HOSTING
+
+TIPOS DE HOSTING
+
+-SERVICIO COMPARTIDO:
+es gestionado por el proveedor
+-EL VPS:
+hace lo mismo que el servicio compartido, pero funciona de forma diferente
+utiliza una tecnologia de virtualizacion y separa fisicamente el servidor en varias partes
+y funciona de manera independiente, como servidores distintos 
+entonces garantiza que el rendimiento de uno no se ve afectado por el otro
+-HOSTING DEDICADO
+es un servidor completo para un cliente, no se comparte nada
+-CLOUD HOSTING
+usa una red entera de servidores

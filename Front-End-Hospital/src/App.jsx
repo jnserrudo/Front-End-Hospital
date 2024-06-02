@@ -7,14 +7,13 @@ import { Home } from "./Pages/Home";
 import { PageNotFound } from "./Pages/PageNotFound";
 import { Login } from "./Pages/Login";
 import { MainApp } from "./Pages/MainApp";
-import { ChakraProvider } from "@chakra-ui/react";
+
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <>
-      <ChakraProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />}></Route>
@@ -24,7 +23,6 @@ function App() {
             <Route path="/*" element={<PageNotFound />}></Route>
           </Routes>
         </BrowserRouter>
-      </ChakraProvider>
     </>
   );
 }
