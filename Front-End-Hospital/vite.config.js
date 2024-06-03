@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/',
   build: {
-    outDir: '../Front-End-Hospital/Front-End-Hospital/dist',
+    outDir: '../Front-End-Hospital/dist',
     rollupOptions: {
       output: {
         assetFileNames: 'assets/[name]-[hash][extname]',
