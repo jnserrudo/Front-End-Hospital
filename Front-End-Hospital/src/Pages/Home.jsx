@@ -21,7 +21,7 @@ export const Home = () => {
       
 
       <main className='main_home'>
-        <img src="../../public/fondo.jpg"  className='img_fondo' alt="" />
+        <img src="/fondo.jpg"  className='img_fondo' alt="" />
         {bandLogin?<Login/>:null}  
       </main>
 

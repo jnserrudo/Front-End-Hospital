@@ -57,7 +57,7 @@ export const MainApp = () => {
         <TabPanels>
           <TabPanel>
             <main className="main_home">
-              <img src="../../public/fondo.jpg" className="img_fondo" alt="" />
+              <img src="/fondo.jpg" className="img_fondo" alt="" />
 
               <ListCard setTabIndex={setTabIndex} />
             </main>

@@ -59,7 +59,7 @@ export const Ejercicio = () => {
   return (
     <div>
       <nav className="nav_recetas">
-        <img src="../../public/recetas.svg" alt="" />
+        <img src="/recetas.svg" alt="" />
         <div className="cont_sel_recetas">
           <p>Recetas Saludables</p>
           <b>Elige Patología</b>

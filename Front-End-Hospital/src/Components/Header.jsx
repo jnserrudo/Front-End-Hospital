@@ -5,7 +5,7 @@ export const Header = () => {
   return (
     <div className='header' >
       
-    <img  className='logo_hospital' src="../../public/logoOñativia.png" alt="" />
+    <img  className='logo_hospital' src="/logoOñativia.png" alt="" />
       <p className='titulo txt' >HOSPITAL OÑATIVIA</p>
       
       <img src="" alt="" />
