@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '../Front-End-Hospital/Front-End-Hospital/dist/',
+  base: './',
   build: {
     outDir: '../Front-End-Hospital/dist',
     rollupOptions: {
