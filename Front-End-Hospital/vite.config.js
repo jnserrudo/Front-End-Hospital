@@ -6,9 +6,16 @@ export default defineConfig({
   base: '/',
   build: {
     outDir: '../Front-End-Hospital/Front-End-Hospital/dist',
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+      },
+    },
   },
   server: {
     host: '0.0.0.0',
     port: 3000,
-  }
+  },
 });
