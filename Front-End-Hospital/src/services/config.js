@@ -1,0 +1,1 @@
+export let entorno='http://localhost:1234/api'

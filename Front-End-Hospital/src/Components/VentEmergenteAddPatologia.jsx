@@ -1,28 +1,29 @@
+import React, { useEffect } from "react";
+import { EditPatologia } from "./EditPatologia";
+import { Button, ButtonGroup } from '@chakra-ui/react'
 
-import React, { useEffect } from 'react'
-import { EditPaciente } from './EditPaciente';
+import { CloseOutlined } from "@ant-design/icons";
+import { AddPatologia } from "./AddPatologia";
 
-import {CloseOutlined} from '@ant-design/icons';
-import { AddPaciente } from './AddPaciente';
-
-export const VentEmergenteAddPaciente = ({isOpen,onClose}) => {
-    if (!isOpen) {
-        return null;
-      }
-
-    
+export const VentEmergenteAddPatologia = ({ isOpen, onClose }) => {
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="popup-container">
       <div className="popup-content">
         <div className="header_vent_emergente">
-        <h2 className={`popup-title`} >Paciente</h2> 
-        <CloseOutlined  className='icon_accion icons' onClick={onClose} />
+          <h2 className={`popup-title`}>Patologia</h2>
+          <CloseOutlined className="icon_accion icons" onClick={onClose} />
         </div>
-        
-        <AddPaciente />
-        <button className={`popup-close-btn`} onClick={onClose}>Aceptar</button>
+
+        <AddPatologia />
+
+        <Button className={`popup-close-btn`} onClick={onClose} colorScheme='blue' >
+          Aceptar
+        </Button>
       </div>
     </div>
-  )
-}
+  );
+};

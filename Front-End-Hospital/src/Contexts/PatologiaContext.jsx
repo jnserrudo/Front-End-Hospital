@@ -1,10 +1,10 @@
 import React, { createContext, useEffect, useState } from "react";
 import {
-  getAllPacientes,
-  getPacienteByNdocu,
-  insertPaciente,
-  updatePaciente,
-} from "../services/pacientes-services";
+  getAllPatologias,
+  getPatologiaById,
+  insertPatologia,
+  updatePatologia,
+} from "../services/patologia-services";
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
 const PatologiaContext = createContext();
 export const PatologiaProvider = ({ children }) => {
@@ -36,50 +36,13 @@ export const PatologiaProvider = ({ children }) => {
     // en esta validacion aparecen los 4 mensajes al mismo tiempo, se debera pensar la manera en la cual simplemente aparezca por el input que se esta viendo, tambien creo que la validacion se deberia hacer cuando se envie el formulario
     console.log(form);
 
-    if (!form?.dni && form?.dni <= 0) {
-      errors.lugar = "El documento es requerido";
+    if (!form?.nombre && form?.nombre?.length == 0) {
+      errors.nombre = "El documento es requerido";
     }
-    if (!form?.nombre && !form?.nombre?.length == 0) {
-      errors.nombre = "El nombre es requerido";
-    }
-
-    if (!form?.apellido && !form?.apellido?.length == 0) {
-      errors.apellido = "El apellido es requerido";
+    if (!form?.descripcion && !form?.descripcion?.length == 0) {
+      errors.descripcion = "El nombre es requerido";
     }
 
-    if (!form?.obraSocial && !form?.obraSocial?.length == 0) {
-      errors.obraSocial = "La obra social es requerida";
-    }
-
-    if (!form?.plan && !form?.plan?.length == 0) {
-      errors.plan = "El plan es requerido";
-    }
-
-    if (!form?.domicilio) {
-      errors.domicilio = "El domicilio es requerido";
-    }
-
-    if (!form?.celular) {
-      errors.celular = "El telefono es requerido";
-    }
-    if (!form?.nroAfiliado&&!form?.nroAfiliado<=0) {
-      errors.celular = "El telefono es requerido";
-    }
-/* 
-    if (!form?.vacunas) {
-      errors.vacunas = "Las vacunas son requeridas";
-    }
-
-    if (!form?.afp) {
-      errors.afp = "Las afp son requeridas";
-    }
-
-    if (!form?.app) {
-      errors.app = "Las app son requeridas";
-    } */
-    /* if (!form?.alergias) {
-      errors.alergias = "Las alergias son requeridas";
-    } */
 
     return errors;
   };
@@ -156,9 +119,9 @@ export const PatologiaProvider = ({ children }) => {
   ];
  */
 
-  const handleEditPacient = (patologia) => {
+  const handleEditPatologia = (patologia) => {
     console.log("editando: ", patologia);
-    setnomPatologiaPatologia(patologia.dni);
+    setnomPatologia(patologia.dni);
     setShowVentEmergenteEditPatologia(true);
   };
 
@@ -187,32 +150,27 @@ export const PatologiaProvider = ({ children }) => {
 
   useEffect(() => {
     const getPatologiabynomPatologia = async () => {
-      let patologia = await getPatologiaBynomPatologia(nomPatologiaPatologia);
+      let patologia = await getPatologiaBynomPatologia(nomPatologia);
       setPatologiaSelected(patologia);
     };
-    if (nomPatologiaPatologia > 0) {
+    if (nomPatologia > 0) {
       getPatologiabynomPatologia();
     }
-  }, [nomPatologiaPatologia]);
+  }, [nomPatologia]);
 
   const columns = [
     {
-      title: "DNI",
-      dataIndex: "dni",
+      title: "Nombre",
+      dataIndex: "nombre",
       render: (text) => <a>{text}</a>,
       align: "center",
     },
     {
-      title: "Nombre",
-      dataIndex: "nombre",
+      title: "Descripcion",
+      dataIndex: "descripcion",
       align: "center",
     },
-    {
-      title: "Apellido",
-      dataIndex: "apellido",
-      align: "center",
-    },
-
+   
     {
       title: "Acciones",
       key: "acciones",
@@ -221,11 +179,11 @@ export const PatologiaProvider = ({ children }) => {
         <div className="cont_acciones">
           {/* <EditOutlined
             className="icon_accion"
-            onClick={(e) => handleEditPacient(record)}
+            onClick={(e) => handleEditPatologia(record)}
           /> */}
           <DragOutlined
             className="icon_accion"
-            onClick={(e) => handleEditPacient(record)}
+            onClick={(e) => handleEditPatologia(record)}
           />
         </div>
       ),
@@ -303,7 +261,7 @@ export const PatologiaProvider = ({ children }) => {
     validationsForm,
     setBandInsert,
     handleChangeInputInsert,
-    handleEditPacient: handleEditPacient,
+    handleEditPatologia: handleEditPatologia,
     handleSeePacient: handleSeePacient,
     handleCloseVentEmergenteEditPatologia: handleCloseVentEmergenteEditPatologia,
     handleChangeInput,
@@ -318,4 +276,4 @@ export const PatologiaProvider = ({ children }) => {
     </PatologiaContext.Provider>
   );
 };
-export default PacientesContext;
+export default PatologiaContext;

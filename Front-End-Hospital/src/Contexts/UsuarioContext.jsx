@@ -1,28 +1,30 @@
 import React, { createContext, useEffect, useState } from "react";
 import {
-  getAllPacientes,
-  getPacienteByNdocu,
-  insertPaciente,
-  updatePaciente,
-} from "../services/pacientes-services";
+  getAllUsuarios,
+  getUsuarioById,
+  insertUsuario,
+  updateUsuario,
+} from "../services/usuario-services";
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
 const UsuarioContext = createContext();
 export const UsuarioProvider = ({ children }) => {
   const [db, setDb] = useState([]);
-  const [dbSearch, setDbSearch] = useState([])
-  const [nomUsuario, setNomUsuario] = useState(0);
+  const [dbSearch, setDbSearch] = useState([]);
+  const [nomUsuario, setNomUsuario] = useState('');
+  const [rolUsuario, setRolUsuario] = useState(0);
   const [usuarioSelected, setUsuarioSelected] = useState({});
 
   const [showVentEmergenteEditUsuario, setShowVentEmergenteEditUsuario] =
     useState(false);
-    const [showVentEmergenteAddUsuario, setShowVentEmergenteAddUsuario] =
+  const [showVentEmergenteAddUsuario, setShowVentEmergenteAddUsuario] =
     useState(false);
   const [usuarioToInsert, setUsuarioToInsert] = useState({});
   const [bandInsert, setBandInsert] = useState(false);
 
-  const [showVentEmergenteConfUsuario, setShowVentEmergenteConfUsuario] = useState(false);
+  const [showVentEmergenteConfUsuario, setShowVentEmergenteConfUsuario] =
+    useState(false);
 
-  const [bandLoader, setBandLoader] = useState(false)
+  const [bandLoader, setBandLoader] = useState(false);
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -36,72 +38,26 @@ export const UsuarioProvider = ({ children }) => {
     // en esta validacion aparecen los 4 mensajes al mismo tiempo, se debera pensar la manera en la cual simplemente aparezca por el input que se esta viendo, tambien creo que la validacion se deberia hacer cuando se envie el formulario
     console.log(form);
 
-    if (!form?.dni && form?.dni <= 0) {
-      errors.lugar = "El documento es requerido";
-    }
-    if (!form?.nombre && !form?.nombre?.length == 0) {
-      errors.nombre = "El nombre es requerido";
-    }
-
-    if (!form?.apellido && !form?.apellido?.length == 0) {
-      errors.apellido = "El apellido es requerido";
-    }
-
-    if (!form?.obraSocial && !form?.obraSocial?.length == 0) {
-      errors.obraSocial = "La obra social es requerida";
-    }
-
-    if (!form?.plan && !form?.plan?.length == 0) {
-      errors.plan = "El plan es requerido";
-    }
-
-    if (!form?.domicilio) {
-      errors.domicilio = "El domicilio es requerido";
-    }
-
-    if (!form?.celular) {
-      errors.celular = "El telefono es requerido";
-    }
-    if (!form?.nroAfiliado&&!form?.nroAfiliado<=0) {
-      errors.celular = "El telefono es requerido";
-    }
-/* 
-    if (!form?.vacunas) {
-      errors.vacunas = "Las vacunas son requeridas";
-    }
-
-    if (!form?.afp) {
-      errors.afp = "Las afp son requeridas";
-    }
-
-    if (!form?.app) {
-      errors.app = "Las app son requeridas";
-    } */
-    /* if (!form?.alergias) {
-      errors.alergias = "Las alergias son requeridas";
-    } */
-
     return errors;
   };
 
-  const handleSearch=(busq)=>{
-    console.log(busq)
-    console.log(db)
-    let coincidencias=[]
-    for(let pac of db){
-      for(let x of Object.values(pac) ){
-        if(x.toString().toLowerCase().includes(busq.toLowerCase())){
-          console.log(x)
-          coincidencias.push(pac)
+  const handleSearch = (busq) => {
+    console.log(busq);
+    console.log(db);
+    let coincidencias = [];
+    for (let pac of db) {
+      for (let x of Object.values(pac)) {
+        if (x.toString().toLowerCase().includes(busq.toLowerCase())) {
+          console.log(x);
+          coincidencias.push(pac);
           break;
         }
       }
     }
 
-    setDbSearch(coincidencias)
-    console.log("coincidencias: ",coincidencias)
-  }
-
+    setDbSearch(coincidencias);
+    console.log("coincidencias: ", coincidencias);
+  };
 
   const handleCloseVentEmergenteEditUsuario = () => {
     setShowVentEmergenteEditUsuario(false);
@@ -115,17 +71,16 @@ export const UsuarioProvider = ({ children }) => {
     setShowVentEmergenteConfUsuario(false);
   };
 
-  const handleCloseConfInsert=async()=>{
+  const handleCloseConfInsert = async () => {
     //se confirmo que se agregara el Usuario
-    setBandLoader(true)
-    await handleInsert()
-   
-    setUsuarioToInsert({})
-    setBandInsert(false)
-    setBandLoader(false)
+    setBandLoader(true);
+    await handleInsert();
+
+    setUsuarioToInsert({});
+    setBandInsert(false);
+    setBandLoader(false);
     //de alguna manera actualizar la tabla para que se pueda ver al nuevo Usuario
-  
-  }
+  };
 
   const handleChangeInputInsert = (e) => {
     console.log("name: ", e.target.name, " value: ", e.target.value);
@@ -162,24 +117,21 @@ export const UsuarioProvider = ({ children }) => {
     setShowVentEmergenteEditUsuario(true);
   };
 
-  const handleUpdate=async(usuario)=>{
-      
-    const actualizarUsuario=async(usuario)=>{
-      console.log("se esta por actualizar este usuario: ",usuario)
-      const update=await updateUsuario(usuario)
-      console.log("update: ",update)
-    }
-    
-      //activar loader
-      setBandLoader(true);
-      let resupdate=await  actualizarUsuario(usuario)
-      getallUsuarios();
+  const handleUpdate = async (usuario) => {
+    const actualizarUsuario = async (usuario) => {
+      console.log("se esta por actualizar este usuario: ", usuario);
+      const update = await updateUsuario(usuario);
+      console.log("update: ", update);
+    };
 
-      console.log(resupdate)
-      setBandLoader(false);
-    
+    //activar loader
+    setBandLoader(true);
+    let resupdate = await actualizarUsuario(usuario);
+    getallUsuarios();
 
-  }
+    console.log(resupdate);
+    setBandLoader(false);
+  };
 
   const handleSeePacient = (usuario) => {
     console.log("viendo: ", usuario);
@@ -187,13 +139,13 @@ export const UsuarioProvider = ({ children }) => {
 
   useEffect(() => {
     const getUsuariobynomUsuario = async () => {
-      let usuario = await getUsuarioBynomUsuario(nomUsuarioUsuario);
+      let usuario = await getUsuarioById(nomUsuario);
       setUsuarioSelected(usuario);
     };
-    if (nomUsuarioUsuario > 0) {
+    if (nomUsuario > 0) {
       getUsuariobynomUsuario();
     }
-  }, [nomUsuarioUsuario]);
+  }, [nomUsuario]);
 
   const columns = [
     {
@@ -232,13 +184,13 @@ export const UsuarioProvider = ({ children }) => {
     },
   ];
 
-  const handleInsert = async() => {
+  const handleInsert = async () => {
     if (bandInsert) {
       //validar para insert
-      console.log(" se esta por insertar el usuario: ", usuarioToInsert)
+      console.log(" se esta por insertar el usuario: ", usuarioToInsert);
       await addUsuario(usuarioToInsert);
-      handleCloseVentEmergenteConfUsuario()
-      handleCloseVentEmergenteAddUsuario()
+      handleCloseVentEmergenteConfUsuario();
+      handleCloseVentEmergenteAddUsuario();
     }
   };
   const addUsuario = async (usuario) => {
@@ -255,8 +207,8 @@ export const UsuarioProvider = ({ children }) => {
       usuario.alergias
     );
     console.log(insert);
-      //esto es solo de prueba para que se visualize momentaneamente el usuario agregado
-      setDb([usuario,...db])
+    //esto es solo de prueba para que se visualize momentaneamente el usuario agregado
+    setDb([usuario, ...db]);
 
     return insert;
   };
@@ -267,8 +219,6 @@ export const UsuarioProvider = ({ children }) => {
     setDb(usuarios);
   };
   useEffect(() => {
-    
-
     getallUsuarios();
   }, []);
 
@@ -290,10 +240,14 @@ export const UsuarioProvider = ({ children }) => {
     setShowVentEmergenteEditUsuario: showVentEmergenteEditUsuario,
     usuarioToInsert,
     bandInsert,
-    showVentEmergenteAddUsuario, 
-    showVentEmergenteConfUsuario, 
+    showVentEmergenteAddUsuario,
+    showVentEmergenteConfUsuario,
     bandLoader,
     dbSearch,
+    nomUsuario,
+    rolUsuario,
+    setNomUsuario,
+    setRolUsuario,
     handleSearch,
     handleCloseConfInsert,
     setShowVentEmergenteConfUsuario,
@@ -309,13 +263,10 @@ export const UsuarioProvider = ({ children }) => {
     handleChangeInput,
     addUsuario,
     handleInsert,
-    handleUpdate
+    handleUpdate,
   };
   return (
-    <UsuarioContext.Provider value={data}>
-      {" "}
-      {children}{" "}
-    </UsuarioContext.Provider>
+    <UsuarioContext.Provider value={data}> {children} </UsuarioContext.Provider>
   );
 };
-export default PacientesContext;
+export default UsuarioContext;

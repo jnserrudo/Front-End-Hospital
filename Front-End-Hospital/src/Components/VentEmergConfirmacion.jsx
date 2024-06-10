@@ -3,13 +3,12 @@ import { CloseOutlined } from "@ant-design/icons";
 import { Button } from "@mui/material";
 import { Space } from "antd";
 import { useContext } from "react";
-import ConsultaContext from "../Contexts/ConsultaContext";
 import { LoaderEmergente } from "./LoaderEmergente";
-import PacientesContext from "../Contexts/PacienteContext";
+import PatologiasContext from "../Contexts/PatologiaContext";
 
 export const VentEmergConfirmacion = ({ onClosePadre, mje, isOpen, onClose, handleSi }) => {
-  const {bandLoader:bandLoaderConsulta} = useContext(ConsultaContext)
-  const {bandLoader:bandLoaderPaciente} = useContext(PacientesContext)
+  //const {bandLoader:bandLoaderConsulta} = useContext(ConsultaContext)
+  const {bandLoader:bandLoaderPatologia} = useContext(PatologiasContext)
 
   if (!isOpen) {
     return null;
@@ -33,7 +32,7 @@ export const VentEmergConfirmacion = ({ onClosePadre, mje, isOpen, onClose, hand
             onClosePadre()
             }}>Si</Button>
         </Space>
-        {(bandLoaderPaciente || bandLoaderConsulta )? <LoaderEmergente />:null}  
+        {(bandLoaderPatologia || bandLoaderConsulta )? <LoaderEmergente />:null}  
 
        
       </div>

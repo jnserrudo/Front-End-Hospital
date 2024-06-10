@@ -12,10 +12,14 @@
 .titulo {
   font-family: initial !important;
   font-size: xx-large !important;
+  color: white;
 }
 
 .txt {
-  color: white !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  
+  font-size: large !important;
+
 }
 .section {
   padding-left: 1rem;
@@ -36,7 +40,7 @@
 .cont_btn_login {
   display: flex;
 
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
   width: 100%;
   
@@ -84,14 +88,15 @@
 
 .list_card {
   display: flex;
-  /* flex-wrap: wrap; */
+  flex-wrap: wrap;
   position: absolute;
   z-index: 100;
   width: 100%;
   text-align: center;
+  justify-content: center;
 }
 .card {
-  width: 40%;
+  width: 330px;
   height: 350px;
   background-color: var(--primary);
   cursor: pointer;
@@ -101,6 +106,10 @@
   justify-content: center;
   align-items: center;
   margin: 2rem;
+}
+.tablist{
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .logo {
@@ -172,4 +181,17 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
     box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
       rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
     border-radius: 5px;
+  }
+
+  .header_vent_emergente {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+    padding: 0 1rem;
+  }
+  .input_edit{
+    border: 1px black solid;
+    margin: 5px;
+    width: 60% !important;
   }

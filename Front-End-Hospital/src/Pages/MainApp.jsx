@@ -16,6 +16,8 @@ import { Ejercicio } from "./Ejercicio";
 import { Info } from "./Info";
 import { Recetas } from "./Recetas";
 import { Administracion } from "./Administracion";
+import { PanelAdministracion } from "./PanelAdministracion";
+
 
 import { ChakraProvider } from "@chakra-ui/react";
 
@@ -30,6 +32,8 @@ export const MainApp = () => {
     setTabIndex(index)
   }
 
+  
+
   let admin=true
 
   return (
@@ -40,7 +44,7 @@ export const MainApp = () => {
       <ChakraProvider>
 
       <Tabs index={tabIndex}  onChange={handleTabsChange} position="relative" variant="unstyled">
-        <TabList>
+        <TabList className="tablist" >
           <Tab className="txt_tab" >Inicio</Tab>
           <Tab className="txt_tab" >Recetas</Tab>
           <Tab className="txt_tab" >Informarse</Tab>
@@ -72,7 +76,9 @@ export const MainApp = () => {
             <Ejercicio />
           </TabPanel>
           <TabPanel>
-            {admin?<Administracion />:null}
+            {/* {admin?<Administracion />:null} */}
+            {admin? <PanelAdministracion/> :null}
+
           </TabPanel>
         </TabPanels>
       </Tabs>

@@ -7,13 +7,16 @@ import { Home } from "./Pages/Home";
 import { PageNotFound } from "./Pages/PageNotFound";
 import { Login } from "./Pages/Login";
 import { MainApp } from "./Pages/MainApp";
-
+import { UsuarioProvider } from "./Contexts/UsuarioContext";
+import { PatologiaProvider } from "./Contexts/PatologiaContext";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <>
+      <UsuarioProvider>
+        <PatologiaProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />}></Route>
@@ -23,6 +26,9 @@ function App() {
             <Route path="/*" element={<PageNotFound />}></Route>
           </Routes>
         </BrowserRouter>
+        </PatologiaProvider>
+        
+      </UsuarioProvider>
     </>
   );
 }

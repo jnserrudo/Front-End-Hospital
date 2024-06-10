@@ -4,34 +4,31 @@ import { ListVideos } from "../Components/ListVideos";
 
 export const Info = () => {
   //esta vble videos sera reemplazada por un listado de videos que ser iran cargando con sus URLs en la BD
-
+  
   let videos = [
     {
-      url: "https://www.youtube.com/watch?v=9V_HpS9p4QY",
+      url: "https://www.youtube.com/embed/9V_HpS9p4QY?si=Y39GmSEWvgUGROZ8",
     },
     {
-      url: "https://www.youtube.com/watch?v=9V_HpS9p4QY",
+      url: "https://www.youtube.com/embed/9V_HpS9p4QY?si=Y39GmSEWvgUGROZ8",
     },
     {
-      url: "https://www.youtube.com/watch?v=9V_HpS9p4QY",
+      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
     },
     {
-      url: "https://www.youtube.com/watch?v=9V_HpS9p4QY",
+      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
     },
     {
-      url: "https://www.youtube.com/watch?v=9V_HpS9p4QY",
+      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
     },
     {
-      url: "https://www.youtube.com/watch?v=9V_HpS9p4QY",
+      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
     },
     {
-      url: "https://www.youtube.com/watch?v=9V_HpS9p4QY",
+      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
     },
     {
-      url: "https://www.youtube.com/watch?v=9V_HpS9p4QY",
-    },
-    {
-      url: "https://www.youtube.com/watch?v=9V_HpS9p4QY",
+      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
     },
   ];
 

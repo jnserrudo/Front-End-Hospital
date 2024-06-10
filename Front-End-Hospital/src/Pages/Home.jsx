@@ -4,6 +4,7 @@ import { Header } from '../Components/Header'
 import '../style.css'
 import { Nav } from '../Components/Nav';
 import { Login } from './Login';
+import "../ventanaEmergente.css";
 
 export const Home = () => {
 
