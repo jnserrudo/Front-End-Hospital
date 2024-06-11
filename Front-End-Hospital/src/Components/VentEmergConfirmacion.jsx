@@ -1,14 +1,20 @@
 import React from "react";
 import { CloseOutlined } from "@ant-design/icons";
-import { Button } from "@mui/material";
+import { Button, ButtonGroup } from "@chakra-ui/react";
 import { Space } from "antd";
 import { useContext } from "react";
 import { LoaderEmergente } from "./LoaderEmergente";
 import PatologiasContext from "../Contexts/PatologiaContext";
 
-export const VentEmergConfirmacion = ({ onClosePadre, mje, isOpen, onClose, handleSi }) => {
+export const VentEmergConfirmacion = ({
+  onClosePadre,
+  mje,
+  isOpen,
+  onClose,
+  handleSi,
+}) => {
   //const {bandLoader:bandLoaderConsulta} = useContext(ConsultaContext)
-  const {bandLoader:bandLoaderPatologia} = useContext(PatologiasContext)
+  const { bandLoader: bandLoaderPatologia } = useContext(PatologiasContext);
 
   if (!isOpen) {
     return null;
@@ -23,18 +29,25 @@ export const VentEmergConfirmacion = ({ onClosePadre, mje, isOpen, onClose, hand
 
         <p> {mje} </p>
         <Space>
-          <Button onClick={onClose}>No</Button>
-          <Button onClick={async()=>{
-            //aca definimos lo que pasara cuando se confirme la operacion
-            //como asi tambien cerramos las ventanas emergente, de esta manera podemos reusar este componente en varios casos
-            await handleSi()
-            onClose()
-            onClosePadre()
-            }}>Si</Button>
+          <Button colorScheme="blue" onClick={onClose}>
+            No
+          </Button>
+          <Button
+            colorScheme="green"
+            onClick={async () => {
+              //aca definimos lo que pasara cuando se confirme la operacion
+              //como asi tambien cerramos las ventanas emergente, de esta manera podemos reusar este componente en varios casos
+              await handleSi();
+              onClose();
+              onClosePadre();
+            }}
+          >
+            Si
+          </Button>
         </Space>
-        {(bandLoaderPatologia || bandLoaderConsulta )? <LoaderEmergente />:null}  
-
-       
+        {bandLoaderPatologia /* || bandLoaderConsulta */ ? (
+          <LoaderEmergente />
+        ) : null}
       </div>
     </div>
   );

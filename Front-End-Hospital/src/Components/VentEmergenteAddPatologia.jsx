@@ -18,7 +18,7 @@ export const VentEmergenteAddPatologia = ({ isOpen, onClose }) => {
           <CloseOutlined className="icon_accion icons" onClick={onClose} />
         </div>
 
-        <AddPatologia />
+        <AddPatologia onClosePadre={onClose} />
 
         <Button className={`popup-close-btn`} onClick={onClose} colorScheme='blue' >
           Aceptar

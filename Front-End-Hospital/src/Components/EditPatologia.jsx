@@ -1,9 +1,11 @@
-import { Button, TextField } from "@mui/material";
+import { Button, ButtonGroup } from "@chakra-ui/react";
 import { Space } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import "../style.css";
 import PatologiasContext from "../Contexts/PatologiaContext";
 import { useNavigate } from "react-router-dom";
+import { Input } from "@chakra-ui/react";
+
 export const EditPatologia = ({ patologia,onCloseEdit }) => {
   console.log("edit patologia: ", patologia);
 
@@ -17,28 +19,6 @@ export const EditPatologia = ({ patologia,onCloseEdit }) => {
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
 
-  const [showVentEmergenteVacunas, setShowVentEmergenteVacunas] =
-    useState(false);
-  const [showVentEmergenteAFP, setShowVentEmergenteAFP] = useState(false);
-  const [showVentEmergenteAPP, setShowVentEmergenteAPP] = useState(false);
-  const [showVentEmergenteAlergias, setShowVentEmergenteAlergias] =
-    useState(false);
-
-  const handleCloseVentEmergenteVacunas = () => {
-    setShowVentEmergenteVacunas(false);
-  };
-  const handleCloseVentEmergenteAFP = () => {
-    setShowVentEmergenteAFP(false);
-  };
-  const handleCloseVentEmergenteAPP = () => {
-    setShowVentEmergenteAPP(false);
-  };
-  const handleCloseVentEmergenteAlergias = () => {
-    setShowVentEmergenteAlergias(false);
-  };
-  const handleCloseVentEmergente = () => {
-    setShowVentEmergenteConfirmacion(false);
-  };
 
   const { handleChangeInput,handleUpdate } = useContext(PatologiasContext);
   if (!patologia) {
@@ -57,7 +37,7 @@ export const EditPatologia = ({ patologia,onCloseEdit }) => {
       </h2>
  */}
       <div className="cont_input_edit">
-        <TextField
+        <Input
           className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
           label="Nombre"
           name="nombre"
@@ -67,7 +47,7 @@ export const EditPatologia = ({ patologia,onCloseEdit }) => {
           value={patologia.nombre ? patologia.nombre : ""}
           onChange={(e) => handleChangeInput(e)}
         />
-        <TextField
+        <Input
           className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
           label="Apellido"
           name="apellido"
@@ -78,120 +58,8 @@ export const EditPatologia = ({ patologia,onCloseEdit }) => {
           onChange={(e) => handleChangeInput(e)}
         />
       </div>
-      <div className="cont_input_edit">
-        <TextField
-          className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-          label="DNI"
-          name="dni"
-          variant="outlined"
-          type="number"
-          disabled={!bandEdit}
-          value={ patologia?.dni ? +patologia?.dni : 0 }
-          onChange={(e) => handleChangeInput(e)}
-        />
-        <TextField
-          className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-          label="Obra Social"
-          name="obraSocial"
-          variant="outlined"
-          type="text"
-          disabled={!bandEdit}
-          value={patologia?.obraSocial ? patologia?.obraSocial : ""}
-          onChange={(e) => handleChangeInput(e)}
-        />
-      </div>
-      <div>
-        <TextField
-          className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-          label="Plan"
-          name="plan"
-          variant="outlined"
-          type="text"
-          disabled={!bandEdit}
-          value={patologia.plan ? patologia.plan : ""}
-          onChange={(e) => handleChangeInput(e)}
-        />
-        <TextField
-          className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-          label="Domicilio"
-          name="domicilio"
-          variant="outlined"
-          type="text"
-          disabled={!bandEdit}
-          value={patologia.domicilio ? patologia.domicilio : ""}
-          onChange={(e) => handleChangeInput(e)}
-        />
-      </div>
-      <div className="cont_input_edit">
-        <TextField
-          className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-          label="N° Afiliado"
-          name="nroAfiliado"
-          variant="outlined"
-          type="text"
-          disabled={!bandEdit}
-          value={patologia.nroAfiliado ? +patologia.nroAfiliado : 0}
-          onChange={(e) => handleChangeInput(e)}
-        />
-        <TextField
-          className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-          label="Celular"
-          name="celular"
-          variant="outlined"
-          type="number"
-          disabled={!bandEdit}
-          value={patologia.celular ? patologia.celular : ""}
-          onChange={(e) => handleChangeInput(e)}
-        />
-      </div>
-      <div className="cont_input_edit">
-        <Button
-          variant="contained"
-          color="secondary"
-          size="large"
-          className="input_edit"
-          onClick={() => setShowVentEmergenteVacunas(true)}
-        >
-          Vacunas
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          size="large"
-          className="input_edit"
-          onClick={() => setShowVentEmergenteAFP(true)}
-        >
-          AFP
-        </Button>
-      </div>
-      <div className="cont_input_edit">
-        <Button
-          variant="contained"
-          color="secondary"
-          size="large"
-          className="input_edit"
-          onClick={() => setShowVentEmergenteAPP(true)}
-        >
-          APP
-        </Button>
-        <Button
-          className="input_edit"
-          variant="contained"
-          color="secondary"
-          size="large"
-          onClick={() => setShowVentEmergenteAlergias(true)}
-        >
-          Alergias
-        </Button>
-      </div>
+      
       <div className="cont_btns_acciones_patologia">
-        <Button
-          className="btn_accion_edit_patologia"
-          variant="contained"
-          onClick={() => handleShowConsulta(patologia.dni)}
-        >
-          Consultas
-        </Button>
 
         {!bandEdit ? (
           <Button

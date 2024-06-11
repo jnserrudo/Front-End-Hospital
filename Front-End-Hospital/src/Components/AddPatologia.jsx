@@ -1,48 +1,25 @@
-
 import React, { useContext, useEffect, useState } from "react";
-import { Button, ButtonGroup } from '@chakra-ui/react'
+import { Button, ButtonGroup } from "@chakra-ui/react";
 import "../style.css";
 import PatologiasContext from "../Contexts/PatologiaContext";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
-import { Input } from '@chakra-ui/react'
-export const AddPatologia = () => {
+import { Input } from "@chakra-ui/react";
+export const AddPatologia = ({ onClosePadre }) => {
   const {
     patologiaToInsert,
     handleChangeInputInsert,
     addPatologia,
     bandInsert,
     handleInsert,
-    showVentEmergConfirmacion, 
+    showVentEmergConfirmacion,
     setShowVentEmergConfirmacion,
-    handleCloseVentEmergConfirmacion
+    handleCloseVentEmergConfirmacion,
   } = useContext(PatologiasContext);
 
-  const [showVentEmergenteVacunas, setShowVentEmergenteVacunas] =
-    useState(false);
-  const [showVentEmergenteAFP, setShowVentEmergenteAFP] = useState(false);
-  const [showVentEmergenteAPP, setShowVentEmergenteAPP] = useState(false);
-  const [showVentEmergenteAlergias, setShowVentEmergenteAlergias] = useState(false);
-
-
-
-  const handleCloseVentEmergenteVacunas = () => {
-    setShowVentEmergenteVacunas(false);
-  };
-  const handleCloseVentEmergenteAFP = () => {
-    setShowVentEmergenteAFP(false);
-  };
-  const handleCloseVentEmergenteAPP = () => {
-    setShowVentEmergenteAPP(false);
-  };
-  const handleCloseVentEmergenteAlergias = () => {
-    setShowVentEmergenteAlergias(false);
-  };
+  
   return (
     <div className="form_edit_patologia">
-      {/* <h2>
-        {patologia.nombre} {patologia.apellido}{" "}
-      </h2>
- */}
+     
       <div className="cont_input_edit">
         <Input
           className={`input_edit`}
@@ -63,13 +40,11 @@ export const AddPatologia = () => {
           onChange={(e) => handleChangeInputInsert(e)}
         />
       </div>
-     
-      
 
       {bandInsert ? (
         <Button
           className="btn_accion_edit_patologia"
-          colorScheme='green'
+          colorScheme="green"
           style={{ margin: "1rem auto 0" }}
           onClick={() => setShowVentEmergConfirmacion(true)}
         >
@@ -78,11 +53,12 @@ export const AddPatologia = () => {
       ) : null}
 
       <VentEmergConfirmacion
-        isOpen={showVentEmergConfirmacion}
+        onClosePadre={onClosePadre}
         onClose={handleCloseVentEmergConfirmacion}
-        handleInsert={handleInsert}
+        mje={"Esta seguro de agregar a la patologia? "}
+        handleSi={handleInsert}
+        isOpen={showVentEmergConfirmacion}
       />
-      
     </div>
   );
 };

@@ -14,6 +14,8 @@ export const getPatologiaById = async (id) => {
   return data;
 };
 
+
+
 export const updatePatologia = async (patologia) => {
   const res = await fetch(`${entorno}/patologias/${patologia.id}`, {
     method: "PUT",
@@ -27,34 +29,14 @@ export const updatePatologia = async (patologia) => {
 };
 
 export const insertPatologia = async (
-  ndocu,
-  obraSocial,
-  plan,
-  domicilio,
-  nroAfiliado,
-  telefono,
-  vacunas,
-  afp,
-  app,
-  alergias
+  patologia
 ) => {
   const res = await fetch(`${entorno}/patologias`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      ndocu,
-      obraSocial,
-      plan,
-      domicilio,
-      nroAfiliado,
-      telefono,
-      vacunas,
-      afp,
-      app,
-      alergias,
-    }),
+    body: JSON.stringify(patologia),
   });
   const data = await res.json();
   return data;

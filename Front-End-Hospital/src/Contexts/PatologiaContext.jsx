@@ -10,7 +10,7 @@ const PatologiaContext = createContext();
 export const PatologiaProvider = ({ children }) => {
   const [db, setDb] = useState([]);
   const [dbSearch, setDbSearch] = useState([])
-  const [nomPatologia, setNomPatologia] = useState(0);
+  const [idPatologia, setIdPatologia] = useState(0);
   const [patologiaSelected, setPatologiaSelected] = useState({});
 
   const [showVentEmergenteEditPatologia, setShowVentEmergenteEditPatologia] =
@@ -121,7 +121,7 @@ export const PatologiaProvider = ({ children }) => {
 
   const handleEditPatologia = (patologia) => {
     console.log("editando: ", patologia);
-    setnomPatologia(patologia.dni);
+    setIdPatologia(patologia.id);
     setShowVentEmergenteEditPatologia(true);
   };
 
@@ -149,16 +149,22 @@ export const PatologiaProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const getPatologiabynomPatologia = async () => {
-      let patologia = await getPatologiaBynomPatologia(nomPatologia);
+    const getPatologiabyId = async () => {
+      let patologia = await getPatologiaById(idPatologia);
       setPatologiaSelected(patologia);
     };
-    if (nomPatologia > 0) {
-      getPatologiabynomPatologia();
+    if (idPatologia > 0) {
+      getPatologiabyId();
     }
-  }, [nomPatologia]);
+  }, [idPatologia]);
 
   const columns = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      render: (text) => <a>{text}</a>,
+      align: "center",
+    },
     {
       title: "Nombre",
       dataIndex: "nombre",
@@ -200,18 +206,7 @@ export const PatologiaProvider = ({ children }) => {
     }
   };
   const addPatologia = async (patologia) => {
-    let insert = await insertPatologia(
-      patologia.dni,
-      patologia.obraSocial,
-      patologia.plan,
-      patologia.domicilio,
-      patologia.nroAfiliado,
-      patologia.telefono,
-      patologia.vacunas,
-      patologia.afp,
-      patologia.app,
-      patologia.alergias
-    );
+    let insert = await insertPatologia(patologia);
     console.log(insert);
       //esto es solo de prueba para que se visualize momentaneamente el patologia agregado
       setDb([patologia,...db])

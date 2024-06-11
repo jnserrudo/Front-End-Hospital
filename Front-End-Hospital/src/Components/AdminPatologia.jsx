@@ -9,7 +9,7 @@ import { VentEmergenteAddPatologia } from "./VentEmergenteAddPatologia";
 import { VentEmergenteEditPatologia } from "./VentEmergenteEditPatologia";
 export const AdminPatologia = () => {
   const {
-    
+    db,
     columns,
     patologiaSelected,
     showVentEmergenteEditPatologia,
@@ -38,7 +38,7 @@ console.log(columns)
         pagination={{ position: ["none", "bottomRight"], pageSize: 5 }}
         /* el pageSize determina la cantidad filas por tabla */
 
-        /* dataSource={dbSearch.length > 0 ? dbSearch : db} */
+        dataSource={db}
       />
 
       <VentEmergenteAddPatologia
