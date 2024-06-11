@@ -26,7 +26,7 @@ export const Login = () => {
     const usuarios = await getAllUsuarios();
     console.log("usuarios", usuarios);
     if (usuarios) {
-      let matchUsuario = usuarios.findIndex((u) => u.nombre == nombre);
+      let matchUsuario = usuarios?.findIndex((u) => u.nombre == nombre);
       if (matchUsuario >= 0) {
         //encontro a un usuario, veamos si esta bien su contraseña
         if (usuarios[matchUsuario].password == password) {
