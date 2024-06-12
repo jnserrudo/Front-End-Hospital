@@ -47,7 +47,7 @@
 }
 
 .btn_login {
-  margin-right: 5rem !important;
+  /* margin-right: 5rem !important; */
 }
 .main_home {
   position: relative;
@@ -61,18 +61,19 @@
 }
 
 .cont_login {
-  width: 50%;
+  
+  width:50%;
   height: 350px;
   background-color: var(--primary);
   position: absolute;
   z-index: 100;
   margin-top: 3rem;
-
-  left: 30%;
+  left: 20%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 0.5rem;
 }
 
 .input_login {
@@ -110,6 +111,7 @@
 .tablist{
   display: flex;
   flex-wrap: wrap;
+  color: var(--primary);
 }
 
 .logo {
@@ -163,7 +165,13 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   border-radius: 5px;
   width: 100%;
   justify-content: start;
+  align-items: center;
   text-align: center;
+}
+@media (max-width: 620px) {
+  .cont_videos {
+    justify-content: center;
+  }
 }
 
 .cont_video {
@@ -181,6 +189,8 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
     box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
       rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
     border-radius: 5px;
+    overflow: scroll;
+  margin: 0 auto;
   }
 
   .header_vent_emergente {
@@ -192,6 +202,9 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   }
   .input_edit{
     border: 1px black solid;
-    margin: 5px;
+    margin: 1rem;
     width: 60% !important;
+  }
+  .btn_agregar_patologia{
+    margin: 1rem;
   }

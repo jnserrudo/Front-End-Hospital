@@ -20,7 +20,7 @@ export const PanelAdministracion = () => {
     setTabIndex(index)
   }
   return (
-    <Tabs index={tabIndex}  onChange={handleTabsChange} position="relative" variant="unstyled">
+    <Tabs index={tabIndex}  onChange={handleTabsChange} position="relative" variant='enclosed'>
         <TabList className="tablist" >
           <Tab className="txt_tab" >Patologia</Tab>
           <Tab className="txt_tab" >Paciente</Tab>
@@ -29,12 +29,12 @@ export const PanelAdministracion = () => {
           <Tab className="txt_tab" >Ejercicio</Tab>
 
         </TabList>
-        <TabIndicator
+       {/*  <TabIndicator
           mt="-1.5px"
           height="2px"
           bg="blue.500"
           borderRadius="1px"
-        />
+        /> */}
         <TabPanels>
           <TabPanel>
             <AdminPatologia/>

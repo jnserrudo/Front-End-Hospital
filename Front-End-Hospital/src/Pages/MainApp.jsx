@@ -43,7 +43,7 @@ export const MainApp = () => {
       <Nav bandLogin={false} bandHospital={true} />
       <ChakraProvider>
 
-      <Tabs index={tabIndex}  onChange={handleTabsChange} position="relative" variant="unstyled">
+      <Tabs index={tabIndex}  onChange={handleTabsChange}  position="relative" variant='enclosed'>
         <TabList className="tablist" >
           <Tab className="txt_tab" >Inicio</Tab>
           <Tab className="txt_tab" >Recetas</Tab>
@@ -52,12 +52,12 @@ export const MainApp = () => {
           {admin?<Tab className="txt_tab" >Administración</Tab>:null}
 
         </TabList>
-        <TabIndicator
+       {/*  <TabIndicator
           mt="-1.5px"
           height="2px"
           bg="blue.500"
           borderRadius="1px"
-        />
+        /> */}
         <TabPanels>
           <TabPanel>
             <main className="main_home">
