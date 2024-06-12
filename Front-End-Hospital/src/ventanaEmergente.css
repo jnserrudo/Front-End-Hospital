@@ -13,10 +13,10 @@
   
   .popup-content {
     width: 80%; /* Anchura ajustable */
-    height: 40%;
+    /* height: 50%; */
     max-width: 400px; /* Máximo ancho para evitar que se vea demasiado grande */
     background-color: #ffffff; /* Color de fondo de la ventana emergente */
-    padding: 5px 20px;
+    padding: 10px 20px;
     border-radius: 5px;
     text-align: center; /* Alineación centrada del contenido */
     overflow: visible;

@@ -36,13 +36,14 @@ export const PatologiaProvider = ({ children }) => {
     // en esta validacion aparecen los 4 mensajes al mismo tiempo, se debera pensar la manera en la cual simplemente aparezca por el input que se esta viendo, tambien creo que la validacion se deberia hacer cuando se envie el formulario
     console.log(form);
 
-    if (!form?.nombre && form?.nombre?.length == 0) {
-      errors.nombre = "El documento es requerido";
+    if (!form?.nombre || form?.nombre?.length == 0) {
+      errors.nombre = "El nombre es requerido";
     }
-    if (!form?.descripcion && !form?.descripcion?.length == 0) {
-      errors.descripcion = "El nombre es requerido";
+    if (!form?.descripcion || form?.descripcion?.length == 0) {
+      errors.descripcion = "La descripcion es requerida";
     }
 
+    console.log(errors)
 
     return errors;
   };
@@ -226,6 +227,7 @@ export const PatologiaProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    console.log(patologiaToInsert)
     let errores = validationsForm(patologiaToInsert);
     console.log(errores);
     console.log(Object.keys(errores).length);

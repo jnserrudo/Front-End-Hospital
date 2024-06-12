@@ -36,7 +36,7 @@ export const AddPatologia = ({ onClosePadre }) => {
           name="descripcion"
           variant="outlined"
           type="text"
-          value={patologiaToInsert?.apellido ? patologiaToInsert.apellido : ""}
+          value={patologiaToInsert?.descripcion ? patologiaToInsert.descripcion : ""}
           onChange={(e) => handleChangeInputInsert(e)}
         />
       </div>
