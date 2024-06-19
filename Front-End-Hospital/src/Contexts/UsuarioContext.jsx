@@ -215,7 +215,6 @@ export const UsuarioProvider = ({ children }) => {
 
   let getallUsuarios = async () => {
     let usuarios = await getAllUsuarios();
-    console.log(usuarios);
     setDb(usuarios);
   };
   useEffect(() => {

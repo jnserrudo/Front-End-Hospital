@@ -11,12 +11,14 @@ export const AddPatologia = ({ onClosePadre }) => {
     addPatologia,
     bandInsert,
     handleInsert,
-    showVentEmergConfirmacion,
-    setShowVentEmergConfirmacion,
     handleCloseVentEmergConfirmacion,
   } = useContext(PatologiasContext);
 
-  
+  const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
+    useState(false);
+  const handleCloseVentEmergente = async () => {
+    setShowVentEmergenteConfirmacion(false);
+  };
   return (
     <div className="form_edit_patologia">
      
@@ -46,7 +48,7 @@ export const AddPatologia = ({ onClosePadre }) => {
           className="btn_accion_edit_patologia"
           colorScheme="green"
           style={{ margin: "1rem auto 0" }}
-          onClick={() => setShowVentEmergConfirmacion(true)}
+          onClick={() => setShowVentEmergenteConfirmacion(true)}
         >
           Agregar Patologia
         </Button>
@@ -54,10 +56,10 @@ export const AddPatologia = ({ onClosePadre }) => {
 
       <VentEmergConfirmacion
         onClosePadre={onClosePadre}
-        onClose={handleCloseVentEmergConfirmacion}
+        onClose={handleCloseVentEmergente}
         mje={"Esta seguro de agregar a la patologia? "}
         handleSi={handleInsert}
-        isOpen={showVentEmergConfirmacion}
+        isOpen={showVentEmergenteConfirmacion}
       />
     </div>
   );

@@ -210,7 +210,7 @@ export const PatologiaProvider = ({ children }) => {
     let insert = await insertPatologia(patologia);
     console.log(insert);
       //esto es solo de prueba para que se visualize momentaneamente el patologia agregado
-      setDb([patologia,...db])
+      setDb([insert/* patologia */,...db])
 
     return insert;
   };
@@ -233,6 +233,8 @@ export const PatologiaProvider = ({ children }) => {
     console.log(Object.keys(errores).length);
     if (Object.keys(errores).length == 0) {
       setBandInsert(true);
+    }else{
+      setBandInsert(false);
     }
     //setBandInsert()
   }, [patologiaToInsert]);

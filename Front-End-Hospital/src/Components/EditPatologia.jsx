@@ -2,6 +2,8 @@ import { Button, ButtonGroup } from "@chakra-ui/react";
 import { Space } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import "../style.css";
+import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
+
 import PatologiasContext from "../Contexts/PatologiaContext";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@chakra-ui/react";
@@ -49,12 +51,12 @@ export const EditPatologia = ({ patologia,onCloseEdit }) => {
         />
         <Input
           className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-          label="Apellido"
-          name="apellido"
+          label="Descripcion"
+          name="descripcion"
           variant="outlined"
           type="text"
           disabled={!bandEdit}
-          value={patologia.apellido ? patologia.apellido : ""}
+          value={patologia.descripcion ? patologia.descripcion : ""}
           onChange={(e) => handleChangeInput(e)}
         />
       </div>
@@ -64,7 +66,9 @@ export const EditPatologia = ({ patologia,onCloseEdit }) => {
         {!bandEdit ? (
           <Button
             className="btn_accion_edit_patologia"
-            variant="outlined"
+            /* variant="outlined" */
+            colorScheme="blue"
+            
             onClick={() => setBandEdit(true)}
           >
             Editar
@@ -72,7 +76,7 @@ export const EditPatologia = ({ patologia,onCloseEdit }) => {
         ) : (
           <Button
             className="btn_accion_edit_patologia"
-            variant="contained"
+            /* variant="contained" */
             color="info"
             onClick={() => setBandEdit(false)}
           >
@@ -84,9 +88,9 @@ export const EditPatologia = ({ patologia,onCloseEdit }) => {
       {bandUpdated ? (
         <Button
           className="btn_accion_edit_patologia"
-          color="success"
-          variant="contained"
-          style={{ margin: "1rem auto 0" }}
+          colorScheme='green'
+          /* variant="contained"
+          style={{ margin: "1rem auto 0" }} */
           onClick={() => setShowVentEmergenteConfirmacion(true)}
 
         >
@@ -98,7 +102,7 @@ export const EditPatologia = ({ patologia,onCloseEdit }) => {
 
       <VentEmergConfirmacion
         onClosePadre={onCloseEdit}
-        onClose={handleCloseVentEmergente}
+        onClose={()=>setShowVentEmergenteConfirmacion(false)}
         mje={
           "Esta seguro de actualizar los datos del patologia " +
          /*  patologia?.nombre?.toUpperCase() +

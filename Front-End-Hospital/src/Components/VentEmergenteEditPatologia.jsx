@@ -12,15 +12,15 @@ export const VentEmergenteEditPatologia = ({isOpen,onClose,patologiaSelected}) =
 
   return (
     <div className="popup-container">
-      <div className="popup-content">
+      <div className="popup-content small">
         <div className="header_vent_emergente">
         <h2 className={`popup-title`} >Patologia</h2> 
         <CloseOutlined  className='icon_accion icons' onClick={onClose} />
         </div>
         
         <EditPatologia onCloseEdit={onClose} patologia={patologiaSelected} />
-        <button className={`popup-close-btn`} onClick={onClose}>Aceptar</button>
-      </div>
+{/*         <button className={`popup-close-btn`} onClick={onClose}>Aceptar</button>
+ */}      </div>
     </div>
   )
 }

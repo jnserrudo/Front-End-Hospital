@@ -14,6 +14,13 @@ export const getUsuarioById = async (id) => {
   return data;
 };
 
+export const getRolByUser = async (user) => {
+  console.log("se trae roles del usuario: ", user);
+  const res = await fetch(`${entorno}/usuarios/rol/${user}`);
+  const data = await res.json();
+  return data;
+};
+
 export const updateUsuario = async (usuario) => {
   const res = await fetch(`${entorno}/usuarios/${usuario.id}`, {
     method: "PUT",
@@ -40,6 +47,24 @@ export const insertUsuario = async (
         nombre,
         password,
         idRol
+    }),
+  });
+  const data = await res.json();
+  return data;
+};
+
+export const getJwtToken = async (
+  nombre,
+  password,
+) => {
+  const res = await fetch(`${entorno}/usuarios/jwtToken`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        nombre,
+        password,
     }),
   });
   const data = await res.json();

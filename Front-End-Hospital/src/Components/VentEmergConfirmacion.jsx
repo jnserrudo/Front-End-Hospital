@@ -21,7 +21,7 @@ export const VentEmergConfirmacion = ({
   }
   return (
     <div className="popup-container">
-      <div className="popup-content">
+      <div className="popup-content x-small">
         <div className="header_vent_emergente">
           <h2 className={`popup-title`}>Confirmación</h2>
           <CloseOutlined className="icon_accion icons" onClick={onClose} />

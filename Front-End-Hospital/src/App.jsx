@@ -9,6 +9,7 @@ import { Login } from "./Pages/Login";
 import { MainApp } from "./Pages/MainApp";
 import { UsuarioProvider } from "./Contexts/UsuarioContext";
 import { PatologiaProvider } from "./Contexts/PatologiaContext";
+import { RecetaProvider } from "./Contexts/RecetaContext";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -17,17 +18,18 @@ function App() {
     <>
       <UsuarioProvider>
         <PatologiaProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />}></Route>
-            <Route path="/login" element={<Login />}></Route>
-            <Route path="/hospital" element={<MainApp />}></Route>
+          <RecetaProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Home />}></Route>
+                <Route path="/login" element={<Login />}></Route>
+                <Route path="/hospital" element={<MainApp />}></Route>
 
-            <Route path="/*" element={<PageNotFound />}></Route>
-          </Routes>
-        </BrowserRouter>
+                <Route path="/*" element={<PageNotFound />}></Route>
+              </Routes>
+            </BrowserRouter>
+          </RecetaProvider>
         </PatologiaProvider>
-        
       </UsuarioProvider>
     </>
   );

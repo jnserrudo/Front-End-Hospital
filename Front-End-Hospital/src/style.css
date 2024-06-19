@@ -17,7 +17,7 @@
 
 .txt {
   font-family: Arial, Helvetica, sans-serif !important;
-  
+
   font-size: large !important;
   color: white;
 }
@@ -43,7 +43,6 @@
   justify-content: end;
   align-items: center;
   width: 100%;
-  
 }
 
 .main_home {
@@ -58,8 +57,7 @@
 }
 
 .cont_login {
-  
-  width:50%;
+  width: 50%;
   height: 350px;
   background-color: var(--primary);
   position: absolute;
@@ -82,6 +80,8 @@
 
 .btn_login {
   border: white;
+  margin-right: 2rem;
+
 }
 
 .list_card {
@@ -105,7 +105,7 @@
   align-items: center;
   margin: 2rem;
 }
-.tablist{
+.tablist {
   display: flex;
   flex-wrap: wrap;
   color: var(--primary);
@@ -139,20 +139,38 @@
   font-weight: 700;
 }
 
-.select_recetas {
+/* .select_recetas {
   padding: 1rem;
+} */
+
+.cont_sel_recetas{
+  display: flex;
+  flex-direction: column;
+  
+  
+}
+
+.select_recetas{
+  border: 1px black solid !important;
+  border-radius: 5px !important;
+
+}
+.select_patologias{
+  width: 300px !important;
 }
 .select_recetas * {
-  color: white !important;
-  font-weight: 700 !important;
+  color: gray !important;
+  font-weight: 400 !important;
+  border: 1px white solid !important;
 }
 
 /* esta clase, no la cree yo, tuve que fijarme en la clase que 
 usa antd en su select mediante el inspector de elementos para poder identificar al elemento y darle el
  color que queria */
 .ant-select-selection-item {
-  border: 2px var(--primary) solid !important;
-  background-color: cornflowerblue !important;
+  border-radius: 50px !important ;
+  /* border: 2px var(--primary) solid !important;
+  background-color: cornflowerblue !important; */
 }
 
 .cont_videos {
@@ -179,29 +197,112 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   height: 150px;
 }
 
-
-
 .tabla {
-    width: 65%;
-    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
-      rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
-    border-radius: 5px;
-    overflow: scroll;
+  width: 65%;
+  box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
+    rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+  border-radius: 5px;
+  overflow: scroll;
   margin: 0 auto;
-  }
+}
 
-  .header_vent_emergente {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: space-between;
-    padding: 0 1rem;
-  }
-  .input_edit{
+.header_vent_emergente {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  padding: 0 1rem;
+}
+
+.btn_agregar_patologia {
+  margin: 1rem;
+
+}
+  
+.input_edit {
     border: 1px black solid;
     margin: 1rem;
-    width: 60% !important;
-  }
-  .btn_agregar_patologia{
-    margin: 1rem;
-  }
+    width: 250px !important;
+    /* width: 40% !important; */
+}
+
+.cont_input_edit{
+  display: flex;
+  flex-wrap: wrap;
+/*   border: 2px red solid;
+ */  justify-content: center;
+}
+
+/* REEEEEEECEEEEEEETAAAA */
+
+.receta_foto_ingredientes {
+  display: flex;
+/*   border: 2px red solid;
+ */  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.img_receta {
+  display: block;
+  border-radius: 10px;
+  width: 350px;
+  height: 250px;
+}
+
+.receta_foto {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  color: var(--primary);
+}
+
+.receta_ingredientes {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+}
+
+.receta_valores {
+  display: flex;
+/*   border: 2px red solid;
+ */  max-width: 450px;
+  flex-wrap: wrap;
+
+  justify-content: space-around;
+}
+
+.receta_valor {
+  display: flex;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 10px;
+  width: 90px;
+  height: 70px;
+  margin: 5px 1rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.ingredientes {
+  margin-top: 2rem;
+}
+
+.receta_preparacion {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+
+.titulo_receta{
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.btn_accion_edit_patologia{
+  margin: 3px 0;
+}

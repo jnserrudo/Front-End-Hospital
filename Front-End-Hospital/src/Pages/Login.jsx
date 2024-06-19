@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
 import { Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import { getAllUsuarios } from "../services/usuario-services.js";
+import { getAllUsuarios, getJwtToken, getRolByUser } from "../services/usuario-services.js";
 import UsuarioContext from "../Contexts/UsuarioContext.jsx";
 
 export const Login = () => {
@@ -22,8 +22,35 @@ export const Login = () => {
     setBandAuthProccess(false);
   }, [nombre, password]);
 
+
+
+  
+
+
   const handleLogin = async () => {
-    const usuarios = await getAllUsuarios();
+
+    const token=await getJwtToken(nombre,password)
+    
+    console.log(token)
+
+    if(!token?.error){
+      localStorage.setItem('token',token)
+      setBandAuth(true);
+      let rol= await getRolByUser(nombre)
+      localStorage.setItem('nombre',nombre)
+      localStorage.setItem('rol',rol)
+      /* setNomUsuario(nombre)
+      setRolUsuario(rol)
+       */navigate("/hospital");
+
+    }else{
+      setBandAuth(false);
+
+    }
+    setBandAuthProccess(true);
+
+
+    /* const usuarios = await getAllUsuarios();
     console.log("usuarios", usuarios);
     if (usuarios) {
       let matchUsuario = usuarios?.findIndex((u) => u.nombre == nombre);
@@ -52,7 +79,7 @@ export const Login = () => {
       }
     } else {
       //no se trajo usuarios problema back
-    }
+    } */
   };
 
   return (

@@ -13,18 +13,38 @@
   
   .popup-content {
     width: 80%; /* Anchura ajustable */
-    /* height: 50%; */
-    max-width: 400px; /* Máximo ancho para evitar que se vea demasiado grande */
+    height: 70%;
+    /* max-width: 400px; */ /* Máximo ancho para evitar que se vea demasiado grande */
     background-color: #ffffff; /* Color de fondo de la ventana emergente */
     padding: 10px 20px;
     border-radius: 5px;
     text-align: center; /* Alineación centrada del contenido */
-    overflow: visible;
+    overflow: auto;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: start;
+    align-items: center;
   }
-  
+  .popup-content.x-small {
+    width: 25%; /* Anchura para ventanas pequeñas */
+    max-height: 25%; /* Altura para ventanas pequeñas */
+  }
+  .popup-content.small {
+    width: 40%; /* Anchura para ventanas pequeñas */
+    max-height: 45%; /* Altura para ventanas pequeñas */
+  }
+  .popup-content.medium {
+    width: 50%; /* Anchura para ventanas medianas */
+    max-height: 70%; /* Altura para ventanas medianas */
+  }
+
+  @media (max-width: 620px) {
+    .popup-content.medium {
+      width: 80%; /* Anchura para ventanas medianas */
+      max-height: 70%; /* Altura para ventanas medianas */
+    }
+  }
+
   .popup-title {
     font-size: 24px;
     margin-bottom: 10px;
@@ -44,6 +64,7 @@
   .popup-close-btn {
     margin-top: 10px;
     padding: 8px 16px;
+    width: 200px;
     border: none;
     border-radius: 5px;
     background-color: #1890ff; /* Color de fondo del botón */

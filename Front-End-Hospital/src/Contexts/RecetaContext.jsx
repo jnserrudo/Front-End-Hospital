@@ -1,17 +1,16 @@
 import React, { createContext, useEffect, useState } from "react";
-import {
-  getAllPacientes,
-  getPacienteByNdocu,
-  insertPaciente,
-  updatePaciente,
-} from "../services/pacientes-services";
+
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
+import { getAllRecetas, getPatologiaToRecetaAdd, getPatologiaToRecetaEdit, getRecetaById, insertReceta } from "../services/recetas-services";
 const RecetaContext = createContext();
 export const RecetaProvider = ({ children }) => {
   const [db, setDb] = useState([]);
   const [dbSearch, setDbSearch] = useState([])
-  const [nomReceta, setNomReceta] = useState(0);
+  const [idReceta, setIdReceta] = useState(0);
   const [recetaSelected, setRecetaSelected] = useState({});
+  const [patologiasxRecetasAdd, setPatologiasxRecetasAdd] = useState([])
+  const [patologiasxRecetasEdit, setPatologiasxRecetasEdit] = useState([])
+  
 
   const [showVentEmergenteEditReceta, setShowVentEmergenteEditReceta] =
     useState(false);
@@ -36,51 +35,35 @@ export const RecetaProvider = ({ children }) => {
     // en esta validacion aparecen los 4 mensajes al mismo tiempo, se debera pensar la manera en la cual simplemente aparezca por el input que se esta viendo, tambien creo que la validacion se deberia hacer cuando se envie el formulario
     console.log(form);
 
-    if (!form?.dni && form?.dni <= 0) {
-      errors.lugar = "El documento es requerido";
-    }
-    if (!form?.nombre && !form?.nombre?.length == 0) {
+    if (!form?.nombre || form?.nombre?.length == 0) {
       errors.nombre = "El nombre es requerido";
     }
 
-    if (!form?.apellido && !form?.apellido?.length == 0) {
-      errors.apellido = "El apellido es requerido";
+    if (!form?.porciones || form?.porciones?.length == 0) {
+      errors.porciones = "Las  porciones es requerido";
     }
 
-    if (!form?.obraSocial && !form?.obraSocial?.length == 0) {
-      errors.obraSocial = "La obra social es requerida";
+    if (!form?.calorias || form?.calorias?.length == 0) {
+      errors.calorias = "Las calorias es requerida";
     }
 
-    if (!form?.plan && !form?.plan?.length == 0) {
-      errors.plan = "El plan es requerido";
+    if (!form?.tiempo || form?.tiempo?.length == 0) {
+      errors.tiempo = "El tiempo es requerido";
     }
 
-    if (!form?.domicilio) {
-      errors.domicilio = "El domicilio es requerido";
+    if (!form?.urlFoto || form?.urlFoto?.length == 0) {
+      errors.urlFoto = "La urlFoto es requerido";
     }
-
-    if (!form?.celular) {
-      errors.celular = "El telefono es requerido";
+    if (!form?.ingredientes || form?.ingredientes?.length == 0) {
+      errors.ingredientes = "Los ingredientes son requeridos";
     }
-    if (!form?.nroAfiliado&&!form?.nroAfiliado<=0) {
-      errors.celular = "El telefono es requerido";
+    if (!form?.preparacion || form?.preparacion?.length == 0) {
+      errors.preparacion = "La preparacion es requerida";
     }
-/* 
-    if (!form?.vacunas) {
-      errors.vacunas = "Las vacunas son requeridas";
-    }
-
-    if (!form?.afp) {
-      errors.afp = "Las afp son requeridas";
-    }
-
-    if (!form?.app) {
-      errors.app = "Las app son requeridas";
+   /*  if (!form?.idsPatologias || !form?.idsPatologias?.length == 0) {
+      errors.idsPatologias = "Las idsPatologias es requerida";
     } */
-    /* if (!form?.alergias) {
-      errors.alergias = "Las alergias son requeridas";
-    } */
-
+    
     return errors;
   };
 
@@ -138,6 +121,27 @@ export const RecetaProvider = ({ children }) => {
     setRecetaToInsert(newValue);
   };
 
+  const handleChangeSelectInsert=(e)=>{
+
+    let newValue = {
+      ...recetaToInsert,
+      idsPatologias: e,
+    };
+    console.log(newValue);
+    setRecetaToInsert(newValue);
+  }
+  
+  const handleChangeSelect=(e)=>{
+
+    let newValue = {
+      ...recetaSelected,
+      idsPatologias: e
+    };
+    
+    console.log(newValue);
+    setRecetaSelected(newValue);
+
+  }
   const handleChangeInput = (e) => {
     console.log("name: ", e.target.name, " value: ", e.target.value);
 
@@ -145,20 +149,21 @@ export const RecetaProvider = ({ children }) => {
       ...recetaSelected,
       [e.target.name]: e.target.value,
     };
+    
     console.log(newValue);
     setRecetaSelected(newValue);
   };
 
   /* const columns=[
-    { field: "nomReceta", headerName: "DNI", width: 150 },
+    { field: "idReceta", headerName: "DNI", width: 150 },
     { field: "nombre", headerName: "Nombre", width: 180 },
     { field: "apellido", headerName: "Apellido", width: 350 },
   ];
  */
 
-  const handleEditPacient = (receta) => {
+  const handleEditReceta = (receta) => {
     console.log("editando: ", receta);
-    setnomRecetaReceta(receta.dni);
+    setIdReceta(receta.id);
     setShowVentEmergenteEditReceta(true);
   };
 
@@ -186,19 +191,54 @@ export const RecetaProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const getRecetabynomReceta = async () => {
-      let receta = await getRecetaBynomReceta(nomRecetaReceta);
+    const getRecetabyidReceta = async () => {
+      let receta = await getRecetaById(idReceta);
       setRecetaSelected(receta);
     };
-    if (nomRecetaReceta > 0) {
-      getRecetabynomReceta();
+    if (idReceta > 0) {
+      getRecetabyidReceta();
     }
-  }, [nomRecetaReceta]);
+  }, [idReceta]);
+
+  useEffect(()=>{
+    const getpatologiatorecetaadd=async()=>{
+      const patologias= await getPatologiaToRecetaAdd()
+      if(patologias.length>0){
+        let alToSelect = patologias.map((pat) => {
+          return {
+            label: pat.nombre ,
+            value: pat.id,
+          };
+        });
+      setPatologiasxRecetasAdd(alToSelect)
+      }
+    }
+    getpatologiatorecetaadd()
+    
+  },[])
+  
+  useEffect(()=>{
+    const getpatologiatorecetaedit=async()=>{
+      const patologias= await getPatologiaToRecetaEdit()
+      if(patologias.length>0){
+        let alToSelect = patologias.map((pat) => {
+          return {
+            label: pat.nombre ,
+            value: pat.id,
+          };
+        });
+        setPatologiasxRecetasEdit(alToSelect)
+      }
+      
+    }
+    
+  getpatologiatorecetaedit()
+  },[])
 
   const columns = [
     {
-      title: "DNI",
-      dataIndex: "dni",
+      title: "ID",
+      dataIndex: "id",
       render: (text) => <a>{text}</a>,
       align: "center",
     },
@@ -208,8 +248,18 @@ export const RecetaProvider = ({ children }) => {
       align: "center",
     },
     {
-      title: "Apellido",
-      dataIndex: "apellido",
+      title: "Porciones",
+      dataIndex: "porciones",
+      align: "center",
+    },
+    {
+      title: "Calorias",
+      dataIndex: "calorias",
+      align: "center",
+    },
+    {
+      title: "Tiempo",
+      dataIndex: "tiempo",
       align: "center",
     },
 
@@ -225,7 +275,7 @@ export const RecetaProvider = ({ children }) => {
           /> */}
           <DragOutlined
             className="icon_accion"
-            onClick={(e) => handleEditPacient(record)}
+            onClick={(e) => handleEditReceta(record)}
           />
         </div>
       ),
@@ -242,21 +292,13 @@ export const RecetaProvider = ({ children }) => {
     }
   };
   const addReceta = async (receta) => {
+    
     let insert = await insertReceta(
-      receta.dni,
-      receta.obraSocial,
-      receta.plan,
-      receta.domicilio,
-      receta.nroAfiliado,
-      receta.telefono,
-      receta.vacunas,
-      receta.afp,
-      receta.app,
-      receta.alergias
+      receta
     );
     console.log(insert);
       //esto es solo de prueba para que se visualize momentaneamente el receta agregado
-      setDb([receta,...db])
+      setDb([insert/* receta */,...db])
 
     return insert;
   };
@@ -278,6 +320,8 @@ export const RecetaProvider = ({ children }) => {
     console.log(Object.keys(errores).length);
     if (Object.keys(errores).length == 0) {
       setBandInsert(true);
+    }else{
+      setBandInsert(false);
     }
     //setBandInsert()
   }, [recetaToInsert]);
@@ -294,6 +338,12 @@ export const RecetaProvider = ({ children }) => {
     showVentEmergenteConfReceta, 
     bandLoader,
     dbSearch,
+    patologiasxRecetasAdd,
+    patologiasxRecetasEdit,
+    handleChangeSelectInsert,
+    handleChangeSelect, 
+    setPatologiasxRecetasAdd,
+    setPatologiasxRecetasEdit,
     handleSearch,
     handleCloseConfInsert,
     setShowVentEmergenteConfReceta,
@@ -303,7 +353,7 @@ export const RecetaProvider = ({ children }) => {
     validationsForm,
     setBandInsert,
     handleChangeInputInsert,
-    handleEditPacient: handleEditPacient,
+    handleEditReceta,
     handleSeePacient: handleSeePacient,
     handleCloseVentEmergenteEditReceta: handleCloseVentEmergenteEditReceta,
     handleChangeInput,
@@ -318,4 +368,4 @@ export const RecetaProvider = ({ children }) => {
     </RecetaContext.Provider>
   );
 };
-export default PacientesContext;
+export default RecetaContext;
