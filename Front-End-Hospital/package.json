@@ -23,7 +23,10 @@
     "react-player": "^2.16.0",
     "react-router-dom": "^6.23.1",
     "react-select": "^5.8.0",
-    "styled-components": "^6.1.11"
+    "styled-components": "^6.1.11",
+    "antd-img-crop": "^4.22.0",
+    "react-hot-toast": "^2.4.1",
+    "react-loading": "^2.0.3"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
