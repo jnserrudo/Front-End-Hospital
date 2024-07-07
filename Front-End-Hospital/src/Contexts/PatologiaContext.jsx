@@ -69,10 +69,13 @@ export const PatologiaProvider = ({ children }) => {
 
   const handleCloseVentEmergenteEditPatologia = () => {
     setShowVentEmergenteEditPatologia(false);
+    setIdPatologia(0)
   };
 
   const handleCloseVentEmergenteAddPatologia = () => {
     setShowVentEmergenteAddPatologia(false);
+    setPatologiaToInsert({})
+
   };
 
   const handleCloseVentEmergenteConfPatologia = () => {

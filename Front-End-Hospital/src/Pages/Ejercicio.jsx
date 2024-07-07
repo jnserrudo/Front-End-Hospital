@@ -58,8 +58,8 @@ export const Ejercicio = () => {
       <nav className="nav_recetas">
         <img src="/recetas.svg" alt="" />
         <div className="cont_sel_recetas">
-          <p>Recetas Saludables</p>
-          <b>Elige Patología</b>
+        <b>Ejercicios Saludables</b>
+        <p>Elige Patología</p>
           <Select
             className="select_recetas"
             mode="multiple"

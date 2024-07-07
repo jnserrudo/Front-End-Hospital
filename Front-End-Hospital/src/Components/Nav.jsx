@@ -11,7 +11,7 @@ export const Nav = ({ bandHospital, bandLogin, setBandLogin = false }) => {
 
   const [nomUsuario, setNomUsuario] = useState('')
   useEffect(()=>{
-    setNomUsuario(localStorage.getItem('nombre'))
+    setNomUsuario(localStorage.getItem('usuario'))
   },[nomUsuario])
   return (
     <div className="cont_btn_login">

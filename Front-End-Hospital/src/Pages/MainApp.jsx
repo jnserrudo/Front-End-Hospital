@@ -7,7 +7,9 @@ import {
   Tab,
   TabPanel,
   TabIndicator,
+  extendTheme
 } from "@chakra-ui/react";
+import toast, { Toaster } from "react-hot-toast";
 
 import "../style.css";
 import { Nav } from "../Components/Nav";
@@ -20,6 +22,46 @@ import { PanelAdministracion } from "./PanelAdministracion";
 
 import { ChakraProvider } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+
+
+
+const activeLabelStyles = {
+  transform: "scale(0.85) translateY(-24px)",
+};
+
+export const theme = extendTheme({
+  components: {
+    Form: {
+      variants: {
+        floating: {
+          container: {
+            _focusWithin: {
+              label: {
+                ...activeLabelStyles,
+              },
+            },
+            "input:not(:placeholder-shown) + label, .chakra-select__wrapper + label, textarea:not(:placeholder-shown) ~ label": {
+              ...activeLabelStyles,
+            },
+            label: {
+              top: 0,
+              left: 0,
+              zIndex: 2,
+              position: "absolute",
+              backgroundColor: "white",
+              pointerEvents: "none",
+              mx: 3,
+              px: 1,
+              my: 2,
+              transformOrigin: "left top",
+            },
+          },
+        },
+      },
+    },
+  },
+});
+
 
 export const MainApp = () => {
   const [tabIndex, setTabIndex] = useState(0);
@@ -58,12 +100,16 @@ export const MainApp = () => {
     const tokenFromStorage = localStorage.getItem('token');
     const parsedToken = parseJwt(tokenFromStorage);
     setToken(parsedToken);
+    
   }, []);
 
   useEffect(()=>{
     
     if(token){
       setValidatedToken(token.exp*1000>Date.now())
+      toast.success('Logeado con exito!',{
+        duration: 3000,
+      })
     }
   },[token])
 
@@ -90,10 +136,12 @@ export const MainApp = () => {
 
   return (
     <div>
+            <Toaster position="top-center" reverseOrder={false} />
+
       <Header />
 
       <Nav bandLogin={false} bandHospital={true} />
-      <ChakraProvider>
+      <ChakraProvider theme={theme} >
         <Tabs
           index={tabIndex}
           onChange={handleTabsChange}

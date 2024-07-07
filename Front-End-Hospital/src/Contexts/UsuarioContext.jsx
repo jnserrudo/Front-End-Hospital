@@ -1,17 +1,28 @@
 import React, { createContext, useEffect, useState } from "react";
 import {
+  blanquearUsuario,
+  getAllRoles,
+  getAllRolesToEdit,
   getAllUsuarios,
   getUsuarioById,
   insertUsuario,
   updateUsuario,
 } from "../services/usuario-services";
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
+import { getAllPatologias } from "../services/patologia-services";
 const UsuarioContext = createContext();
 export const UsuarioProvider = ({ children }) => {
   const [db, setDb] = useState([]);
   const [dbSearch, setDbSearch] = useState([]);
-  const [nomUsuario, setNomUsuario] = useState('');
+  const [idUsuario, setIdUsuario] = useState("");
+
+  const [dniUsuario, setDniUsuario] = useState("");
   const [rolUsuario, setRolUsuario] = useState(0);
+
+  const [allRolesAdd, setAllRolesAdd] = useState([]);
+
+  const [allRolesEdit, setAllRolesEdit] = useState([]);
+
   const [usuarioSelected, setUsuarioSelected] = useState({});
 
   const [showVentEmergenteEditUsuario, setShowVentEmergenteEditUsuario] =
@@ -23,6 +34,8 @@ export const UsuarioProvider = ({ children }) => {
 
   const [showVentEmergenteConfUsuario, setShowVentEmergenteConfUsuario] =
     useState(false);
+
+  const [patologiasToUsuarioAdd, setPatologiasToUsuarioAdd] = useState([]);
 
   const [bandLoader, setBandLoader] = useState(false);
 
@@ -37,6 +50,31 @@ export const UsuarioProvider = ({ children }) => {
 
     // en esta validacion aparecen los 4 mensajes al mismo tiempo, se debera pensar la manera en la cual simplemente aparezca por el input que se esta viendo, tambien creo que la validacion se deberia hacer cuando se envie el formulario
     console.log(form);
+
+    if (!form?.dni || form?.dni?.length == 0) {
+      errors.dni = "El dni es requerido";
+    }
+    if (!form?.nombre || form?.nombre?.length == 0) {
+      errors.nombre = "La nombre es requerida";
+    }
+
+    if (!form?.apellido || form?.apellido?.length == 0) {
+      errors.apellido = "El apellido es requerido";
+    }
+    if (!form?.usuario || form?.usuario?.length == 0) {
+      errors.usuario = "EL usuario es requerida";
+    }
+
+    if (!form?.password || form?.password?.length == 0) {
+      errors.password = "El password es requerido";
+    }
+    if (!form?.idRol || form?.idRol?.length == 0) {
+      errors.idRol = "El idRol es requerida";
+    }
+
+    if (!form?.idPatologias || form?.idPatologias?.length == 0) {
+      errors.idPatologias = "El idPatologias es requerido";
+    }
 
     return errors;
   };
@@ -61,10 +99,12 @@ export const UsuarioProvider = ({ children }) => {
 
   const handleCloseVentEmergenteEditUsuario = () => {
     setShowVentEmergenteEditUsuario(false);
+    setIdUsuario(0);
   };
 
   const handleCloseVentEmergenteAddUsuario = () => {
     setShowVentEmergenteAddUsuario(false);
+    setUsuarioToInsert({});
   };
 
   const handleCloseVentEmergenteConfUsuario = () => {
@@ -111,9 +151,43 @@ export const UsuarioProvider = ({ children }) => {
   ];
  */
 
-  const handleEditPacient = (usuario) => {
+  const handleChangeSelectRolInsert = (e) => {
+    let newValue = {
+      ...usuarioToInsert,
+      idRol: e,
+    };
+    console.log(newValue);
+    setUsuarioToInsert(newValue);
+  };
+  const handleChangeSelectInsert = (e) => {
+    let newValue = {
+      ...usuarioToInsert,
+      idsPatologias: e,
+    };
+    console.log(newValue);
+    setUsuarioToInsert(newValue);
+  };
+
+  const handleChangeSelectRolEdit = (e) => {
+    let newValue = {
+      ...usuarioSelected,
+      idRol: e,
+    };
+    console.log(newValue);
+    setUsuarioSelected(newValue);
+  };
+  const handleChangeSelectEdit = (e) => {
+    let newValue = {
+      ...usuarioSelected,
+      idsPatologias: e,
+    };
+    console.log(newValue);
+    setUsuarioSelected(newValue);
+  };
+
+  const handleEditUsuario = (usuario) => {
     console.log("editando: ", usuario);
-    setnomUsuarioUsuario(usuario.dni);
+    setIdUsuario(usuario.id);
     setShowVentEmergenteEditUsuario(true);
   };
 
@@ -133,25 +207,30 @@ export const UsuarioProvider = ({ children }) => {
     setBandLoader(false);
   };
 
-  const handleSeePacient = (usuario) => {
+  const handleSeeUsuario = (usuario) => {
     console.log("viendo: ", usuario);
   };
 
   useEffect(() => {
-    const getUsuariobynomUsuario = async () => {
-      let usuario = await getUsuarioById(nomUsuario);
+    const getUsuariobyidUsuario = async () => {
+      let usuario = await getUsuarioById(idUsuario);
       setUsuarioSelected(usuario);
     };
-    if (nomUsuario > 0) {
-      getUsuariobynomUsuario();
+    if (idUsuario > 0) {
+      getUsuariobyidUsuario();
     }
-  }, [nomUsuario]);
+  }, [idUsuario]);
 
   const columns = [
     {
       title: "DNI",
       dataIndex: "dni",
       render: (text) => <a>{text}</a>,
+      align: "center",
+    },
+    {
+      title: "Usuario",
+      dataIndex: "usuario",
       align: "center",
     },
     {
@@ -177,48 +256,102 @@ export const UsuarioProvider = ({ children }) => {
           /> */}
           <DragOutlined
             className="icon_accion"
-            onClick={(e) => handleEditPacient(record)}
+            onClick={(e) => handleEditUsuario(record)}
           />
         </div>
       ),
     },
   ];
 
+
+  const handleBlanqueo=async(usuario)=>{
+    console.log("se blanqueara al usuario: ",usuario)
+    const blanqueo=await blanquearUsuario(usuario)
+    console.log(blanqueo)
+    return blanqueo
+
+  }
+
   const handleInsert = async () => {
     if (bandInsert) {
       //validar para insert
       console.log(" se esta por insertar el usuario: ", usuarioToInsert);
-      await addUsuario(usuarioToInsert);
+
+      let usuarioToInsertBlanqueado={
+        ...usuarioToInsert,
+        blanqueado:0
+      }
+      await addUsuario(usuarioToInsertBlanqueado);
       handleCloseVentEmergenteConfUsuario();
       handleCloseVentEmergenteAddUsuario();
     }
   };
   const addUsuario = async (usuario) => {
-    let insert = await insertUsuario(
-      usuario.dni,
-      usuario.obraSocial,
-      usuario.plan,
-      usuario.domicilio,
-      usuario.nroAfiliado,
-      usuario.telefono,
-      usuario.vacunas,
-      usuario.afp,
-      usuario.app,
-      usuario.alergias
-    );
+    let insert = await insertUsuario(usuario);
     console.log(insert);
-    //esto es solo de prueba para que se visualize momentaneamente el usuario agregado
-    setDb([usuario, ...db]);
+    //en el insert del insertUsuario me devuelve dos cosas en el caso que sea un usuario con el rol paciente, el
+    //nuevo usuario creado y registro del paciente creado
 
-    return insert;
+    //esto es solo de prueba para que se visualize momentaneamente el usuario agregado
+    setDb([insert.newUsuario, ...db]);
+
+    return insert.newUsuario;
   };
 
   let getallUsuarios = async () => {
     let usuarios = await getAllUsuarios();
+
     setDb(usuarios);
   };
   useEffect(() => {
     getallUsuarios();
+  }, []);
+
+  useEffect(() => {
+    let getallRoles = async () => {
+      let roles = await getAllRoles();
+      (roles = roles.map((p) => ({
+        label: p.rol,
+        value: p.id,
+      }))),
+        setAllRolesAdd(roles);
+    };
+
+    getallRoles();
+  }, []);
+
+  useEffect(() => {
+    let getallRolestoedit = async () => {
+      let roles = await getAllRolesToEdit(usuarioSelected.idRol);
+      console.log(roles)
+      roles = roles.map((p) => ({
+        label: p.rol,
+        value: p.id,
+      })),
+        setAllRolesEdit(roles);
+    };
+    if (usuarioSelected?.idRol > 0) {
+      getallRolestoedit();
+    }
+  }, [usuarioSelected]);
+
+  useEffect(() => {
+    //para crear un usuario traemos todas las patologias,
+
+    //en el caso de edicion de usuarios se deben mostrar las que no tiene
+    const getpatologiatousuario = async () => {
+      const patologias = await getAllPatologias();
+      if (patologias.length > 0) {
+        let alToSelect = patologias.map((pat) => {
+          return {
+            label: pat.nombre,
+            value: pat.id,
+          };
+        });
+        setPatologiasToUsuarioAdd(alToSelect);
+      }
+    };
+    getpatologiatousuario();
   }, []);
 
   useEffect(() => {
@@ -243,9 +376,20 @@ export const UsuarioProvider = ({ children }) => {
     showVentEmergenteConfUsuario,
     bandLoader,
     dbSearch,
-    nomUsuario,
+    idUsuario,
     rolUsuario,
-    setNomUsuario,
+    patologiasToUsuarioAdd,
+    allRolesAdd,
+    allRolesEdit,
+    dniUsuario,
+    handleChangeSelectRolEdit,
+    handleChangeSelectEdit,
+    setDniUsuario,
+    handleChangeSelectRolInsert,
+    handleChangeSelectInsert,
+    setAllRolesEdit,
+    setAllRolesAdd,
+    setPatologiasToUsuarioAdd,
     setRolUsuario,
     handleSearch,
     handleCloseConfInsert,
@@ -256,13 +400,14 @@ export const UsuarioProvider = ({ children }) => {
     validationsForm,
     setBandInsert,
     handleChangeInputInsert,
-    handleEditPacient: handleEditPacient,
-    handleSeePacient: handleSeePacient,
+    handleEditUsuario: handleEditUsuario,
+    handleSeeUsuario: handleSeeUsuario,
     handleCloseVentEmergenteEditUsuario: handleCloseVentEmergenteEditUsuario,
     handleChangeInput,
     addUsuario,
     handleInsert,
     handleUpdate,
+    handleBlanqueo
   };
   return (
     <UsuarioContext.Provider value={data}> {children} </UsuarioContext.Provider>

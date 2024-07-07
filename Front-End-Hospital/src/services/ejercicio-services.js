@@ -1,0 +1,43 @@
+import { entorno } from "./config";
+
+export const getAllEjercicios = async () => {
+  console.log('antes del fetch get all ejercicios')
+  const res = await fetch(`${entorno}/ejercicios`);
+  const data = await res.json();
+  return data;
+};
+
+export const getEjercicioById = async (id) => {
+  console.log("se trae al ejercicio con id: ", id);
+  const res = await fetch(`${entorno}/ejercicios/${id}`);
+  const data = await res.json();
+  return data;
+};
+
+
+
+export const updateEjercicio = async (ejercicio) => {
+  const res = await fetch(`${entorno}/ejercicios/${ejercicio.id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(ejercicio),
+  });
+  const data = await res.json();
+  return data;
+};
+
+export const insertEjercicio = async (
+  ejercicio
+) => {
+  const res = await fetch(`${entorno}/ejercicios`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(ejercicio),
+  });
+  const data = await res.json();
+  return data;
+};

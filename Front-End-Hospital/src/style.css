@@ -1,5 +1,6 @@
 :root {
-  --primary: #456bff;
+  /* --primary: #456bff; */
+  --primary: #046ba3 ;
 }
 
 .header {
@@ -214,8 +215,8 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   padding: 0 1rem;
 }
 
-.btn_agregar_patologia {
-  margin: 1rem;
+.btn_agregar {
+  margin-left: 70%;
 
 }
   
@@ -226,11 +227,35 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
     /* width: 40% !important; */
 }
 
+.cont_form_input{
+  display: flex;
+  flex-wrap: wrap !important;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.imgCrop *{
+  width: 265px !important;
+}
+
+.imgCropSeeReceta{
+
+}
+
+.uploadSeeReceta img{
+  border: 2px red solid !important;
+  width: 400px;
+  height: 400px;
+
+}
+
 .cont_input_edit{
   display: flex;
-  flex-wrap: wrap;
-/*   border: 2px red solid;
- */  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
 }
 
 /* REEEEEEECEEEEEEETAAAA */
@@ -292,10 +317,18 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   margin-top: 2rem;
 }
 
-.receta_preparacion {
+.receta_preparacion,.receta_tipsSaludables, .receta_composicion {
   display: flex;
   flex-direction: column;
   margin-top: 1rem;
+}
+
+.cont_tips_composicion{
+  display: flex;
+  margin-top: 1rem;
+  justify-content:space-around;
+  flex-wrap: wrap;
+
 }
 
 .titulo_receta{
@@ -303,6 +336,6 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   font-weight: 700;
 }
 
-.btn_accion_edit_patologia{
-  margin: 3px 0;
+.btn_accion_edit_patologia,.btn_accion_edit_receta{
+  margin: 5px;
 }

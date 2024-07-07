@@ -60,8 +60,8 @@ export const Info = () => {
       <nav className="nav_recetas">
         <img src="/recetas.svg" alt="" />
         <div className="cont_sel_recetas">
-          <p>Recetas Saludables</p>
-          <b>Elige Patología</b>
+        <b>Informacion Saludable</b>
+        <p>Elige Patología</p>
           <Select
             className="select_recetas"
             mode="multiple"

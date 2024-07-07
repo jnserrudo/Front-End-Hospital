@@ -8,7 +8,6 @@ export const VentEmergenteEditPatologia = ({isOpen,onClose,patologiaSelected}) =
         return null;
       }
 
-    
 
   return (
     <div className="popup-container">

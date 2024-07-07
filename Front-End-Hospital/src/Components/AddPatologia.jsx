@@ -1,5 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button, ButtonGroup } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Textarea,
+  FormControl,
+  FormLabel,
+} from "@chakra-ui/react";
 import "../style.css";
 import PatologiasContext from "../Contexts/PatologiaContext";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
@@ -21,26 +27,46 @@ export const AddPatologia = ({ onClosePadre }) => {
   };
   return (
     <div className="form_edit_patologia">
-     
-      <div className="cont_input_edit">
-        <Input
-          className={`input_edit`}
-          placeholder="Nombre"
-          name="nombre"
-          variant="outlined"
-          type="text"
-          value={patologiaToInsert?.nombre ? patologiaToInsert.nombre : ""}
-          onChange={(e) => handleChangeInputInsert(e)}
-        />
-        <Input
-          className={`input_edit`}
-          placeholder="Descripcion"
-          name="descripcion"
-          variant="outlined"
-          type="text"
-          value={patologiaToInsert?.descripcion ? patologiaToInsert.descripcion : ""}
-          onChange={(e) => handleChangeInputInsert(e)}
-        />
+      <div className="">
+        <FormControl
+          className="cont_input_edit"
+          variant="floating"
+          id="nombre"
+          isRequired
+        >
+          <Input
+            className={`input_edit`}
+            placeholder=""
+            name="nombre"
+            variant="outlined"
+            type="text"
+            value={patologiaToInsert?.nombre ? patologiaToInsert.nombre : ""}
+            onChange={(e) => handleChangeInputInsert(e)}
+          />
+          <FormLabel>Nombre</FormLabel>
+        </FormControl>
+        <FormControl
+          className="cont_input_edit"
+          variant="floating"
+          id="descripcion"
+          isRequired
+        >
+          <Textarea
+            className={`input_edit`}
+            placeholder=""
+            name="descripcion"
+            size="sm"
+            variant="outlined"
+            type="text"
+            value={
+              patologiaToInsert?.descripcion
+                ? patologiaToInsert.descripcion
+                : ""
+            }
+            onChange={(e) => handleChangeInputInsert(e)}
+          />
+          <FormLabel>Descripción</FormLabel>
+        </FormControl>
       </div>
 
       {bandInsert ? (

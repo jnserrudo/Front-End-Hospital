@@ -23,7 +23,7 @@ console.log(columns)
   return (
     <div>
       <Button
-        className="btn_agregar_patologia"
+        className="btn_agregar"
         colorScheme='green'
         onClick={() => setShowVentEmergenteAddPatologia(true)}
       >

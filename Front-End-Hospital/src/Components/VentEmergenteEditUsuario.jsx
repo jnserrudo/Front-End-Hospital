@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
-import { EditPaciente } from './EditPaciente';
+import { EditUsuario } from './EditUsuario';
 
 import {CloseOutlined} from '@ant-design/icons';
 
-export const VentEmergenteEditPaciente = ({isOpen,onClose,pacienteSelected}) => {
+export const VentEmergenteEditUsuario = ({isOpen,onClose,usuarioSelected}) => {
     if (!isOpen) {
         return null;
       }
@@ -12,15 +12,15 @@ export const VentEmergenteEditPaciente = ({isOpen,onClose,pacienteSelected}) => 
 
   return (
     <div className="popup-container">
-      <div className="popup-content">
+      <div className="popup-content medium">
         <div className="header_vent_emergente">
-        <h2 className={`popup-title`} >Paciente</h2> 
+        <h2 className={`popup-title`} >Usuario</h2> 
         <CloseOutlined  className='icon_accion icons' onClick={onClose} />
         </div>
         
-        <EditPaciente onCloseEdit={onClose} paciente={pacienteSelected} />
-        <button className={`popup-close-btn`} onClick={onClose}>Aceptar</button>
-      </div>
+        <EditUsuario onCloseEdit={onClose} usuario={usuarioSelected} />
+{/*         <button className={`popup-close-btn`} onClick={onClose}>Aceptar</button>
+ */}      </div>
     </div>
   )
 }

@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "antd-img-crop": "^4.22.0",
+    "react-hot-toast": "^2.4.1",
     "react-loading": "^2.0.3"
   }
 }

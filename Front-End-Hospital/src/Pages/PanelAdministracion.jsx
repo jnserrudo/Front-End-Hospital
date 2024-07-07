@@ -12,6 +12,7 @@ import { AdminPaciente } from '../Components/AdminPaciente';
 import { AdminReceta } from '../Components/AdminReceta';
 import { AdminInformacion } from '../Components/AdminInformacion';
 import { AdminEjercicio } from '../Components/AdminEjercicio';
+import { AdminUsuario } from '../Components/AdminUsuario';
 export const PanelAdministracion = () => {
     const [tabIndex, setTabIndex] = useState(0)
 
@@ -27,6 +28,7 @@ export const PanelAdministracion = () => {
           <Tab className="txt_tab" >Recetas</Tab>
           <Tab className="txt_tab" >Informacion</Tab>
           <Tab className="txt_tab" >Ejercicio</Tab>
+          <Tab className="txt_tab" >Usuario</Tab>
 
         </TabList>
        {/*  <TabIndicator
@@ -50,6 +52,9 @@ export const PanelAdministracion = () => {
           </TabPanel>
           <TabPanel>
             <AdminEjercicio/>
+          </TabPanel>
+          <TabPanel>
+            <AdminUsuario/>
           </TabPanel>
         </TabPanels>
       </Tabs>

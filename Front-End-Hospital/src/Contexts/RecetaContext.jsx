@@ -1,10 +1,11 @@
 import React, { createContext, useEffect, useState } from "react";
 
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import { getAllRecetas, getPatologiaToRecetaAdd, getPatologiaToRecetaEdit, getRecetaById, insertReceta } from "../services/recetas-services";
+import { getAllRecetas, getPatologiaToRecetaAdd, getPatologiaToRecetaEdit, getRecetaById, getRecetaByPaciente, insertReceta, updateReceta } from "../services/recetas-services";
 const RecetaContext = createContext();
 export const RecetaProvider = ({ children }) => {
   const [db, setDb] = useState([]);
+  const [ndocuPaciente, setNdocuPaciente] = useState(0)
   const [dbSearch, setDbSearch] = useState([])
   const [idReceta, setIdReceta] = useState(0);
   const [recetaSelected, setRecetaSelected] = useState({});
@@ -51,9 +52,9 @@ export const RecetaProvider = ({ children }) => {
       errors.tiempo = "El tiempo es requerido";
     }
 
-    if (!form?.urlFoto || form?.urlFoto?.length == 0) {
+    /* if (!form?.urlFoto || form?.urlFoto?.length == 0) {
       errors.urlFoto = "La urlFoto es requerido";
-    }
+    } */
     if (!form?.ingredientes || form?.ingredientes?.length == 0) {
       errors.ingredientes = "Los ingredientes son requeridos";
     }
@@ -88,14 +89,19 @@ export const RecetaProvider = ({ children }) => {
 
   const handleCloseVentEmergenteEditReceta = () => {
     setShowVentEmergenteEditReceta(false);
+    setIdReceta(0)
+    setRecetaSelected({})
   };
 
   const handleCloseVentEmergenteAddReceta = () => {
     setShowVentEmergenteAddReceta(false);
+    setRecetaToInsert({})
   };
 
   const handleCloseVentEmergenteConfReceta = () => {
-    setShowVentEmergenteConfReceta(false);
+    setShowVentEmergenteConfReceta(false);    
+    setRecetaSelected({})
+
   };
 
   const handleCloseConfInsert=async()=>{
@@ -193,7 +199,7 @@ export const RecetaProvider = ({ children }) => {
   useEffect(() => {
     const getRecetabyidReceta = async () => {
       let receta = await getRecetaById(idReceta);
-      setRecetaSelected(receta);
+      setRecetaSelected(receta[0]);
     };
     if (idReceta > 0) {
       getRecetabyidReceta();
@@ -308,11 +314,25 @@ export const RecetaProvider = ({ children }) => {
     console.log(recetas);
     setDb(recetas);
   };
+
+  let getallRecetasbypaciente = async () => {
+    let recetas = await getRecetaByPaciente(ndocuPaciente);
+    console.log(recetas);
+    setDb(recetas);
+  };
+
   useEffect(() => {
     
+    //en el caso que el usuario que entre tengo un rol diferente al de paciente, se mostraran todas las recetas
+    if(ndocuPaciente>0){
+      getallRecetasbypaciente(ndocuPaciente)
+    }else{
+      getallRecetas();
+    }
+    //ahora traemos las recetas del paciente, de acuerdo a su ndocu
 
-    getallRecetas();
-  }, []);
+
+  }, [ndocuPaciente]);
 
   useEffect(() => {
     let errores = validationsForm(recetaToInsert);

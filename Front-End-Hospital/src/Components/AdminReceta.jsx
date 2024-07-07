@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Table } from "antd";
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
 import { Button, ButtonGroup } from '@chakra-ui/react'
@@ -18,11 +18,23 @@ export const AdminReceta = () => {
     setShowVentEmergenteAddReceta,
     handleCloseVentEmergenteAddReceta,
     handleSearch,
+    setNdocuPaciente
   } = useContext(RecetaContext);
+
+  useEffect(()=>{
+    //necesito saber el rol del usuario, si es 3 es paciente
+    if(localStorage.getItem('rol')==3){
+      //es paciente traemos las reservas
+      setNdocuPaciente(localStorage.getItem('dni'))
+      
+    }
+
+  },[])
+
   return (
     <div>
       <Button
-        className="btn_agregar_receta"
+        className="btn_agregar"
         colorScheme='green'
         onClick={() => setShowVentEmergenteAddReceta(true)}
       >

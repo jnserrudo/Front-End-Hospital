@@ -19,8 +19,8 @@ export const VentEmergenteEditReceta = ({isOpen,onClose,recetaSelected}) => {
         </div>
         
         <EditReceta onCloseEdit={onClose} receta={recetaSelected} />
-        <button className={`popup-close-btn`} onClick={onClose}>Aceptar</button>
-      </div>
+{/*         <button className={`popup-close-btn`} onClick={onClose}>Aceptar</button>
+ */}      </div>
     </div>
   )
 }
