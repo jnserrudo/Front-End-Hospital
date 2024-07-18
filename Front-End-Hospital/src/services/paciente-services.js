@@ -1,4 +1,5 @@
-import { entorno } from "./confing";
+import { entorno } from "./config";
+
 
 export const getAllPacientes = async () => {
   console.log('antes del fetch get all pacientes')
@@ -71,6 +72,22 @@ export const inhabilitarPaciente = async (
       "Content-Type": "application/json",
     },
   });
+  const data = await res.json();
+  return data;
+};
+
+
+
+export const getInformacionxPaciente = async (idUsuario) => {
+  console.log("se trae las informaciones del paciente con idUsuario: ", idUsuario);
+  const res = await fetch(`${entorno}/pacientes/informacion/patologias/${idUsuario}`);
+  const data = await res.json();
+  return data;
+};
+
+export const getEjercicioxPaciente = async (idUsuario) => {
+  console.log("se trae los ejercicios del paciente con idUsuario: ", idUsuario);
+  const res = await fetch(`${entorno}/pacientes/ejercicios/patologias/${idUsuario}`);
   const data = await res.json();
   return data;
 };

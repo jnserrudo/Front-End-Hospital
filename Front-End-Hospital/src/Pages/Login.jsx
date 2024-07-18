@@ -45,6 +45,7 @@ export const Login = () => {
 
     if (token && !token?.error) {
       setIdUsuario(id);
+      localStorage.setItem("idUsuario", id);
       localStorage.setItem("token", token);
       setBandAuth(true);
       let rol = await getRolByUser(usuario);

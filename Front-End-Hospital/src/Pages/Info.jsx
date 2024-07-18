@@ -3,6 +3,7 @@ import { Select, Space } from "antd";
 import { ListVideos } from "../Components/ListVideos";
 import InformacionContext from "../Contexts/InformacionContext";
 import { entorno } from "../services/config";
+import { getInformacionxPaciente } from "../services/paciente-services";
 
 export const Info = () => {
   //esta vble videos sera reemplazada por un listado de videos que ser iran cargando con sus URLs en la BD
@@ -52,18 +53,41 @@ export const Info = () => {
     generateRandomPatologias();
   }, []);
 
+  const getinformacionxpaciente=async(idUsuario)=>{
+    
+    const infos=await getInformacionxPaciente(idUsuario)
+    let videosOfInfo = infos.map((videos) => {
+      if (videos.urlVideo) {
+        return {
+          url: entorno.slice(0, -4) + videos.urlVideo,
+        };
+      }
+    });
+    console.log(videosOfInfo);
+    setVideos(videosOfInfo);
+  }
+
   useEffect(() => {
-    if (db?.length > 0) {
-      let videosOfInfo = db.map((videos) => {
-        if (videos.urlVideo) {
-          return {
-            url: entorno.slice(0, -4) + videos.urlVideo,
-          };
-        }
-      });
-      console.log(videosOfInfo);
-      setVideos(videosOfInfo);
+    console.log(db)
+    //vamos a traer las pagologias relacionadas con el usuario
+    localStorage.getItem('idUsuario')
+    console.log(localStorage.getItem('idUsuario'))
+    if(localStorage.getItem('rol')==3){
+      getinformacionxpaciente(localStorage.getItem('idUsuario'))
+    }else{
+      if (db?.length > 0) {
+        let videosOfInfo = db.map((videos) => {
+          if (videos.urlVideo) {
+            return {
+              url: entorno.slice(0, -4) + videos.urlVideo,
+            };
+          }
+        });
+        console.log(videosOfInfo);
+        setVideos(videosOfInfo);
+      }
     }
+    
   }, [db]);
 
   const handleChange = (value) => {

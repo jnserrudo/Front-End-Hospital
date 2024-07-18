@@ -3,6 +3,7 @@ import { Select, Space } from "antd";
 import { ListVideos } from "../Components/ListVideos";
 import EjercicioContext from "../Contexts/EjercicioContext";
 import { entorno } from "../services/config";
+import { getEjercicioxPaciente } from "../services/paciente-services";
 
 export const Ejercicio = () => {
   /* let videos = [
@@ -54,18 +55,42 @@ export const Ejercicio = () => {
     generateRandomPatologias();
   }, []);
 
+  const getejerciciosxpaciente=async(idUsuario)=>{
+    
+    const ejercicios=await getEjercicioxPaciente(idUsuario)
+    console.log(ejercicios)
+    let videosOfEjercicio = ejercicios.map((videos) => {
+      if (videos.urlVideo) {
+        return {
+          url: entorno.slice(0, -4) + videos.urlVideo,
+        };
+      }
+    });
+    console.log(videosOfEjercicio);
+    setVideos(videosOfEjercicio);
+  }
+
   useEffect(() => {
-    if (db?.length > 0) {
-      let videosOfEjercicio = db.map((videos) => {
-        if (videos.urlVideo) {
-          return {
-            url: entorno.slice(0, -4) + videos.urlVideo,
-          };
-        }
-      });
-      console.log(videosOfEjercicio);
-      setVideos(videosOfEjercicio);
+    console.log(db)
+    //vamos a traer las pagologias relacionadas con el usuario
+    localStorage.getItem('idUsuario')
+    console.log(localStorage.getItem('idUsuario'))
+    if(localStorage.getItem('rol')==3){
+      getejerciciosxpaciente(localStorage.getItem('idUsuario'))
+    }else{
+      if (db?.length > 0) {
+        let videosOfEjercicio = db.map((videos) => {
+          if (videos.urlVideo) {
+            return {
+              url: entorno.slice(0, -4) + videos.urlVideo,
+            };
+          }
+        });
+        console.log(videosOfEjercicio);
+        setVideos(videosOfEjercicio);
+      }
     }
+    
   }, [db]);
 
   const handleChange = (value) => {
