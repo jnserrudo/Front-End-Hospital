@@ -145,7 +145,7 @@ export const Recetas = () => {
         <img src="/recetas.svg" alt="" />
         <div className="cont_sel_recetas">
           <b>Recetas Saludables</b>
-          <p>Elige Patología</p>
+          {/* <p>Elige Patología</p>
           <Select
             className="select_recetas select_patologias"
             mode="multiple"
@@ -154,11 +154,10 @@ export const Recetas = () => {
               width: "100%",
             }}
             placeholder="Seleccione una Patologia"
-            /* defaultValue={["a10", "c12"]} */
             onChange={handleChange}
             options={options}
             color
-          />
+          /> */}
         </div>
       </nav>
       <div className="cont_recetas">

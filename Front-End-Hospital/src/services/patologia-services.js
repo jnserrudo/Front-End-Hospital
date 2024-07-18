@@ -41,3 +41,17 @@ export const insertPatologia = async (
   const data = await res.json();
   return data;
 };
+
+
+export const inhabilitarPatologia = async (
+  id
+) => {
+  const res = await fetch(`${entorno}/patologia/inhabilitar/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json();
+  return data;
+};

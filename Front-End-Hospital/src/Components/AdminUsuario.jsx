@@ -7,6 +7,8 @@ import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
 import UsuarioContext from "../Contexts/UsuarioContext";
 import { VentEmergenteAddUsuario } from "./VentEmergenteAddUsuario";
 import { VentEmergenteEditUsuario } from "./VentEmergenteEditUsuario";
+import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
+import { inhabilitarUsuario } from "../services/usuario-services";
 export const AdminUsuario = () => {
   const {
     db,
@@ -18,8 +20,19 @@ export const AdminUsuario = () => {
     setShowVentEmergenteAddUsuario,
     handleCloseVentEmergenteAddUsuario,
     handleSearch,
+    idUsuario,
+    showVentEmergenteDelete,
+    setShowVentEmergenteDelete,
   } = useContext(UsuarioContext);
 console.log(db,columns)
+
+const inhabilitarRegistro=async(id)=>{
+  console.log("inhabilitarRegistro: ",id)
+  const result=await inhabilitarUsuario(id)
+  console.log("resultado de inhabilitar: ",result)
+
+}
+
   return (
     <div>
       <Button
@@ -50,6 +63,13 @@ console.log(db,columns)
         isOpen={showVentEmergenteEditUsuario}
         usuarioSelected={usuarioSelected}
         onClose={handleCloseVentEmergenteEditUsuario}
+      />
+      
+      <VentEmergConfirmacion
+        mje={"Esta seguro de eliminar este registro?"}
+        isOpen={showVentEmergenteDelete}
+        onClose={() => setShowVentEmergenteDelete(false)}
+        handleSi={()=>inhabilitarRegistro(idUsuario)}
       />
     </div>
   );

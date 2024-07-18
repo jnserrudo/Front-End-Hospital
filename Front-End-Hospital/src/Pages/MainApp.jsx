@@ -133,7 +133,6 @@ export const MainApp = () => {
     }
   }, [token, navigate]);
   let admin = true;
-
   return (
     <div>
             <Toaster position="top-center" reverseOrder={false} />
@@ -180,7 +179,7 @@ export const MainApp = () => {
             </TabPanel>
             <TabPanel>
               {/* {admin?<Administracion />:null} */}
-              {admin ? <PanelAdministracion /> : null}
+              {localStorage.getItem("rol") != 3 ? <PanelAdministracion /> : null}
             </TabPanel>
           </TabPanels>
         </Tabs>

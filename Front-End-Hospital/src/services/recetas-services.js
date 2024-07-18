@@ -68,3 +68,18 @@ export const insertReceta = async (
   const data = await res.json();
   return data;
 };
+
+
+
+export const inhabilitarRecetas = async (
+  id
+) => {
+  const res = await fetch(`${entorno}/recetas/inhabilitar/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json();
+  return data;
+};

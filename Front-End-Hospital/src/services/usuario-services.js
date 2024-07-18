@@ -6,14 +6,14 @@ export const getAllUsuarios = async () => {
   const data = await res.json();
   return data;
 };
-
+/* 
 export const getPatologiaToUsuarioEdit = async () => {
   console.log("antes del fetch get all usuarios");
   const res = await fetch(`${entorno}/usuarios`);
   const data = await res.json();
   return data;
 };
-
+ */
 export const getUsuarioById = async (id) => {
   console.log("se trae al usuario con id: ", id);
   const res = await fetch(`${entorno}/usuarios/${id}`);
@@ -44,6 +44,7 @@ export const getRolByUser = async (user) => {
 };
 
 export const updateUsuario = async (usuario) => {
+  console.log("se esta por actualizar el usuario: ",usuario)
   const res = await fetch(`${entorno}/usuarios/${usuario.id}`, {
     method: "PUT",
     headers: {
@@ -101,6 +102,29 @@ export const getJwtToken = async (usuario, password) => {
       password,
     }),
   });
+  const data = await res.json();
+  return data;
+};
+
+
+
+export const inhabilitarUsuario = async (
+  id
+) => {
+  const res = await fetch(`${entorno}/usuarios/inhabilitar/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json();
+  return data;
+};
+
+
+export const getPatologiaToUsuarioEdit = async (id) => {
+  console.log("se trae al usuario con id: ", id);
+  const res = await fetch(`${entorno}/usuarios/patologia/edit/${id}`);
   const data = await res.json();
   return data;
 };

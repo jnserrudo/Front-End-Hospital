@@ -71,7 +71,7 @@ export const AddUsuario = ({ onClosePadre }) => {
             placeholder=""
             name="dni"
             variant="outlined"
-            type="text"
+            type="number"
             value={usuarioToInsert?.dni ? usuarioToInsert.dni : ""}
             onChange={(e) => handleChangeInputInsert(e)}
           />
@@ -238,8 +238,13 @@ export const AddUsuario = ({ onClosePadre }) => {
         mje={"Esta seguro de agregar al usuario? "}
         /* handleSi={handleInsert} */
         handleSi={()=>{
-          handleInsert()
-          toast.success("Se agrego el usuario!")
+          toast.promise(handleInsert(), {
+            loading: "Cargando",
+            success: <b>Se agrego el usuario!</b>,
+            error: <b>No se pudo agregar al Usuario.</b>,
+          });
+          
+          //toast.success("Se agrego el usuario!")
         }}
         isOpen={showVentEmergenteConfirmacion}
       />

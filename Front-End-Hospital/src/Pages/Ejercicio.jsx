@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Select, Space } from "antd";
 import { ListVideos } from "../Components/ListVideos";
+import EjercicioContext from "../Contexts/EjercicioContext";
+import { entorno } from "../services/config";
 
 export const Ejercicio = () => {
-  let videos = [
+  /* let videos = [
     {
       url: "https://www.youtube.com/embed/9V_HpS9p4QY?si=Y39GmSEWvgUGROZ8",
     },
@@ -28,10 +30,12 @@ export const Ejercicio = () => {
     {
       url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
     },
-  ];
+  ]; */
+  const [videos, setVideos] = useState([]);
 
   const [options, setOptions] = useState([]);
-
+  const { db } = useContext(EjercicioContext);
+  console.log(db);
   // Generar opciones de patologías aleatorias
   const generateRandomPatologias = () => {
     const patologias = [];
@@ -50,6 +54,20 @@ export const Ejercicio = () => {
     generateRandomPatologias();
   }, []);
 
+  useEffect(() => {
+    if (db?.length > 0) {
+      let videosOfEjercicio = db.map((videos) => {
+        if (videos.urlVideo) {
+          return {
+            url: entorno.slice(0, -4) + videos.urlVideo,
+          };
+        }
+      });
+      console.log(videosOfEjercicio);
+      setVideos(videosOfEjercicio);
+    }
+  }, [db]);
+
   const handleChange = (value) => {
     console.log(`selected ${value}`);
   };
@@ -59,7 +77,7 @@ export const Ejercicio = () => {
         <img src="/recetas.svg" alt="" />
         <div className="cont_sel_recetas">
         <b>Ejercicios Saludables</b>
-        <p>Elige Patología</p>
+       {/*  <p>Elige Patología</p>
           <Select
             className="select_recetas"
             mode="multiple"
@@ -72,7 +90,7 @@ export const Ejercicio = () => {
             onChange={handleChange}
             options={options}
             color
-          />
+          /> */}
         </div>
       </nav>
       <div className="cont_ejercicio">

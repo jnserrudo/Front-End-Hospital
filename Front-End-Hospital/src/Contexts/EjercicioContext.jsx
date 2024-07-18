@@ -2,27 +2,42 @@ import React, { createContext, useEffect, useState } from "react";
 import {
   getAllEjercicios,
   getEjercicioById,
+  getPatologiaToEjercicioAdd,
+  getPatologiaToEjercicioEdit,
   insertEjercicio,
   updateEjercicio,
 } from "../services/ejercicio-services";
-import { EditOutlined, DragOutlined } from "@ant-design/icons";
+import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
 const EjercicioContext = createContext();
 export const EjercicioProvider = ({ children }) => {
   const [db, setDb] = useState([]);
-  const [dbSearch, setDbSearch] = useState([])
+  const [dbSearch, setDbSearch] = useState([]);
   const [idEjercicio, setIdEjercicio] = useState(0);
   const [ejercicioSelected, setEjercicioSelected] = useState({});
 
-  const [showVentEmergenteEditEjercicio, setShowVentEmergenteEditEjercicio] =
-    useState(false);
-    const [showVentEmergenteAddEjercicio, setShowVentEmergenteAddEjercicio] =
+  const [showVentEmergenteDelete, setShowVentEmergenteDelete] = useState(false);
+  const [
+    showVentEmergenteEditEjercicio,
+    setShowVentEmergenteEditEjercicio,
+  ] = useState(false);
+  const [showVentEmergenteAddEjercicio, setShowVentEmergenteAddEjercicio] =
     useState(false);
   const [ejercicioToInsert, setEjercicioToInsert] = useState({});
   const [bandInsert, setBandInsert] = useState(false);
 
-  const [showVentEmergenteConfEjercicio, setShowVentEmergenteConfEjercicio] = useState(false);
+  const [
+    showVentEmergenteConfEjercicio,
+    setShowVentEmergenteConfEjercicio,
+  ] = useState(false);
 
-  const [bandLoader, setBandLoader] = useState(false)
+  const [bandLoader, setBandLoader] = useState(false);
+
+  const [patologiasxEjercicioAdd, setPatologiasxEjercicioAdd] = useState(
+    []
+  );
+  const [patologiasxEjercicioEdit, setPatologiasxEjercicioEdit] = useState(
+    []
+  );
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -43,56 +58,53 @@ export const EjercicioProvider = ({ children }) => {
       errors.descripcion = "La descripcion es requerida";
     }
 
-    console.log(errors)
+    console.log(errors);
 
     return errors;
   };
 
-  const handleSearch=(busq)=>{
-    console.log(busq)
-    console.log(db)
-    let coincidencias=[]
-    for(let pac of db){
-      for(let x of Object.values(pac) ){
-        if(x.toString().toLowerCase().includes(busq.toLowerCase())){
-          console.log(x)
-          coincidencias.push(pac)
+  const handleSearch = (busq) => {
+    console.log(busq);
+    console.log(db);
+    let coincidencias = [];
+    for (let pac of db) {
+      for (let x of Object.values(pac)) {
+        if (x.toString().toLowerCase().includes(busq.toLowerCase())) {
+          console.log(x);
+          coincidencias.push(pac);
           break;
         }
       }
     }
 
-    setDbSearch(coincidencias)
-    console.log("coincidencias: ",coincidencias)
-  }
-
+    setDbSearch(coincidencias);
+    console.log("coincidencias: ", coincidencias);
+  };
 
   const handleCloseVentEmergenteEditEjercicio = () => {
     setShowVentEmergenteEditEjercicio(false);
-    setIdEjercicio(0)
+    setIdEjercicio(0);
   };
 
   const handleCloseVentEmergenteAddEjercicio = () => {
     setShowVentEmergenteAddEjercicio(false);
-    setEjercicioToInsert({})
-
+    //setEjercicioToInsert({})
   };
 
   const handleCloseVentEmergenteConfEjercicio = () => {
     setShowVentEmergenteConfEjercicio(false);
   };
 
-  const handleCloseConfInsert=async()=>{
+  const handleCloseConfInsert = async () => {
     //se confirmo que se agregara el Ejercicio
-    setBandLoader(true)
-    await handleInsert()
-   
-    setEjercicioToInsert({})
-    setBandInsert(false)
-    setBandLoader(false)
+    setBandLoader(true);
+    await handleInsert();
+
+    //setEjercicioToInsert({})
+    setBandInsert(false);
+    setBandLoader(false);
     //de alguna manera actualizar la tabla para que se pueda ver al nuevo Ejercicio
-  
-  }
+  };
 
   const handleChangeInputInsert = (e) => {
     console.log("name: ", e.target.name, " value: ", e.target.value);
@@ -129,28 +141,57 @@ export const EjercicioProvider = ({ children }) => {
     setShowVentEmergenteEditEjercicio(true);
   };
 
-  const handleUpdate=async(ejercicio)=>{
-      
-    const actualizarEjercicio=async(ejercicio)=>{
-      console.log("se esta por actualizar este ejercicio: ",ejercicio)
-      const update=await updateEjercicio(ejercicio)
-      console.log("update: ",update)
-    }
-    
-      //activar loader
-      setBandLoader(true);
-      let resupdate=await  actualizarEjercicio(ejercicio)
-      getallEjercicios();
+  const handleChangeSelectInsert = (e) => {
+    let newValue = {
+      ...ejercicioToInsert,
+      idsPatologias: e,
+    };
+    console.log(newValue);
+    setEjercicioToInsert(newValue);
+  };
 
-      console.log(resupdate)
-      setBandLoader(false);
-    
+  const handleChangeSelect = (e) => {
+    let newValue = {
+      ...ejercicioSelected,
+      idsPatologias: e,
+    };
 
-  }
+    console.log(newValue);
+    setEjercicioSelected(newValue);
+  };
+
+  const handleDelete = async (record) => {
+    setIdEjercicio(record.id);
+    setShowVentEmergenteDelete(true);
+  };
+
+  const handleUpdate = async (ejercicio) => {
+    const actualizarEjercicio = async (ejercicio) => {
+      console.log("se esta por actualizar este ejercicio: ", ejercicio);
+      const update = await updateEjercicio(ejercicio);
+      console.log("update: ", update);
+    };
+
+    //activar loader
+    setBandLoader(true);
+    let resupdate = await actualizarEjercicio(ejercicio);
+    getallEjercicios();
+
+    console.log(resupdate);
+    setBandLoader(false);
+  };
 
   const handleSeePacient = (ejercicio) => {
     console.log("viendo: ", ejercicio);
   };
+
+  useEffect(() => {
+    //este useEffect lo que hara es que traera las recetas luego de una posible eliminacion
+    //posible porque cuando sea falso, se habra cerrado la ventana de confirmacion del delete y traera las recetas
+    if (!showVentEmergenteDelete) {
+      getallEjercicios();
+    }
+  }, [showVentEmergenteDelete]);
 
   useEffect(() => {
     const getEjerciciobyId = async () => {
@@ -160,6 +201,45 @@ export const EjercicioProvider = ({ children }) => {
     if (idEjercicio > 0) {
       getEjerciciobyId();
     }
+  }, [idEjercicio]);
+
+  useEffect(() => {
+    const getpatologiatoejercicioadd = async () => {
+      const patologias = await getPatologiaToEjercicioAdd();
+      console.log("trae patologias para ejercicio",patologias)
+      if (patologias.length > 0) {
+        let alToSelect = patologias.map((pat) => {
+          return {
+            label: pat.nombre,
+            value: pat.id,
+          };
+        });
+        setPatologiasxEjercicioAdd(alToSelect);
+      }
+    };
+    getpatologiatoejercicioadd();
+  }, []);
+
+  useEffect(() => {
+    const getpatologiatopatologiaedit = async () => {
+      const patologias = await getPatologiaToEjercicioEdit(idEjercicio);
+      console.log("trae patologias para ejercicio edit",idEjercicio ,patologias)
+
+      if (Object.values(patologias).length > 0) {
+        console.log(patologias)
+        setPatologiasxEjercicioEdit(patologias)
+        /* let alToSelect = patologias.map((pat) => {
+          return {
+            label: pat.nombre,
+            value: pat.id,
+          };
+        });
+        console.log(alToSelect)
+        setPatologiasxEjercicioEdit(alToSelect) */;
+      }
+    };
+
+    getpatologiatopatologiaedit();
   }, [idEjercicio]);
 
   const columns = [
@@ -180,7 +260,7 @@ export const EjercicioProvider = ({ children }) => {
       dataIndex: "descripcion",
       align: "center",
     },
-   
+
     {
       title: "Acciones",
       key: "acciones",
@@ -195,54 +275,66 @@ export const EjercicioProvider = ({ children }) => {
             className="icon_accion"
             onClick={(e) => handleEditEjercicio(record)}
           />
+          <DeleteOutlined
+            className="icon_accion"
+            onClick={(e) => handleDelete(record)}
+          />
         </div>
       ),
     },
   ];
 
-  const handleInsert = async() => {
+  const handleInsert = async () => {
     if (bandInsert) {
       //validar para insert
-      console.log(" se esta por insertar el ejercicio: ", ejercicioToInsert)
+      console.log(
+        " se esta por insertar el ejercicio: ",
+        ejercicioToInsert
+      );
       await addEjercicio(ejercicioToInsert);
-      handleCloseVentEmergenteConfEjercicio()
-      handleCloseVentEmergenteAddEjercicio()
+      handleCloseVentEmergenteConfEjercicio();
+      handleCloseVentEmergenteAddEjercicio();
     }
   };
   const addEjercicio = async (ejercicio) => {
     let insert = await insertEjercicio(ejercicio);
     console.log(insert);
-      //esto es solo de prueba para que se visualize momentaneamente el ejercicio agregado
-      setDb([insert/* ejercicio */,...db])
+    //esto es solo de prueba para que se visualize momentaneamente el ejercicio agregado
+    setDb([insert /* ejercicio */, ...db]);
+    if (!!insert && Object.values(insert).length > 0) {
+      setEjercicioToInsert({});
+    }
 
     return insert;
   };
 
   let getallEjercicios = async () => {
-    console.log("getallEjercicios")
-    
+    console.log("getallEjercicios");
     let ejercicios = await getAllEjercicios();
     console.log(ejercicios);
     setDb(ejercicios);
   };
   useEffect(() => {
-    
-    console.log("getallEjercicios")
+    console.log("getallEjercicios");
 
     getallEjercicios();
   }, []);
 
   useEffect(() => {
-    console.log(ejercicioToInsert)
+    console.log(ejercicioToInsert);
     let errores = validationsForm(ejercicioToInsert);
     console.log(errores);
     console.log(Object.keys(errores).length);
     if (Object.keys(errores).length == 0) {
       setBandInsert(true);
-    }else{
+    } else {
       setBandInsert(false);
     }
     //setBandInsert()
+    if (ejercicioToInsert?.urlVideo?.length > 0) {
+      console.log("Ejecutando handleInsert");
+      handleInsert();
+    }
   }, [ejercicioToInsert]);
 
   let data = {
@@ -253,10 +345,16 @@ export const EjercicioProvider = ({ children }) => {
     setShowVentEmergenteEditEjercicio: showVentEmergenteEditEjercicio,
     ejercicioToInsert,
     bandInsert,
-    showVentEmergenteAddEjercicio, 
-    showVentEmergenteConfEjercicio, 
+    showVentEmergenteAddEjercicio,
+    showVentEmergenteConfEjercicio,
     bandLoader,
     dbSearch,
+    showVentEmergenteDelete,
+    patologiasxEjercicioAdd,
+    patologiasxEjercicioEdit,
+    handleChangeSelectInsert,
+    handleChangeSelect,
+    setShowVentEmergenteDelete,
     handleSearch,
     handleCloseConfInsert,
     setShowVentEmergenteConfEjercicio,
@@ -268,11 +366,12 @@ export const EjercicioProvider = ({ children }) => {
     handleChangeInputInsert,
     handleEditEjercicio: handleEditEjercicio,
     handleSeePacient: handleSeePacient,
-    handleCloseVentEmergenteEditEjercicio: handleCloseVentEmergenteEditEjercicio,
+    handleCloseVentEmergenteEditEjercicio:
+      handleCloseVentEmergenteEditEjercicio,
     handleChangeInput,
     addEjercicio,
     handleInsert,
-    handleUpdate
+    handleUpdate,
   };
   return (
     <EjercicioContext.Provider value={data}>

@@ -5,14 +5,15 @@ import {
   insertPatologia,
   updatePatologia,
 } from "../services/patologia-services";
-import { EditOutlined, DragOutlined } from "@ant-design/icons";
+import { EditOutlined, DragOutlined ,DeleteOutlined} from "@ant-design/icons";
 const PatologiaContext = createContext();
 export const PatologiaProvider = ({ children }) => {
   const [db, setDb] = useState([]);
   const [dbSearch, setDbSearch] = useState([])
   const [idPatologia, setIdPatologia] = useState(0);
   const [patologiaSelected, setPatologiaSelected] = useState({});
-
+  const [showVentEmergenteDelete, setShowVentEmergenteDelete] =
+  useState(false);
   const [showVentEmergenteEditPatologia, setShowVentEmergenteEditPatologia] =
     useState(false);
     const [showVentEmergenteAddPatologia, setShowVentEmergenteAddPatologia] =
@@ -129,6 +130,13 @@ export const PatologiaProvider = ({ children }) => {
     setShowVentEmergenteEditPatologia(true);
   };
 
+  const handleDelete=async(record)=>{
+    setIdPatologia(record.id)
+    setShowVentEmergenteDelete(true)
+
+
+  }
+
   const handleUpdate=async(patologia)=>{
       
     const actualizarPatologia=async(patologia)=>{
@@ -151,6 +159,15 @@ export const PatologiaProvider = ({ children }) => {
   const handleSeePacient = (patologia) => {
     console.log("viendo: ", patologia);
   };
+
+
+  useEffect(() => {
+    //este useEffect lo que hara es que traera las recetas luego de una posible eliminacion
+    //posible porque cuando sea falso, se habra cerrado la ventana de confirmacion del delete y traera las recetas
+    if (!showVentEmergenteDelete) {
+      getallPatologias()
+    }
+  }, [showVentEmergenteDelete]);
 
   useEffect(() => {
     const getPatologiabyId = async () => {
@@ -195,6 +212,10 @@ export const PatologiaProvider = ({ children }) => {
             className="icon_accion"
             onClick={(e) => handleEditPatologia(record)}
           />
+          <DeleteOutlined
+            className="icon_accion"
+            onClick={(e) => handleDelete(record)} />
+        
         </div>
       ),
     },
@@ -254,6 +275,10 @@ export const PatologiaProvider = ({ children }) => {
     showVentEmergenteConfPatologia, 
     bandLoader,
     dbSearch,
+    showVentEmergenteDelete, 
+    idPatologia, 
+    setIdPatologia,
+    setShowVentEmergenteDelete,
     handleSearch,
     handleCloseConfInsert,
     setShowVentEmergenteConfPatologia,

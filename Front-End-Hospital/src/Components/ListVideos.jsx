@@ -8,8 +8,8 @@ export const ListVideos = ({ videos }) => {
     <div className="cont_videos">
       {videos.map((v, index) => (
         <div key={index} className="cont_video">
-          {/* <ReactPlayer width="100%" height="100%" url={v.url} /> */}
-          <iframe
+          <ReactPlayer width="100%" height="100%" url={v.url} controls />
+          {/* <iframe
             width="100%"
             height="100%"
             src={v.url}
@@ -18,7 +18,7 @@ export const ListVideos = ({ videos }) => {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerpolicy="strict-origin-when-cross-origin"
             allowfullscreen
-          ></iframe>
+          ></iframe> */}
           ;
         </div>
       ))}

@@ -7,6 +7,8 @@ import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
 import PatologiaContext from "../Contexts/PatologiaContext";
 import { VentEmergenteAddPatologia } from "./VentEmergenteAddPatologia";
 import { VentEmergenteEditPatologia } from "./VentEmergenteEditPatologia";
+import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
+import { inhabilitarPatologia } from "../services/patologia-services";
 export const AdminPatologia = () => {
   const {
     db,
@@ -18,8 +20,19 @@ export const AdminPatologia = () => {
     setShowVentEmergenteAddPatologia,
     handleCloseVentEmergenteAddPatologia,
     handleSearch,
+    idPatologia,
+    showVentEmergenteDelete,
+    setShowVentEmergenteDelete,
   } = useContext(PatologiaContext);
 console.log(columns)
+
+const inhabilitarRegistro=async(id)=>{
+  console.log("inhabilitarRegistro: ",id)
+  const result=await inhabilitarPatologia(id)
+  console.log("resultado de inhabilitar: ",result)
+
+}
+
   return (
     <div>
       <Button
@@ -50,6 +63,13 @@ console.log(columns)
         isOpen={showVentEmergenteEditPatologia}
         patologiaSelected={patologiaSelected}
         onClose={handleCloseVentEmergenteEditPatologia}
+      />
+      
+      <VentEmergConfirmacion
+        mje={"Esta seguro de eliminar este registro?"}
+        isOpen={showVentEmergenteDelete}
+        onClose={() => setShowVentEmergenteDelete(false)}
+        handleSi={()=>inhabilitarRegistro(idPatologia)}
       />
     </div>
   );

@@ -1,17 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Select, Space } from "antd";
 import { ListVideos } from "../Components/ListVideos";
+import InformacionContext from "../Contexts/InformacionContext";
+import { entorno } from "../services/config";
 
 export const Info = () => {
   //esta vble videos sera reemplazada por un listado de videos que ser iran cargando con sus URLs en la BD
-  
-  let videos = [
-   /*  {
-      url: "https://www.youtube.com/embed/9V_HpS9p4QY?si=Y39GmSEWvgUGROZ8",
-    },
-    {
-      url: "https://www.youtube.com/embed/9V_HpS9p4QY?si=Y39GmSEWvgUGROZ8",
-    }, */
+  const [videos, setVideos] = useState([]);
+  /* let videos = [
+   
     {
       url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
     },
@@ -30,9 +27,12 @@ export const Info = () => {
     {
       url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
     },
-  ];
+  ]; */
 
   const [options, setOptions] = useState([]);
+
+  const { db } = useContext(InformacionContext);
+  console.log(db);
 
   // Generar opciones de patologías aleatorias
   const generateRandomPatologias = () => {
@@ -52,6 +52,20 @@ export const Info = () => {
     generateRandomPatologias();
   }, []);
 
+  useEffect(() => {
+    if (db?.length > 0) {
+      let videosOfInfo = db.map((videos) => {
+        if (videos.urlVideo) {
+          return {
+            url: entorno.slice(0, -4) + videos.urlVideo,
+          };
+        }
+      });
+      console.log(videosOfInfo);
+      setVideos(videosOfInfo);
+    }
+  }, [db]);
+
   const handleChange = (value) => {
     console.log(`selected ${value}`);
   };
@@ -60,8 +74,8 @@ export const Info = () => {
       <nav className="nav_recetas">
         <img src="/recetas.svg" alt="" />
         <div className="cont_sel_recetas">
-        <b>Informacion Saludable</b>
-        <p>Elige Patología</p>
+          <b>Informacion Saludable</b>
+          {/* <p>Elige Patología</p>
           <Select
             className="select_recetas"
             mode="multiple"
@@ -74,7 +88,7 @@ export const Info = () => {
             onChange={handleChange}
             options={options}
             color
-          />
+          /> */}
         </div>
       </nav>
       <div className="cont_info">

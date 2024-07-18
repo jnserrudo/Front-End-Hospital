@@ -29,6 +29,7 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
   const [patologiasAsociadas, setPatologiasAsociadas] = useState([]);
   const [patologiasNoAsociadas, setPatologiasNoAsociadas] = useState([]);
   const [selectedPatologias, setSelectedPatologias] = useState([]);
+  const [opcionesPatologias, setOpcionesPatologias] = useState([])
 
   const {
     handleChangeInput,
@@ -39,6 +40,7 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
     handleChangeSelectRolEdit,
     handleChangeSelectEdit,
     handleChangeSelect,
+    patologiasToUsuarioEdit
   } = useContext(UsuariosContext);
   if (!usuario) {
     return null;
@@ -47,7 +49,7 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
   const handleCloseVentEmergente = async () => {
     setShowVentEmergenteConfirmacion(false);
   };
-  const opcionesPatologias = [
+  /* const opcionesPatologias = [
     ...patologiasAsociadas.map((p) => ({
       label: p.nombre,
       value: p.id,
@@ -58,7 +60,7 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
       value: p.id,
       type: "no-asociada",
     })),
-  ];
+  ]; */
 
   const sharedPropsRoles = {
     /* mode: "multiple", */
@@ -100,23 +102,48 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
     } */
   };
 
-  /* 
   useEffect(() => {
-    if (patologiasxUsuariosEdit && patologiasxUsuariosEdit.length > 0) {
-      setPatologiasAsociadas(patologiasxUsuariosEdit.patologiasAsociadas);
-      setPatologiasNoAsociadas(patologiasxUsuariosEdit.patologiasNoAsociadas);
+    console.log(patologiasToUsuarioEdit)
+    if (patologiasToUsuarioEdit && Object.values(patologiasToUsuarioEdit).length > 0) {
+      setPatologiasAsociadas(patologiasToUsuarioEdit.patologiasAsociadas);
+      setPatologiasNoAsociadas(
+        patologiasToUsuarioEdit.patologiasNoAsociadas
+      );
       setSelectedPatologias(
-        patologiasxUsuariosEdit.patologiasAsociadas.map((p) => p.id)
+        patologiasToUsuarioEdit.patologiasAsociadas.map((p) => p.id)
       );
     }
-  }, [patologiasxUsuariosEdit]); // Dependencia cambiada a patologiasxUsuariosEdit
- */
+  }, [patologiasToUsuarioEdit]);
+
+  useEffect(()=>{
+    if(patologiasAsociadas.length>0 || patologiasNoAsociadas.length>0 ){
+      
+      console.log("patologiasAsociadas,patologiasNoAsociadas: ",patologiasAsociadas,patologiasNoAsociadas)
+      setOpcionesPatologias([
+        ...patologiasAsociadas.map((p) => ({
+          label: p.nombre,
+          value: p.id,
+          type: "asociada",
+        })),
+        ...patologiasNoAsociadas.map((p) => ({
+          label: p.nombre,
+          value: p.id,
+          type: "no-asociada",
+        })),
+      ])
+    }
+  },[patologiasAsociadas,patologiasNoAsociadas])
+
+
   console.log("viendo al usuario: ", usuario);
   useEffect(() => {
     setBandUpdated(bandEdit);
 
-    console.log("band edit y usuario blanqueado: ",bandEdit, usuario.blanqueado)
-
+    console.log(
+      "band edit y usuario blanqueado: ",
+      bandEdit,
+      usuario.blanqueado
+    );
   }, [bandEdit]);
 
   return (
@@ -125,8 +152,8 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
         {receta.nombre} {receta.apellido}{" "}
       </h2>
  */}
- 
-       <Toaster position="top-center" reverseOrder={false} />
+
+      <Toaster position="top-center" reverseOrder={false} />
 
       <div className="cont_form_input">
         <FormControl
@@ -269,15 +296,16 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
         <Button
           className="btn_accion_edit_receta"
           colorScheme="blue"
-          style={{ margin: "1rem auto 0" }}
-          isDisabled={!bandEdit || usuario.blanqueado!=1 }
-
-          onClick={()=> {
-            handleBlanqueo(usuario)
-            
-            toast.success('Usuario Blanqueado')
-            onCloseEdit()
-          }} 
+          style={{ margin: "1rem auto 1rem" }}
+          isDisabled={!bandEdit || usuario.blanqueado != 1}
+          onClick={() => {
+            toast.promise(handleBlanqueo(usuario), {
+              loading: "Cargando",
+              success: <b>Usuario Blanqueado!</b>,
+              error: <b>No se pudo blanquear al Usuario.</b>,
+            });
+            onCloseEdit();
+          }}
         >
           Blanquear Contraseña
         </Button>
@@ -297,6 +325,7 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
             size="sm"
             variant="outlined"
             type="text"
+            disabled={!bandEdit}
             value={usuario?.detalle ? usuario.detalle : ""}
             onChange={(e) => handleChangeInput(e)}
           />
@@ -347,8 +376,8 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
           receta?.apellido?.toUpperCase() + */
           " ?"
         }
-        /* handleSi={() => handleUpdate(receta)} */
-        handleSi={handleUpdateWithImage}
+        handleSi={() => handleUpdate(usuario)}
+        /*  handleSi={handleUpdateWithImage} */
         isOpen={showVentEmergenteConfirmacion}
       />
     </div>

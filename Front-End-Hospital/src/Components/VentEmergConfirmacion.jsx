@@ -7,7 +7,7 @@ import { LoaderEmergente } from "./LoaderEmergente";
 import PatologiasContext from "../Contexts/PatologiaContext";
 
 export const VentEmergConfirmacion = ({
-  onClosePadre,
+  onClosePadre = null,
   mje,
   isOpen,
   onClose,
@@ -28,23 +28,26 @@ export const VentEmergConfirmacion = ({
         </div>
 
         <p> {mje} </p>
-        <Space>
-          <Button colorScheme="blue" onClick={onClose}>
+        <div className="cont_btns_confirmacion" >
+          <Button width={'80px'} colorScheme="blue" onClick={onClose}>
             No
           </Button>
           <Button
             colorScheme="green"
+            width={'80px'}
             onClick={async () => {
               //aca definimos lo que pasara cuando se confirme la operacion
               //como asi tambien cerramos las ventanas emergente, de esta manera podemos reusar este componente en varios casos
               await handleSi();
               onClose();
-              onClosePadre();
+              if (onClosePadre) {
+                onClosePadre();
+              }
             }}
           >
             Si
           </Button>
-        </Space>
+        </div>
         {bandLoaderPatologia /* || bandLoaderConsulta */ ? (
           <LoaderEmergente />
         ) : null}

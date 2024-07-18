@@ -41,3 +41,29 @@ export const insertEjercicio = async (
   const data = await res.json();
   return data;
 };
+
+
+export const getPatologiaToEjercicioAdd = async () => {
+  console.log("se trae al ejercicio add: ");
+  const res = await fetch(`${entorno}/ejercicios/patologia/add`);
+  const data = await res.json();
+  return data;
+};
+export const getPatologiaToEjercicioEdit = async (id) => {
+  console.log("se trae al ejercicio con id: ", id);
+  const res = await fetch(`${entorno}/ejercicios/patologia/edit/${id}`);
+  const data = await res.json();
+  return data;
+};
+export const inhabilitarEjercicio = async (
+  id
+) => {
+  const res = await fetch(`${entorno}/ejercicios/inhabilitar/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json();
+  return data;
+};

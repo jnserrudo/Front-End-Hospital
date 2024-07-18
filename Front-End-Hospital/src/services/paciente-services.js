@@ -59,3 +59,18 @@ export const insertPaciente = async (
   const data = await res.json();
   return data;
 };
+
+
+
+export const inhabilitarPaciente = async (
+  id
+) => {
+  const res = await fetch(`${entorno}/paciente/inhabilitar/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await res.json();
+  return data;
+};

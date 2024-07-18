@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState } from "react";
 
-import { EditOutlined, DragOutlined } from "@ant-design/icons";
+import { EditOutlined, DragOutlined,DeleteOutlined } from "@ant-design/icons";
 import { getAllRecetas, getPatologiaToRecetaAdd, getPatologiaToRecetaEdit, getRecetaById, getRecetaByPaciente, insertReceta, updateReceta } from "../services/recetas-services";
 const RecetaContext = createContext();
 export const RecetaProvider = ({ children }) => {
@@ -12,6 +12,8 @@ export const RecetaProvider = ({ children }) => {
   const [patologiasxRecetasAdd, setPatologiasxRecetasAdd] = useState([])
   const [patologiasxRecetasEdit, setPatologiasxRecetasEdit] = useState([])
   
+  const [showVentEmergenteDelete, setShowVentEmergenteDelete] =
+  useState(false);
 
   const [showVentEmergenteEditReceta, setShowVentEmergenteEditReceta] =
     useState(false);
@@ -173,6 +175,14 @@ export const RecetaProvider = ({ children }) => {
     setShowVentEmergenteEditReceta(true);
   };
 
+
+  const handleDelete=async(record)=>{
+    setIdReceta(record.id)
+    setShowVentEmergenteDelete(true)
+
+
+  }
+
   const handleUpdate=async(receta)=>{
       
     const actualizarReceta=async(receta)=>{
@@ -206,6 +216,15 @@ export const RecetaProvider = ({ children }) => {
     }
   }, [idReceta]);
 
+  useEffect(() => {
+    //este useEffect lo que hara es que traera las recetas luego de una posible eliminacion
+    //posible porque cuando sea falso, se habra cerrado la ventana de confirmacion del delete y traera las recetas
+    if (!showVentEmergenteDelete) {
+      getallRecetas();
+    }
+  }, [showVentEmergenteDelete]);
+
+
   useEffect(()=>{
     const getpatologiatorecetaadd=async()=>{
       const patologias= await getPatologiaToRecetaAdd()
@@ -225,7 +244,9 @@ export const RecetaProvider = ({ children }) => {
   
   useEffect(()=>{
     const getpatologiatorecetaedit=async()=>{
-      const patologias= await getPatologiaToRecetaEdit()
+      const patologias= await getPatologiaToRecetaEdit(idReceta)
+      console.log("trae patologias para recetas edit",patologias)
+
       if(patologias.length>0){
         let alToSelect = patologias.map((pat) => {
           return {
@@ -283,6 +304,9 @@ export const RecetaProvider = ({ children }) => {
             className="icon_accion"
             onClick={(e) => handleEditReceta(record)}
           />
+          <DeleteOutlined
+            className="icon_accion"
+            onClick={(e) => handleDelete(record)} />
         </div>
       ),
     },
@@ -360,6 +384,9 @@ export const RecetaProvider = ({ children }) => {
     dbSearch,
     patologiasxRecetasAdd,
     patologiasxRecetasEdit,
+    idReceta,
+    showVentEmergenteDelete, 
+    setShowVentEmergenteDelete,
     handleChangeSelectInsert,
     handleChangeSelect, 
     setPatologiasxRecetasAdd,

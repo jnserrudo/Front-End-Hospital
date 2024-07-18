@@ -4,11 +4,12 @@ import {
   getAllRoles,
   getAllRolesToEdit,
   getAllUsuarios,
+  getPatologiaToUsuarioEdit,
   getUsuarioById,
   insertUsuario,
   updateUsuario,
 } from "../services/usuario-services";
-import { EditOutlined, DragOutlined } from "@ant-design/icons";
+import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
 import { getAllPatologias } from "../services/patologia-services";
 const UsuarioContext = createContext();
 export const UsuarioProvider = ({ children }) => {
@@ -24,7 +25,7 @@ export const UsuarioProvider = ({ children }) => {
   const [allRolesEdit, setAllRolesEdit] = useState([]);
 
   const [usuarioSelected, setUsuarioSelected] = useState({});
-
+  const [showVentEmergenteDelete, setShowVentEmergenteDelete] = useState(false);
   const [showVentEmergenteEditUsuario, setShowVentEmergenteEditUsuario] =
     useState(false);
   const [showVentEmergenteAddUsuario, setShowVentEmergenteAddUsuario] =
@@ -36,6 +37,10 @@ export const UsuarioProvider = ({ children }) => {
     useState(false);
 
   const [patologiasToUsuarioAdd, setPatologiasToUsuarioAdd] = useState([]);
+
+  const [patologiasToUsuarioEdit, setPatologiasToUsuarioEdit] = useState(
+    []
+  );
 
   const [bandLoader, setBandLoader] = useState(false);
 
@@ -72,8 +77,10 @@ export const UsuarioProvider = ({ children }) => {
       errors.idRol = "El idRol es requerida";
     }
 
-    if (!form?.idPatologias || form?.idPatologias?.length == 0) {
-      errors.idPatologias = "El idPatologias es requerido";
+    if (form?.idRol == 3) {
+      if (!form?.idsPatologias || form?.idsPatologias?.length == 0) {
+        errors.idsPatologias = "El idPatologias es requerido";
+      }
     }
 
     return errors;
@@ -191,6 +198,11 @@ export const UsuarioProvider = ({ children }) => {
     setShowVentEmergenteEditUsuario(true);
   };
 
+  const handleDelete = async (record) => {
+    setIdUsuario(record.id);
+    setShowVentEmergenteDelete(true);
+  };
+
   const handleUpdate = async (usuario) => {
     const actualizarUsuario = async (usuario) => {
       console.log("se esta por actualizar este usuario: ", usuario);
@@ -219,6 +231,29 @@ export const UsuarioProvider = ({ children }) => {
     if (idUsuario > 0) {
       getUsuariobyidUsuario();
     }
+  }, [idUsuario]);
+
+
+  useEffect(() => {
+    const getpatologiatopatologiaedit = async () => {
+      const patologias = await getPatologiaToUsuarioEdit(idUsuario);
+      console.log("trae patologias para usuario edit",idUsuario,patologias)
+
+      if (Object.values(patologias).length > 0) {
+        console.log(patologias)
+        setPatologiasToUsuarioEdit(patologias)
+        /* let alToSelect = patologias.map((pat) => {
+          return {
+            label: pat.nombre,
+            value: pat.id,
+          };
+        });
+        console.log(alToSelect)
+        setPatologiasxInformacionEdit(alToSelect) */;
+      }
+    };
+
+    getpatologiatopatologiaedit();
   }, [idUsuario]);
 
   const columns = [
@@ -258,36 +293,47 @@ export const UsuarioProvider = ({ children }) => {
             className="icon_accion"
             onClick={(e) => handleEditUsuario(record)}
           />
+          <DeleteOutlined
+            className="icon_accion"
+            onClick={(e) => handleDelete(record)}
+          />
         </div>
       ),
     },
   ];
 
-
-  const handleBlanqueo=async(usuario)=>{
-    console.log("se blanqueara al usuario: ",usuario)
-    const blanqueo=await blanquearUsuario(usuario)
+  const handleBlanqueo = async (usuario) => {
+    console.log("se blanqueara al usuario: ", usuario);
+    const blanqueo = await blanquearUsuario(usuario);
     console.log(blanqueo)
-    return blanqueo
-
-  }
+    if (blanqueo.err) {
+      throw new Error(blanqueo.err.message);
+    }
+    return blanqueo;
+  };
 
   const handleInsert = async () => {
     if (bandInsert) {
       //validar para insert
       console.log(" se esta por insertar el usuario: ", usuarioToInsert);
 
-      let usuarioToInsertBlanqueado={
+      let usuarioToInsertBlanqueado = {
         ...usuarioToInsert,
-        blanqueado:0
+        blanqueado: 0,
+      };
+      const resultInsert=await addUsuario(usuarioToInsertBlanqueado);
+      if (resultInsert.err) {
+        throw new Error(resultInsert.err.message);
       }
-      await addUsuario(usuarioToInsertBlanqueado);
       handleCloseVentEmergenteConfUsuario();
       handleCloseVentEmergenteAddUsuario();
     }
   };
   const addUsuario = async (usuario) => {
-    let insert = await insertUsuario(usuario);
+    let insert = await insertUsuario({
+      ...usuario,
+      dni: +usuario.dni,
+    });
     console.log(insert);
     //en el insert del insertUsuario me devuelve dos cosas en el caso que sea un usuario con el rol paciente, el
     //nuevo usuario creado y registro del paciente creado
@@ -323,11 +369,11 @@ export const UsuarioProvider = ({ children }) => {
   useEffect(() => {
     let getallRolestoedit = async () => {
       let roles = await getAllRolesToEdit(usuarioSelected.idRol);
-      console.log(roles)
-      roles = roles.map((p) => ({
+      console.log(roles);
+      (roles = roles.map((p) => ({
         label: p.rol,
         value: p.id,
-      })),
+      }))),
         setAllRolesEdit(roles);
     };
     if (usuarioSelected?.idRol > 0) {
@@ -360,9 +406,19 @@ export const UsuarioProvider = ({ children }) => {
     console.log(Object.keys(errores).length);
     if (Object.keys(errores).length == 0) {
       setBandInsert(true);
+    } else {
+      setBandInsert(false);
     }
     //setBandInsert()
   }, [usuarioToInsert]);
+
+  useEffect(() => {
+    //este useEffect lo que hara es que traera las recetas luego de una posible eliminacion
+    //posible porque cuando sea falso, se habra cerrado la ventana de confirmacion del delete y traera las recetas
+    if (!showVentEmergenteDelete) {
+      getallUsuarios();
+    }
+  }, [showVentEmergenteDelete]);
 
   let data = {
     db: db,
@@ -382,6 +438,10 @@ export const UsuarioProvider = ({ children }) => {
     allRolesAdd,
     allRolesEdit,
     dniUsuario,
+    showVentEmergenteDelete,
+    patologiasToUsuarioEdit, 
+    setPatologiasToUsuarioEdit,
+    setShowVentEmergenteDelete,
     handleChangeSelectRolEdit,
     handleChangeSelectEdit,
     setDniUsuario,
@@ -407,7 +467,7 @@ export const UsuarioProvider = ({ children }) => {
     addUsuario,
     handleInsert,
     handleUpdate,
-    handleBlanqueo
+    handleBlanqueo,
   };
   return (
     <UsuarioContext.Provider value={data}> {children} </UsuarioContext.Provider>

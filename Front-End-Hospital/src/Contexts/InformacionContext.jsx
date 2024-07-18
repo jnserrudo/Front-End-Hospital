@@ -2,27 +2,42 @@ import React, { createContext, useEffect, useState } from "react";
 import {
   getAllInformacions,
   getInformacionById,
+  getPatologiaToInformacionAdd,
+  getPatologiaToInformacionEdit,
   insertInformacion,
   updateInformacion,
 } from "../services/informacion-services";
-import { EditOutlined, DragOutlined } from "@ant-design/icons";
+import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
 const InformacionContext = createContext();
 export const InformacionProvider = ({ children }) => {
   const [db, setDb] = useState([]);
-  const [dbSearch, setDbSearch] = useState([])
+  const [dbSearch, setDbSearch] = useState([]);
   const [idInformacion, setIdInformacion] = useState(0);
   const [informacionSelected, setInformacionSelected] = useState({});
 
-  const [showVentEmergenteEditInformacion, setShowVentEmergenteEditInformacion] =
-    useState(false);
-    const [showVentEmergenteAddInformacion, setShowVentEmergenteAddInformacion] =
+  const [showVentEmergenteDelete, setShowVentEmergenteDelete] = useState(false);
+  const [
+    showVentEmergenteEditInformacion,
+    setShowVentEmergenteEditInformacion,
+  ] = useState(false);
+  const [showVentEmergenteAddInformacion, setShowVentEmergenteAddInformacion] =
     useState(false);
   const [informacionToInsert, setInformacionToInsert] = useState({});
   const [bandInsert, setBandInsert] = useState(false);
 
-  const [showVentEmergenteConfInformacion, setShowVentEmergenteConfInformacion] = useState(false);
+  const [
+    showVentEmergenteConfInformacion,
+    setShowVentEmergenteConfInformacion,
+  ] = useState(false);
 
-  const [bandLoader, setBandLoader] = useState(false)
+  const [bandLoader, setBandLoader] = useState(false);
+
+  const [patologiasxInformacionAdd, setPatologiasxInformacionAdd] = useState(
+    []
+  );
+  const [patologiasxInformacionEdit, setPatologiasxInformacionEdit] = useState(
+    []
+  );
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -43,56 +58,53 @@ export const InformacionProvider = ({ children }) => {
       errors.descripcion = "La descripcion es requerida";
     }
 
-    console.log(errors)
+    console.log(errors);
 
     return errors;
   };
 
-  const handleSearch=(busq)=>{
-    console.log(busq)
-    console.log(db)
-    let coincidencias=[]
-    for(let pac of db){
-      for(let x of Object.values(pac) ){
-        if(x.toString().toLowerCase().includes(busq.toLowerCase())){
-          console.log(x)
-          coincidencias.push(pac)
+  const handleSearch = (busq) => {
+    console.log(busq);
+    console.log(db);
+    let coincidencias = [];
+    for (let pac of db) {
+      for (let x of Object.values(pac)) {
+        if (x.toString().toLowerCase().includes(busq.toLowerCase())) {
+          console.log(x);
+          coincidencias.push(pac);
           break;
         }
       }
     }
 
-    setDbSearch(coincidencias)
-    console.log("coincidencias: ",coincidencias)
-  }
-
+    setDbSearch(coincidencias);
+    console.log("coincidencias: ", coincidencias);
+  };
 
   const handleCloseVentEmergenteEditInformacion = () => {
     setShowVentEmergenteEditInformacion(false);
-    setIdInformacion(0)
+    setIdInformacion(0);
   };
 
   const handleCloseVentEmergenteAddInformacion = () => {
     setShowVentEmergenteAddInformacion(false);
-    setInformacionToInsert({})
-
+    //setInformacionToInsert({})
   };
 
   const handleCloseVentEmergenteConfInformacion = () => {
     setShowVentEmergenteConfInformacion(false);
   };
 
-  const handleCloseConfInsert=async()=>{
+  const handleCloseConfInsert = async () => {
     //se confirmo que se agregara el Informacion
-    setBandLoader(true)
-    await handleInsert()
-   
-    setInformacionToInsert({})
-    setBandInsert(false)
-    setBandLoader(false)
+    setBandLoader(true);
+    await handleInsert();
+
+    //setInformacionToInsert({})
+    setBandInsert(false);
+    setBandLoader(false);
     //de alguna manera actualizar la tabla para que se pueda ver al nuevo Informacion
-  
-  }
+  };
 
   const handleChangeInputInsert = (e) => {
     console.log("name: ", e.target.name, " value: ", e.target.value);
@@ -129,28 +141,57 @@ export const InformacionProvider = ({ children }) => {
     setShowVentEmergenteEditInformacion(true);
   };
 
-  const handleUpdate=async(informacion)=>{
-      
-    const actualizarInformacion=async(informacion)=>{
-      console.log("se esta por actualizar este informacion: ",informacion)
-      const update=await updateInformacion(informacion)
-      console.log("update: ",update)
-    }
-    
-      //activar loader
-      setBandLoader(true);
-      let resupdate=await  actualizarInformacion(informacion)
-      getallInformacions();
+  const handleChangeSelectInsert = (e) => {
+    let newValue = {
+      ...informacionToInsert,
+      idsPatologias: e,
+    };
+    console.log(newValue);
+    setInformacionToInsert(newValue);
+  };
 
-      console.log(resupdate)
-      setBandLoader(false);
-    
+  const handleChangeSelect = (e) => {
+    let newValue = {
+      ...informacionSelected,
+      idsPatologias: e,
+    };
 
-  }
+    console.log(newValue);
+    setInformacionSelected(newValue);
+  };
+
+  const handleDelete = async (record) => {
+    setIdInformacion(record.id);
+    setShowVentEmergenteDelete(true);
+  };
+
+  const handleUpdate = async (informacion) => {
+    const actualizarInformacion = async (informacion) => {
+      console.log("se esta por actualizar este informacion: ", informacion);
+      const update = await updateInformacion(informacion);
+      console.log("update: ", update);
+    };
+
+    //activar loader
+    setBandLoader(true);
+    let resupdate = await actualizarInformacion(informacion);
+    getallInformacions();
+
+    console.log(resupdate);
+    setBandLoader(false);
+  };
 
   const handleSeePacient = (informacion) => {
     console.log("viendo: ", informacion);
   };
+
+  useEffect(() => {
+    //este useEffect lo que hara es que traera las recetas luego de una posible eliminacion
+    //posible porque cuando sea falso, se habra cerrado la ventana de confirmacion del delete y traera las recetas
+    if (!showVentEmergenteDelete) {
+      getallInformacions();
+    }
+  }, [showVentEmergenteDelete]);
 
   useEffect(() => {
     const getInformacionbyId = async () => {
@@ -160,6 +201,45 @@ export const InformacionProvider = ({ children }) => {
     if (idInformacion > 0) {
       getInformacionbyId();
     }
+  }, [idInformacion]);
+
+  useEffect(() => {
+    const getpatologiatoinformacionadd = async () => {
+      const patologias = await getPatologiaToInformacionAdd();
+      console.log("trae patologias para info",patologias)
+      if (patologias.length > 0) {
+        let alToSelect = patologias.map((pat) => {
+          return {
+            label: pat.nombre,
+            value: pat.id,
+          };
+        });
+        setPatologiasxInformacionAdd(alToSelect);
+      }
+    };
+    getpatologiatoinformacionadd();
+  }, []);
+
+  useEffect(() => {
+    const getpatologiatopatologiaedit = async () => {
+      const patologias = await getPatologiaToInformacionEdit(idInformacion);
+      console.log("trae patologias para info edit",idInformacion ,patologias)
+
+      if (Object.values(patologias).length > 0) {
+        console.log(patologias)
+        setPatologiasxInformacionEdit(patologias)
+        /* let alToSelect = patologias.map((pat) => {
+          return {
+            label: pat.nombre,
+            value: pat.id,
+          };
+        });
+        console.log(alToSelect)
+        setPatologiasxInformacionEdit(alToSelect) */;
+      }
+    };
+
+    getpatologiatopatologiaedit();
   }, [idInformacion]);
 
   const columns = [
@@ -180,7 +260,7 @@ export const InformacionProvider = ({ children }) => {
       dataIndex: "descripcion",
       align: "center",
     },
-   
+
     {
       title: "Acciones",
       key: "acciones",
@@ -195,53 +275,66 @@ export const InformacionProvider = ({ children }) => {
             className="icon_accion"
             onClick={(e) => handleEditInformacion(record)}
           />
+          <DeleteOutlined
+            className="icon_accion"
+            onClick={(e) => handleDelete(record)}
+          />
         </div>
       ),
     },
   ];
 
-  const handleInsert = async() => {
+  const handleInsert = async () => {
     if (bandInsert) {
       //validar para insert
-      console.log(" se esta por insertar el informacion: ", informacionToInsert)
+      console.log(
+        " se esta por insertar el informacion: ",
+        informacionToInsert
+      );
       await addInformacion(informacionToInsert);
-      handleCloseVentEmergenteConfInformacion()
-      handleCloseVentEmergenteAddInformacion()
+      handleCloseVentEmergenteConfInformacion();
+      handleCloseVentEmergenteAddInformacion();
     }
   };
   const addInformacion = async (informacion) => {
     let insert = await insertInformacion(informacion);
     console.log(insert);
-      //esto es solo de prueba para que se visualize momentaneamente el informacion agregado
-      setDb([insert/* informacion */,...db])
+    //esto es solo de prueba para que se visualize momentaneamente el informacion agregado
+    setDb([insert /* informacion */, ...db]);
+    if (!!insert && Object.values(insert).length > 0) {
+      setInformacionToInsert({});
+    }
 
     return insert;
   };
 
   let getallInformacions = async () => {
-    console.log("getallInformacions")
+    console.log("getallInformacions");
     let informacions = await getAllInformacions();
     console.log(informacions);
     setDb(informacions);
   };
   useEffect(() => {
-    console.log("getallInformacions")
-
+    console.log("getallInformacions");
 
     getallInformacions();
   }, []);
 
   useEffect(() => {
-    console.log(informacionToInsert)
+    console.log(informacionToInsert);
     let errores = validationsForm(informacionToInsert);
     console.log(errores);
     console.log(Object.keys(errores).length);
     if (Object.keys(errores).length == 0) {
       setBandInsert(true);
-    }else{
+    } else {
       setBandInsert(false);
     }
     //setBandInsert()
+    if (informacionToInsert?.urlVideo?.length > 0) {
+      console.log("Ejecutando handleInsert");
+      handleInsert();
+    }
   }, [informacionToInsert]);
 
   let data = {
@@ -252,10 +345,16 @@ export const InformacionProvider = ({ children }) => {
     setShowVentEmergenteEditInformacion: showVentEmergenteEditInformacion,
     informacionToInsert,
     bandInsert,
-    showVentEmergenteAddInformacion, 
-    showVentEmergenteConfInformacion, 
+    showVentEmergenteAddInformacion,
+    showVentEmergenteConfInformacion,
     bandLoader,
     dbSearch,
+    showVentEmergenteDelete,
+    patologiasxInformacionAdd,
+    patologiasxInformacionEdit,
+    handleChangeSelectInsert,
+    handleChangeSelect,
+    setShowVentEmergenteDelete,
     handleSearch,
     handleCloseConfInsert,
     setShowVentEmergenteConfInformacion,
@@ -267,11 +366,12 @@ export const InformacionProvider = ({ children }) => {
     handleChangeInputInsert,
     handleEditInformacion: handleEditInformacion,
     handleSeePacient: handleSeePacient,
-    handleCloseVentEmergenteEditInformacion: handleCloseVentEmergenteEditInformacion,
+    handleCloseVentEmergenteEditInformacion:
+      handleCloseVentEmergenteEditInformacion,
     handleChangeInput,
     addInformacion,
     handleInsert,
-    handleUpdate
+    handleUpdate,
   };
   return (
     <InformacionContext.Provider value={data}>

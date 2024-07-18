@@ -7,6 +7,8 @@ import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
 import InformacionContext from "../Contexts/InformacionContext";
 import { VentEmergenteAddInformacion } from "./VentEmergenteAddInformacion";
 import { VentEmergenteEditInformacion } from "./VentEmergenteEditInformacion";
+import { inhabilitarInformacion } from "../services/informacion-services";
+import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 export const AdminInformacion = () => {
   const {
     db=[],
@@ -18,8 +20,19 @@ export const AdminInformacion = () => {
     setShowVentEmergenteAddInformacion,
     handleCloseVentEmergenteAddInformacion,
     handleSearch,
+    idInformacion,
+    showVentEmergenteDelete,
+    setShowVentEmergenteDelete,
   } = useContext(InformacionContext);
 console.log(db,columns)
+
+const inhabilitarRegistro=async(id)=>{
+  console.log("inhabilitarRegistro: ",id)
+  const result=await inhabilitarInformacion(id)
+  console.log("resultado de inhabilitar: ",result)
+
+}
+
   return (
     <div>
       <Button
@@ -50,6 +63,13 @@ console.log(db,columns)
         isOpen={showVentEmergenteEditInformacion}
         informacionSelected={informacionSelected}
         onClose={handleCloseVentEmergenteEditInformacion}
+      />
+      
+      <VentEmergConfirmacion
+        mje={"Esta seguro de eliminar este registro?"}
+        isOpen={showVentEmergenteDelete}
+        onClose={() => setShowVentEmergenteDelete(false)}
+        handleSi={()=>inhabilitarRegistro(idInformacion)}
       />
     </div>
   );

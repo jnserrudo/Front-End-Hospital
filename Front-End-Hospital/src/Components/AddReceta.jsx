@@ -77,9 +77,12 @@ export const AddReceta = ({ onClosePadre }) => {
   };
 
   const beforeUpload = (file) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/jpg';
+    const isJpgOrPng =
+      file.type === "image/jpeg" ||
+      file.type === "image/png" ||
+      file.type === "image/jpg";
     if (!isJpgOrPng) {
-      console.error('Solo se permiten archivos de imagen (jpeg, jpg, png)');
+      console.error("Solo se permiten archivos de imagen (jpeg, jpg, png)");
       return Upload.LIST_IGNORE;
     }
     return true;
@@ -196,7 +199,6 @@ export const AddReceta = ({ onClosePadre }) => {
             fileList={fileList}
             beforeUpload={beforeUpload}
             maxCount={1}
-
             onChange={handleFileChange}
           >
             {fileList.length < 1 && "Imagen/Video"}
@@ -228,7 +230,6 @@ export const AddReceta = ({ onClosePadre }) => {
           className="cont_input_edit"
           variant="floating"
           id="tipsSaludables"
-          
         >
           <Textarea
             className={`input_edit`}
@@ -250,7 +251,6 @@ export const AddReceta = ({ onClosePadre }) => {
           className="cont_input_edit"
           variant="floating"
           id="composicionNutricional"
-          
         >
           <Textarea
             className={`input_edit`}
