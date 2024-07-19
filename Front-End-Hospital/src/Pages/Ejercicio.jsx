@@ -62,6 +62,7 @@ export const Ejercicio = () => {
     let videosOfEjercicio = ejercicios.map((videos) => {
       if (videos.urlVideo) {
         return {
+          ...videos,
           url: entorno.slice(0, -4) + videos.urlVideo,
         };
       }
@@ -82,6 +83,7 @@ export const Ejercicio = () => {
         let videosOfEjercicio = db.map((videos) => {
           if (videos.urlVideo) {
             return {
+              ...videos,
               url: entorno.slice(0, -4) + videos.urlVideo,
             };
           }

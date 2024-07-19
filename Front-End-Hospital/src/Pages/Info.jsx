@@ -59,6 +59,7 @@ export const Info = () => {
     let videosOfInfo = infos.map((videos) => {
       if (videos.urlVideo) {
         return {
+          ...videos,
           url: entorno.slice(0, -4) + videos.urlVideo,
         };
       }
@@ -79,6 +80,7 @@ export const Info = () => {
         let videosOfInfo = db.map((videos) => {
           if (videos.urlVideo) {
             return {
+              ...videos,
               url: entorno.slice(0, -4) + videos.urlVideo,
             };
           }

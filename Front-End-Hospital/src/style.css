@@ -370,3 +370,9 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   justify-content: center;
   align-items: center;
 }
+
+.tabs_videos{
+  height: 300px !important;
+  margin: 0 5px;
+  width: 300px;
+}
