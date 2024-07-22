@@ -33,7 +33,8 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
   const [bandUpdated, setBandUpdated] = useState(false);
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(ejercicio?.urlVideo?(entorno.slice(0, -4) + ejercicio.urlVideo): null);
+const [urlVideo, setUrlVideo] = useState('')
 
   const [fileList, setFileList] = useState(
     ejercicio.urlVideo
@@ -95,10 +96,21 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
           ]
         : []
     );
-    if (!previewUrl) {
-      setPreviewUrl(entorno.slice(0, -4) + ejercicio.urlVideo);
+    if(ejercicio?.urlVideo){
+      setUrlVideo(ejercicio?.urlVideo)
     }
+
+    /* if (!previewUrl) {
+      setPreviewUrl(entorno.slice(0, -4) + ejercicio.urlVideo);
+    } */
   }, [ejercicio]);
+
+
+  useEffect(()=>{
+    if(urlVideo){
+      setPreviewUrl(entorno.slice(0, -4) + urlVideo);
+    }
+  },[urlVideo])
 
   useEffect(() => {
     console.log(patologiasxEjercicioEdit)
@@ -263,7 +275,11 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
           className="select_recetas input_edit"
           {...sharedProps}
           /* value={alumnos} */
-          onChange={handleChangeSelect}
+          onChange={(e)=>{
+            console.log(e)
+            handleChangeSelect(e)
+            setSelectedPatologias(e)
+          }}
         />
 
         <FormControl

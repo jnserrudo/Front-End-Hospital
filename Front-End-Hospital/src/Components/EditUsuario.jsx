@@ -288,7 +288,11 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
             name="idPatologias"
             className="select_recetas input_edit"
             {...sharedProps}
-            onChange={handleChangeSelectEdit}
+            onChange={(e)=>{
+              console.log(e)
+              handleChangeSelectEdit(e)
+              setSelectedPatologias(e)
+            }}
           />
         ) : null}
       </div>

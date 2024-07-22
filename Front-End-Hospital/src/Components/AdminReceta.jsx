@@ -43,6 +43,8 @@ export const AdminReceta = () => {
 
   return (
     <div>
+            <p className='titulo_administracion'>Recetas</p>
+
       <Button
         className="btn_agregar"
         colorScheme="green"

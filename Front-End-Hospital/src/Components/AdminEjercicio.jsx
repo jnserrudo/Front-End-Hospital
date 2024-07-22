@@ -34,6 +34,8 @@ export const AdminEjercicio = () => {
   console.log(db, columns);
   return (
     <div>
+            <p className='titulo_administracion'>Ejercicio</p>
+
       <Button
         className="btn_agregar"
         colorScheme="green"

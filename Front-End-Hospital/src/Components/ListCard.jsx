@@ -13,13 +13,13 @@ export const ListCard = ({setTabIndex}) => {
       {/* para ejercicio */}
 
       <Card
-        onClick={()=>setTabIndex(1)}
+        onClick={()=>setTabIndex(2)}
         mje={`Recetas que te ayudan a 
 sentirte mejor`}
         logo={<FileDoneOutlined style={{ fontSize: "80px" }} />}
       />
       <Card
-              onClick={()=>setTabIndex(2)}
+              onClick={()=>setTabIndex(3)}
 
         mje={`Videos y podcast para que 
 aprendas sobre las diferentes 
@@ -27,7 +27,7 @@ patología y tips para cuidarte`}
         logo={<ReadOutlined style={{ fontSize: "80px" }} />}
       />
       <Card
-              onClick={()=>setTabIndex(3)}
+              onClick={()=>setTabIndex(4)}
 
         mje={`Videos para que puedas 
 ejercitarte`}

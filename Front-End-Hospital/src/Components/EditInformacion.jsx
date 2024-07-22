@@ -23,7 +23,9 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
     informacion,
     entorno.slice(0, -4) + informacion.urlVideo
   ); */
-
+  if (!informacion) {
+    return null;
+  }
   const navigate = useNavigate();
   const handleShowConsulta = (ndocu) => {
     navigate("/informacion/" + ndocu);
@@ -34,6 +36,7 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [urlVideo, setUrlVideo] = useState('')
 
   const [fileList, setFileList] = useState(
     informacion.urlVideo
@@ -58,9 +61,7 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
     handleChangeSelect,
     patologiasxInformacionEdit,
   } = useContext(InformacionsContext);
-  if (!informacion) {
-    return null;
-  }
+  
 
   
 
@@ -95,10 +96,21 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
           ]
         : []
     );
-    if (!previewUrl) {
-      setPreviewUrl(entorno.slice(0, -4) + informacion.urlVideo);
+    if(informacion?.urlVideo){
+      setUrlVideo(informacion?.urlVideo)
     }
+    /* console.log("el valor de previewurl es: ",previewUrl)
+    if (!previewUrl && informacion?.urlVideo?.length>0) {
+      console.log("SE VA A PONER EN EL PREVIEWURL LO SGTE: ",entorno.slice(0, -4) + informacion.urlVideo)
+      setPreviewUrl(entorno.slice(0, -4) + informacion.urlVideo);
+    } */
   }, [informacion]);
+
+useEffect(()=>{
+  if(urlVideo){
+    setPreviewUrl(entorno.slice(0, -4) + urlVideo);
+  }
+},[urlVideo])
 
   useEffect(() => {
     console.log(patologiasxInformacionEdit)
@@ -263,7 +275,11 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
           className="select_recetas input_edit"
           {...sharedProps}
           /* value={alumnos} */
-          onChange={handleChangeSelect}
+          onChange={(e)=>{
+            console.log(e)
+            handleChangeSelect(e)
+            setSelectedPatologias(e)
+          }}
         />
 
         <FormControl

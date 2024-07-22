@@ -35,6 +35,8 @@ const inhabilitarRegistro=async(id)=>{
 
   return (
     <div>
+            <p className='titulo_administracion'>Información</p>
+
       <Button
         className="btn_agregar"
         colorScheme='green'

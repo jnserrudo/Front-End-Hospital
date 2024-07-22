@@ -151,6 +151,7 @@ export const InformacionProvider = ({ children }) => {
   };
 
   const handleChangeSelect = (e) => {
+    console.log(e)
     let newValue = {
       ...informacionSelected,
       idsPatologias: e,
