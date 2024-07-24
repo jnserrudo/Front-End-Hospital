@@ -37,7 +37,7 @@ export const RecetaSee = ({ receta }) => {
   return (
     <div>
       <div className="receta_foto_ingredientes">
-        <div className="receta_foto">
+        <div className="receta_foto box_shadow">
           <p className="titulo_receta">{receta.nombre}</p>
 
           <img
@@ -59,7 +59,7 @@ export const RecetaSee = ({ receta }) => {
           </ImgCrop> */}
         </div>
 
-        <div className="receta_ingredientes">
+        <div className="receta_ingredientes box_shadow">
           <div className="receta_valores">
             <div className="receta_valor">
               <p>Porciones</p>
@@ -80,11 +80,11 @@ export const RecetaSee = ({ receta }) => {
           </div>
         </div>
       </div>
-      <div className="receta_preparacion">
+      <div className="receta_preparacion box_shadow">
         <p className="titulo_receta">Preparación</p>
         <p>{receta.preparacion}</p>
       </div>
-      <div className="cont_tips_composicion">
+      <div className="cont_tips_composicion box_shadow">
         {receta?.tipsSaludables.length>0 ? (
           <div className="receta_tipsSaludables">
             <p className="titulo_receta">Tips Saludables</p>

@@ -1,6 +1,6 @@
 :root {
   /* --primary: #456bff; */
-  --primary: #046ba3 ;
+  --primary: #046ba3;
 }
 
 .header {
@@ -104,7 +104,6 @@
 .btn_login {
   border: white;
   margin-right: 2rem;
-
 }
 
 .list_card {
@@ -170,22 +169,20 @@
   padding: 1rem;
 } */
 
-.cont_sel_recetas{
+.cont_sel_recetas {
   display: flex;
-/*   border: 2px red solid;
- */  width: 80%;
+  /*   border: 2px red solid;
+ */
+  width: 80%;
   font-weight: 700;
   justify-content: space-between;
-  
-  
 }
 
-.select_recetas{
+.select_recetas {
   border: 1px black solid !important;
   border-radius: 5px !important;
-
 }
-.select_patologias{
+.select_patologias {
   width: 300px !important;
 }
 .select_recetas * {
@@ -217,7 +214,6 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   .cont_videos {
     justify-content: center;
     border: 0;
-
   }
   .cont_usuario {
     display: flex;
@@ -226,9 +222,7 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
     width: 100%;
     margin-right: 2rem;
     flex-wrap: wrap;
-    
   }
-  
 }
 
 .cont_video {
@@ -258,44 +252,40 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 
 .btn_agregar {
   margin-left: 70%;
-
 }
-  
+
 .input_edit {
-    border: 1px black solid;
-    margin: 1.2rem;
-    width: 250px !important;
-    /* width: 40% !important; */
+  border: 1px black solid;
+  margin: 1.2rem;
+  width: 250px !important;
+  /* width: 40% !important; */
 }
 
-.cont_form_input{
+.cont_form_input {
   display: flex;
   flex-wrap: wrap !important;
   justify-content: center;
   align-items: center;
-
 }
 
 .imgCrop {
   width: 265px !important;
-/*   border: 2px red solid !important;
- */  display: flex !important;
+  /*   border: 2px red solid !important;
+ */
+  display: flex !important;
   justify-content: center;
-
 }
 
-.imgCropSeeReceta{
-
+.imgCropSeeReceta {
 }
 
-.uploadSeeReceta img{
+.uploadSeeReceta img {
   border: 2px red solid !important;
   width: 400px;
   height: 400px;
-
 }
 
-.cont_input_edit{
+.cont_input_edit {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -307,9 +297,11 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 
 .receta_foto_ingredientes {
   display: flex;
-/*   border: 2px red solid;
- */  justify-content: space-around;
+
+  justify-content: space-around;
   flex-wrap: wrap;
+  overflow: auto;
+  
 }
 
 .img_receta {
@@ -325,21 +317,29 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   justify-content: center;
   align-items: start;
   color: var(--primary);
+  margin: 0 0.5rem;
+ 
+}
+
+.box_shadow{
+  padding: 0.5rem;
+  box-shadow: var(--primary) 0px 1px 2px 0px;
 }
 
 .receta_ingredientes {
-  margin-top: 2rem;
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
   align-items: center;
   justify-content: start;
+  margin-top: 0.5rem;
 }
 
 .receta_valores {
   display: flex;
-/*   border: 2px red solid;
- */  max-width: 450px;
+  /*   border: 2px red solid;
+ */
+  max-width: 450px;
   flex-wrap: wrap;
 
   justify-content: space-around;
@@ -362,83 +362,85 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   margin-top: 2rem;
 }
 
-.receta_preparacion,.receta_tipsSaludables, .receta_composicion {
+.receta_preparacion,
+.receta_tipsSaludables,
+.receta_composicion {
   display: flex;
   flex-direction: column;
-  margin-top: 1rem;
+  margin:1rem;
+
 }
 
-.cont_tips_composicion{
+.cont_tips_composicion {
   display: flex;
   margin-top: 1rem;
-  justify-content:space-around;
+  justify-content: space-around;
   flex-wrap: wrap;
-
 }
 
-.titulo_receta{
+.titulo_receta {
   color: var(--primary);
   font-weight: 700;
 }
 
-.btn_accion_edit_patologia,.btn_accion_edit_receta{
+.btn_accion_edit_patologia,
+.btn_accion_edit_receta {
   margin: 5px;
 }
 
-
-.cont_acciones{
+.cont_acciones {
   display: flex;
   justify-content: space-around;
-  
 }
 
-.icon_accion{
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 5px 0px, rgba(0, 0, 0, 0.1) 0px 0px 1px 0px;
+.icon_accion {
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 5px 0px,
+    rgba(0, 0, 0, 0.1) 0px 0px 1px 0px;
   font-size: x-large;
 }
 
-.cont_btns_confirmacion{
+.cont_btns_confirmacion {
   display: flex;
-  
+
   justify-content: space-around;
   margin-top: 2rem;
   width: 50%;
 }
 
-.form_edit_informacion{
+.form_edit_informacion {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-.tabs_videos{
+.tabs_videos {
   height: 300px !important;
   margin: 0 5px;
   width: 300px;
 }
 
-.logo_sidebar{
+.logo_sidebar {
 }
 
-.side_bar{
+.side_bar {
 }
-
 
 /* este selector es para el icono del sidebar, ya es interno al componente sidebar, asi que por eso lo llamo de esta manera */
-.ant-layout-sider-zero-width-trigger{
+.ant-layout-sider-zero-width-trigger {
   background-color: var(--primary) !important;
   margin-top: 2.8rem !important;
+  padding: 1.5rem !important;
 }
 
-.cont_opciones_footer{
+.cont_opciones_footer {
   background-color: var(--primary);
   display: flex;
   flex-direction: column;
   align-items: center;
   color: white;
 }
-.titulo_footer{
+.titulo_footer {
   border: 1px #456bff solid;
   border-radius: 5px;
   width: 100%;
@@ -446,17 +448,18 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   text-align: center;
 }
 
-.icon_imagen{
+.icon_imagen {
   display: block;
   width: 50px;
   height: 50px;
 }
-.receta_nombre{
+.receta_nombre {
   display: flex;
   font-size: x-large;
 }
 
-.txt_nombre_receta{
-/*   border: 2px red solid;
- */  margin-left: 1rem;
+.txt_nombre_receta {
+  /*   border: 2px red solid;
+ */
+  margin-left: 1rem;
 }
