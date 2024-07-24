@@ -84,7 +84,7 @@ export const RecetaSee = ({ receta }) => {
         <p className="titulo_receta">Preparación</p>
         <p>{receta.preparacion}</p>
       </div>
-      <div className="cont_tips_composicion box_shadow">
+      <div className={`cont_tips_composicion ${receta?.composicionNutricional.length>0 ||receta?.tipsSaludables.length>0? 'box_shadow':''}`}>
         {receta?.tipsSaludables.length>0 ? (
           <div className="receta_tipsSaludables">
             <p className="titulo_receta">Tips Saludables</p>
