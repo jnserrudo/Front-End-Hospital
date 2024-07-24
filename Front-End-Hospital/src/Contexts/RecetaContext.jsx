@@ -70,17 +70,15 @@ export const RecetaProvider = ({ children }) => {
     return errors;
   };
 
-  const handleSearch=(busq)=>{
+  const handleSearch=(busq,dataToSearch)=>{
     console.log(busq)
-    console.log(db)
+    console.log(dataToSearch)
+    
     let coincidencias=[]
-    for(let pac of db){
-      for(let x of Object.values(pac) ){
-        if(x.toString().toLowerCase().includes(busq.toLowerCase())){
-          console.log(x)
-          coincidencias.push(pac)
-          break;
-        }
+    for(let pac of dataToSearch){
+      if(pac.nombre.toLowerCase().includes(busq.toLowerCase())){
+        console.log(pac)
+        coincidencias.push(pac)
       }
     }
 

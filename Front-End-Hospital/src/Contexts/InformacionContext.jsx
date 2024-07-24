@@ -63,23 +63,21 @@ export const InformacionProvider = ({ children }) => {
     return errors;
   };
 
-  const handleSearch = (busq) => {
-    console.log(busq);
-    console.log(db);
-    let coincidencias = [];
-    for (let pac of db) {
-      for (let x of Object.values(pac)) {
-        if (x.toString().toLowerCase().includes(busq.toLowerCase())) {
-          console.log(x);
-          coincidencias.push(pac);
-          break;
-        }
+  const handleSearch=(busq,dataToSearch)=>{
+    console.log(busq)
+    console.log(dataToSearch)
+    
+    let coincidencias=[]
+    for(let pac of dataToSearch){
+      if(pac.nombre.toLowerCase().includes(busq.toLowerCase())){
+        console.log(pac)
+        coincidencias.push(pac)
       }
     }
 
-    setDbSearch(coincidencias);
-    console.log("coincidencias: ", coincidencias);
-  };
+    setDbSearch(coincidencias)
+    console.log("coincidencias: ",coincidencias)
+  }
 
   const handleCloseVentEmergenteEditInformacion = () => {
     setShowVentEmergenteEditInformacion(false);

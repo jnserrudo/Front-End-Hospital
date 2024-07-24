@@ -7,21 +7,26 @@ import {
   OrderedList,
   UnorderedList,
   IconButton,
+  Input,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import { CheckOutlined } from "@ant-design/icons";
 import { VentEmergenteRecetaSee } from "../Components/VentEmergRecetaSee";
 import RecetaContext from "../Contexts/RecetaContext";
 import { getAllPatologias } from "../services/patologia-services";
 import { getRecetaByPatologia } from "../services/recetas-services";
+import "../style.css"; // Importamos el archivo de estilos correcto
+
 export const Recetas = () => {
   const [showVentEmergRecetaSee, setShowVentEmergRecetaSee] = useState(false);
 
   const [recetaSee, setRecetaSee] = useState({});
 
-  const {db}=useContext(RecetaContext)
-  console.log(db)
+  const { db, dbSearch,handleSearch } = useContext(RecetaContext);
+  console.log(db);
 
-  const [recetasPatologias, setRecetasPatologias] = useState([])
+  const [recetasPatologias, setRecetasPatologias] = useState([]);
 
   /* let db = [
     {
@@ -70,6 +75,7 @@ export const Recetas = () => {
   const [options, setOptions] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [clickCount, setClickCount] = useState(0);
+  const [recetaSearch, setRecetaSearch] = useState("");
 
   const handleClick = (value) => {
     // Si se hace doble clic en el mismo elemento
@@ -102,14 +108,13 @@ export const Recetas = () => {
     //generateRandomPatologias();
     //traer las patologias
 
-    const getPatologias=async()=>{
-      const patologias=await getAllPatologias()
-      if(patologias.length>0){
-        setOptions(patologias.map(p=>({label:p.nombre,value:p.id})))
-
+    const getPatologias = async () => {
+      const patologias = await getAllPatologias();
+      if (patologias.length > 0) {
+        setOptions(patologias.map((p) => ({ label: p.nombre, value: p.id })));
       }
-    }
-    getPatologias()
+    };
+    getPatologias();
   }, []);
 
   useEffect(() => {
@@ -119,32 +124,31 @@ export const Recetas = () => {
     }
   }, [recetaSee]);
 
-  const handleChange =async (value) => {
+  const handleChange = async (value) => {
     console.log(value);
     //aca debo filtrar las recetas
     //si value es length=0 muestro todas, si es mayor a cero muestro filtrado
-    let recetas=[]
-    if(value.length>0){
-      for (let idPatologia of value){
+    let recetas = [];
+    if (value.length > 0) {
+      for (let idPatologia of value) {
         let recetasByPatologia = await getRecetaByPatologia(idPatologia);
-        console.log(recetasByPatologia)
-            for (let receta of recetasByPatologia) {
-                // Verifica si el ID de la receta ya está en el array
-                if (!recetas.some(r => r.id === receta.id)) {
-                    recetas.push(receta); // Si no está, agrega la receta al array
-                }
-            }
-
+        console.log(recetasByPatologia);
+        for (let receta of recetasByPatologia) {
+          // Verifica si el ID de la receta ya está en el array
+          if (!recetas.some((r) => r.id === receta.id)) {
+            recetas.push(receta); // Si no está, agrega la receta al array
+          }
+        }
       }
-      setRecetasPatologias(recetas)
+      setRecetasPatologias(recetas);
     }
   };
   return (
     <div>
       <nav className="nav_recetas">
-        <img src="/recetas.svg" alt="" />
+        <img src="/recetas.svg" className="icon_imagen" alt="" />
         <div className="cont_sel_recetas">
-          <b>Recetas Saludables</b>
+          <p className="">Recetas Saludables</p>
           {/* <p>Elige Patología</p>
           <Select
             className="select_recetas select_patologias"
@@ -158,51 +162,107 @@ export const Recetas = () => {
             options={options}
             color
           /> */}
+
+          {/* Buscador */}
+
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="recetaSearch"
+            
+          >
+            <Input
+              className={`input_edit`}
+              placeholder=""
+              name="recetaSearch"
+              variant="outlined"
+              type="text"
+              value={recetaSearch}
+              onChange={(e) => {
+                setRecetaSearch(e.target.value);
+                handleSearch(e.target.value,recetasPatologias.length == 0?db:recetasPatologias);
+              }}
+            />
+            <FormLabel>Buscar Recetas</FormLabel>
+          </FormControl>
         </div>
       </nav>
       <div className="cont_recetas">
         <List spacing={3}>
-          { recetasPatologias.length==0 ?(db.map((receta, index) => {
-            return (
-              <>
-                <ListItem
-                  style={{
-                    backgroundColor:
-                      selectedItem === index ? "greenyellow" : "inherit",
-                    color: selectedItem === index ? "white" : "inherit",
-                  }}
-                  onClick={() => {
-                    handleClick(index);
-                    setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms
-                    setRecetaSee(receta);
-                    //setShowVentEmergRecetaSee(true) esta en el useEffect
-                  }}
-                >
-                  <CheckOutlined /> {receta.nombre}
-                </ListItem>
-              </>
-            );
-          })):(recetasPatologias.map((receta, index) => {
-            return (
-              <>
-                <ListItem
-                  style={{
-                    backgroundColor:
-                      selectedItem === index ? "greenyellow" : "inherit",
-                    color: selectedItem === index ? "white" : "inherit",
-                  }}
-                  onClick={() => {
-                    handleClick(index);
-                    setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms
-                    setRecetaSee(receta);
-                    //setShowVentEmergRecetaSee(true) esta en el useEffect
-                  }}
-                >
-                  <CheckOutlined /> {receta.nombre}
-                </ListItem>
-              </>
-            );
-          })) }
+          {recetaSearch.length > 0
+            ? dbSearch.map((receta, index) => {
+                return (
+                  <>
+                    <ListItem
+                      style={{
+                        backgroundColor:
+                          selectedItem === index ? "greenyellow" : "inherit",
+                        color: selectedItem === index ? "white" : "inherit",
+                      }}
+                      onClick={() => {
+                        handleClick(index);
+                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms
+                        setRecetaSee(receta);
+                        //setShowVentEmergRecetaSee(true) esta en el useEffect
+                      }}
+                    >
+                      <div className="receta_nombre">
+                        <CheckOutlined />
+                        <p className="txt_nombre_receta">{receta.nombre}</p>
+                      </div>
+                    </ListItem>
+                  </>
+                );
+              })
+            : recetasPatologias.length == 0
+            ? db.map((receta, index) => {
+                return (
+                  <>
+                    <ListItem
+                      style={{
+                        backgroundColor:
+                          selectedItem === index ? "greenyellow" : "inherit",
+                        color: selectedItem === index ? "white" : "inherit",
+                      }}
+                      onClick={() => {
+                        handleClick(index);
+                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms
+                        setRecetaSee(receta);
+                        //setShowVentEmergRecetaSee(true) esta en el useEffect
+                      }}
+                    >
+                      <div className="receta_nombre">
+                        <CheckOutlined />
+                        <p className="txt_nombre_receta">{receta.nombre}</p>
+                      </div>
+                    </ListItem>
+                  </>
+                );
+              })
+            : recetasPatologias.map((receta, index) => {
+                return (
+                  <>
+                    <ListItem
+                      style={{
+                        backgroundColor:
+                          selectedItem === index ? "greenyellow" : "inherit",
+                        color: selectedItem === index ? "white" : "inherit",
+                      }}
+                      onClick={() => {
+                        handleClick(index);
+                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms
+                        setRecetaSee(receta);
+                        //setShowVentEmergRecetaSee(true) esta en el useEffect
+                      }}
+                    >
+                      <div className="receta_nombre">
+                        <CheckOutlined />
+                        <p className="txt_nombre_receta">{receta.nombre}</p>
+                      </div>
+                    </ListItem>
+                  </>
+                );
+              })}
         </List>
 
         <VentEmergenteRecetaSee

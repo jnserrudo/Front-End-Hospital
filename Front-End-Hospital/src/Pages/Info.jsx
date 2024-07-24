@@ -4,7 +4,7 @@ import { ListVideos } from "../Components/ListVideos";
 import InformacionContext from "../Contexts/InformacionContext";
 import { entorno } from "../services/config";
 import { getInformacionxPaciente } from "../services/paciente-services";
-
+import { Input, FormControl, FormLabel } from "@chakra-ui/react";
 export const Info = () => {
   //esta vble videos sera reemplazada por un listado de videos que ser iran cargando con sus URLs en la BD
   const [videos, setVideos] = useState([]);
@@ -31,8 +31,8 @@ export const Info = () => {
   ]; */
 
   const [options, setOptions] = useState([]);
-
-  const { db } = useContext(InformacionContext);
+  const [videosSearch, setVideosSearch] = useState("");
+  const { db, dbSearch, handleSearch } = useContext(InformacionContext);
   console.log(db);
 
   // Generar opciones de patologías aleatorias
@@ -53,9 +53,8 @@ export const Info = () => {
     generateRandomPatologias();
   }, []);
 
-  const getinformacionxpaciente=async(idUsuario)=>{
-    
-    const infos=await getInformacionxPaciente(idUsuario)
+  const getinformacionxpaciente = async (idUsuario) => {
+    const infos = await getInformacionxPaciente(idUsuario);
     let videosOfInfo = infos.map((videos) => {
       if (videos.urlVideo) {
         return {
@@ -66,16 +65,16 @@ export const Info = () => {
     });
     console.log(videosOfInfo);
     setVideos(videosOfInfo);
-  }
+  };
 
   useEffect(() => {
-    console.log(db)
+    console.log(db);
     //vamos a traer las pagologias relacionadas con el usuario
-    localStorage.getItem('idUsuario')
-    console.log(localStorage.getItem('idUsuario'))
-    if(localStorage.getItem('rol')==3){
-      getinformacionxpaciente(localStorage.getItem('idUsuario'))
-    }else{
+    localStorage.getItem("idUsuario");
+    console.log(localStorage.getItem("idUsuario"));
+    if (localStorage.getItem("rol") == 3) {
+      getinformacionxpaciente(localStorage.getItem("idUsuario"));
+    } else {
       if (db?.length > 0) {
         let videosOfInfo = db.map((videos) => {
           if (videos.urlVideo) {
@@ -89,7 +88,6 @@ export const Info = () => {
         setVideos(videosOfInfo);
       }
     }
-    
   }, [db]);
 
   const handleChange = (value) => {
@@ -100,7 +98,7 @@ export const Info = () => {
       <nav className="nav_recetas">
         <img src="/recetas.svg" alt="" />
         <div className="cont_sel_recetas">
-          <b>Informacion Saludable</b>
+          <p>Informacion Saludable</p>
           {/* <p>Elige Patología</p>
           <Select
             className="select_recetas"
@@ -115,10 +113,29 @@ export const Info = () => {
             options={options}
             color
           /> */}
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="videosSearch"
+          >
+            <Input
+              className={`input_edit`}
+              placeholder=""
+              name="videosSearch"
+              variant="outlined"
+              type="text"
+              value={videosSearch}
+              onChange={(e) => {
+                setVideosSearch(e.target.value);
+                handleSearch(e.target.value, videos);
+              }}
+            />
+            <FormLabel>Buscar Videos</FormLabel>
+          </FormControl>
         </div>
       </nav>
       <div className="cont_info">
-        <ListVideos videos={videos} />
+        <ListVideos videos={videosSearch.length>0?dbSearch:videos} />
       </div>
     </div>
   );

@@ -18,6 +18,7 @@ import { Recetas } from "./Recetas";
 import { PanelAdministracion } from "./PanelAdministracion";
 import { useNavigate } from "react-router-dom";
 import "../style.css"; // Importamos el archivo de estilos correcto
+import { FooterHospital } from "../Components/FooterHospital";
 
 const { Header, Content, Footer, Sider } = Layout; // Desestructuramos los componentes de Layout de Ant Design
 
@@ -88,7 +89,7 @@ const customTheme = extendTheme({
 });
 
 export const MainApp = () => {
-  const [collapsed, setCollapsed] = useState(false); // Estado para manejar la colapsabilidad del Sider
+  const [collapsed, setCollapsed] = useState(true); // Estado para manejar la colapsabilidad del Sider
   const [selectedKey, setSelectedKey] = useState("1"); // Estado para manejar la clave seleccionada del menú
   const [token, setToken] = useState(null); // Estado para almacenar el token JWT
   const [validatedToken, setValidatedToken] = useState(false); // Estado para manejar la validación del token
@@ -161,26 +162,29 @@ export const MainApp = () => {
   return (
     <ChakraProvider theme={customTheme}>
       <Layout style={{ minHeight: "100vh" }}>
-        <Toaster position="top-center" reverseOrder={false} />{" "}
+        <Toaster position="top-center" reverseOrder={false} />
         {/* Componente para mostrar notificaciones */}
         <Sider
           collapsible
           collapsed={collapsed}
           onCollapse={setCollapsed}
-          breakpoint="lg"
+          /*breakpoint="lg" */
           collapsedWidth="0"
           style={{
+            backgroundColor: "#046ba3",
             position: "fixed", // Fija el sider para que no afecte el flujo del documento
             zIndex: 110, // Asegúrate de que el sider esté por encima del contenido
             height: "100vh", // Asegura que el sider cubra toda la altura de la ventana
           }}
         >
-          <div className="demo-logo-vertical" />{" "}
-          {/* Elemento visual para el logo */}
+          <div className="logo_sidebar" /> {/* Elemento visual para el logo */}
           <Menu
             theme="dark"
             defaultSelectedKeys={["1"]}
             mode="inline"
+            style={{
+              backgroundColor: "#046ba3",
+            }}
             items={items}
             onClick={handleMenuClick}
           />{" "}
@@ -189,8 +193,9 @@ export const MainApp = () => {
         <Layout>
           {/* <Header style={{ margin:'1rem', padding: 0, background: colorBgContainer }}>
           </Header> */}
-          <CustomHeader /> {/* Componente de cabecera personalizado */}
-          <Content style={{ margin: "0 16px", paddingTop: "1rem" }}>
+          <CustomHeader setSelectedKey={setSelectedKey} />{" "}
+          {/* Componente de cabecera personalizado */}
+          <Content style={{ margin: "0 16px", paddingTop: "0rem" }}>
             {/* <Breadcrumb style={{ margin: '16px 0' }}>
               <Breadcrumb.Item>App</Breadcrumb.Item>
               <Breadcrumb.Item>{items.find(item => item.key === selectedKey)?.label}</Breadcrumb.Item> 
@@ -198,19 +203,19 @@ export const MainApp = () => {
             {/* Muestra la sección actual */}
             <div
               style={{
-                padding: 24,
-                minHeight: 360,
+                padding: '0 2px',
+                minHeight: "95vh",
                 background: colorBgContainer,
                 borderRadius: borderRadiusLG,
-                color:'black'
+                color: "black",
               }}
             >
-              <Breadcrumb style={{ margin: "16px 0",color:'black' }}>
+              {/*  <Breadcrumb style={{ margin: "16px 0",color:'black' }}>
                 <Breadcrumb.Item>App</Breadcrumb.Item>
                 <Breadcrumb.Item>
                   {items.find((item) => item.key === selectedKey)?.label}
                 </Breadcrumb.Item>
-              </Breadcrumb>
+              </Breadcrumb> */}
               <Nav bandLogin={false} bandHospital={true} />{" "}
               {/* Componente Nav para manejo de sesión */}
               {selectedKey === "1" && (
@@ -226,8 +231,8 @@ export const MainApp = () => {
               {selectedKey === "4" && <Ejercicio />}
               <div
                 style={{
-                  padding: 24,
-                  minHeight: 360,
+                  padding: 0,
+                  minHeight: 320,
                   background: colorBgContainer,
                   borderRadius: borderRadiusLG,
                 }}
@@ -237,11 +242,12 @@ export const MainApp = () => {
                 )}
               </div>
             </div>
+            <FooterHospital setSelectedKey={setSelectedKey} />
+
+            {/* <Footer style={{ textAlign: "center" }}>
+              <FooterHospital />
+            </Footer> */}
           </Content>
-          <Footer style={{ textAlign: "center" }}>
-            Hospital Oñativia ©{new Date().getFullYear()} Created by JNSIX{" "}
-            {/* Pie de página */}
-          </Footer>
         </Layout>
       </Layout>
     </ChakraProvider>
