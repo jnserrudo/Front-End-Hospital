@@ -261,6 +261,14 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   /* width: 40% !important; */
 }
 
+.ol{
+  margin: 1.2rem;
+  width: 250px !important;
+  overflow: scroll !important;
+}
+
+
+
 .cont_form_input {
   display: flex;
   flex-wrap: wrap !important;

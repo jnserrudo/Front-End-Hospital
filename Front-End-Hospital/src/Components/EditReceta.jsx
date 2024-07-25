@@ -9,7 +9,13 @@ import React, { useContext, useEffect, useState } from "react";
 import "../style.css";
 import { Select, Space, Tooltip, Upload } from "antd";
 import ImgCrop from "antd-img-crop";
-
+import {
+  List,
+  ListItem,
+  ListIcon,
+  OrderedList,
+  UnorderedList,
+} from '@chakra-ui/react'
 import RecetasContext from "../Contexts/RecetaContext";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@chakra-ui/react";
@@ -55,6 +61,20 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
     return null;
   }
 
+  const renderOrderedList = (text) => {
+    if (text) {
+      return (
+        <OrderedList margin="0.2rem" width="250px" height="200px" overflowY="scroll" border="1px solid black" paddingLeft="20px" paddingTop={'2rem'}>
+          {text.split("\n").map((line, index) => (
+            <ListItem key={index}>{line}</ListItem>
+          ))}
+        </OrderedList>
+      );
+    }
+    return null;
+  };
+  
+
   const handleCloseVentEmergente = async () => {
     setShowVentEmergenteConfirmacion(false);
   };
@@ -90,19 +110,20 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
     setFileList(newFileList);
   };
 
-
-  useEffect(()=>{
-    setFileList(receta.urlFoto
-    ? [
-        {
-          uid: "-1",
-          name: "image.png",
-          status: "done",
-          url: entorno.slice(0, -4) + receta.urlFoto,
-        },
-      ]
-    : [])
-  },[receta])
+  useEffect(() => {
+    setFileList(
+      receta.urlFoto
+        ? [
+            {
+              uid: "-1",
+              name: "image.png",
+              status: "done",
+              url: entorno.slice(0, -4) + receta.urlFoto,
+            },
+          ]
+        : []
+    );
+  }, [receta]);
 
   useEffect(() => {
     console.log("fileList", fileList);
@@ -265,7 +286,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
             onChange={handleFileChange}
             disabled={!bandEdit}
           >
-            {/* fileList.length < 2 &&  */"Imagen/Video"}
+            {/* fileList.length < 2 &&  */ "Imagen/Video"}
           </Upload>
         </ImgCrop>
         <FormControl
@@ -274,16 +295,21 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
           id="tiempo"
           isRequired
         >
-          <Input
-            className={`input_edit`}
-            disabled={!bandEdit}
-            placeholder="Ingredientes"
-            name="ingredientes"
-            variant="outlined"
-            type="text"
-            value={receta?.ingredientes ? receta.ingredientes : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
+          {bandEdit ? (
+            <Textarea
+              className={`input_edit`}
+              disabled={!bandEdit}
+              placeholder="Ingredientes"
+              name="ingredientes"
+              variant="outlined"
+              type="text"
+              value={receta?.ingredientes ? receta.ingredientes : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+          ) : (
+            renderOrderedList(receta.ingredientes)
+
+          )}
           <FormLabel>Ingredientes</FormLabel>
         </FormControl>
       </div>
@@ -295,16 +321,23 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
           id="tipsSaludables"
           isRequired
         >
-          <Textarea
-            className={`input_edit`}
-            placeholder=""
-            name="tipsSaludables"
-            size="sm"
-            variant="outlined"
-            type="text"
-            value={receta?.tipsSaludables ? receta.tipsSaludables : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
+          {bandEdit ? (
+            <Textarea
+              className={`input_edit`}
+              placeholder=""
+              name="tipsSaludables"
+              size="sm"
+              disabled={!bandEdit}
+              variant="outlined"
+              type="text"
+              value={receta?.tipsSaludables ? receta.tipsSaludables : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+          ) : (
+            renderOrderedList(receta.tipsSaludables)
+
+          )}
+
           <FormLabel>Tips Saludables</FormLabel>
         </FormControl>
         <FormControl
@@ -313,20 +346,27 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
           id="composicionNutricional"
           isRequired
         >
-          <Textarea
-            className={`input_edit`}
-            placeholder=""
-            name="composicionNutricional"
-            size="sm"
-            variant="outlined"
-            type="text"
-            value={
-              receta?.composicionNutricional
-                ? receta.composicionNutricional
-                : ""
-            }
-            onChange={(e) => handleChangeInput(e)}
-          />
+          {bandEdit ? (
+            <Textarea
+              className={`input_edit`}
+              placeholder=""
+              name="composicionNutricional"
+              size="sm"
+              disabled={!bandEdit}
+              variant="outlined"
+              type="text"
+              value={
+                receta?.composicionNutricional
+                  ? receta.composicionNutricional
+                  : ""
+              }
+              onChange={(e) => handleChangeInput(e)}
+            />
+          ) : (
+            renderOrderedList(receta.composicionNutricional)
+
+          )}
+
           <FormLabel>Composición Nutricional</FormLabel>
         </FormControl>
       </div>
@@ -338,16 +378,22 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
           id="preparacion"
           isRequired
         >
-          <Input
-            className={`input_edit`}
-            placeholder="Preparación"
-            disabled={!bandEdit}
-            name="preparacion"
-            variant="outlined"
-            type="text"
-            value={receta?.preparacion ? receta.preparacion : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
+          {bandEdit ? (
+            <Textarea
+              className={`input_edit`}
+              placeholder="Preparación"
+              disabled={!bandEdit}
+              name="preparacion"
+              variant="outlined"
+              type="text"
+              value={receta?.preparacion ? receta.preparacion : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+          ) : (
+            renderOrderedList(receta.preparacion)
+
+          )}
+
           <FormLabel>Preparacion</FormLabel>
         </FormControl>
         {/* SELECT DE LAS PATOLOGIAS */}
