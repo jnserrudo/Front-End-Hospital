@@ -44,11 +44,12 @@ export const RecetaSee = ({ receta }) => {
     if (text) {
       return (
         <OrderedList
-          margin="0.2rem"
+          margin="0 auto"
+          textAlign={'center'}
           width="250px"
           height="200px"
           overflowY="scroll"
-          border="1px solid black"
+          border="1px solid white"
           paddingLeft="20px"
           paddingTop={"2rem"}
         >
