@@ -238,7 +238,7 @@ export const AddInformacion = ({ onClosePadre }) => {
                   onChange={handleYoutubeUrlChange}
                   value={youtubeUrl}
                 />
-                <FormLabel>URL de YouTube</FormLabel>
+                <FormLabel>Iframe YouTube</FormLabel>
               </FormControl>
               {iframeUrl && (
                 <div style={{ marginTop: "1rem" }}>
