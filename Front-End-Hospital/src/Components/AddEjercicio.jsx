@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
+import { Tabs, Tab, TabList, TabPanel, TabPanels } from "@chakra-ui/react";
+
 import {
   Button,
   ButtonGroup,
@@ -41,6 +43,12 @@ export const AddEjercicio = ({ onClosePadre }) => {
   const [fileList, setFileList] = useState([]);
   const [shouldInsert, setShouldInsert] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [iframeUrl, setIframeUrl] = useState(null);
+  const [useYoutube, setUseYoutube] = useState(false);
+  const [disableFileUpload, setDisableFileUpload] = useState(false);
+  const [disableYoutubeInput, setDisableYoutubeInput] = useState(false);
 
   const [bandPrueba, setBandPrueba] = useState(false);
 
@@ -50,13 +58,32 @@ export const AddEjercicio = ({ onClosePadre }) => {
 
   const handleFileChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
+    if (newFileList.length > 0) {
+      setDisableYoutubeInput(true); // Deshabilitar la entrada de URL de YouTube
+      setUseYoutube(false); // Indicar que no se utilizará la URL de YouTube
+    } else {
+      setDisableYoutubeInput(false); // Habilitar la entrada de URL de YouTube
+    }
     if (newFileList.length > 0 && newFileList[0].originFileObj) {
       const file = newFileList[0].originFileObj;
       const url = URL.createObjectURL(file);
+      console.log(url)
       setPreviewUrl(url);
     }
   };
-
+  const handleYoutubeUrlChange = (e) => {
+    const url = e.target.value;
+    setYoutubeUrl(url);
+    if (url) {
+      setDisableFileUpload(true); // Deshabilitar la carga de archivos
+      setIframeUrl(url); // Establecer la URL del iframe
+      setUseYoutube(true); // Indicar que se utilizará la URL de YouTube
+    } else {
+      setDisableFileUpload(false); // Habilitar la carga de archivos
+      setIframeUrl(null); // Limpiar la URL del iframe
+      setUseYoutube(false); // Indicar que no se utilizará la URL de YouTube
+    }
+  };
   const handleFileUpload = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -87,7 +114,10 @@ export const AddEjercicio = ({ onClosePadre }) => {
     try {
       let urlVideo = "";
       // Indicar que se debe insertar la información después de cargar la URL del video
-      if (fileList.length > 0) {
+      if (useYoutube && youtubeUrl) {
+        // Si se está utilizando la URL de YouTube
+        urlVideo = youtubeUrl;
+      } else if (fileList.length > 0) {
         const uploadedVideoUrls = await Promise.all(
           fileList.map((file) => handleFileUpload(file.originFileObj))
         );
@@ -135,15 +165,30 @@ export const AddEjercicio = ({ onClosePadre }) => {
           />
           <FormLabel>Nombre</FormLabel>
         </FormControl>
-        {previewUrl && (
-          <ReactPlayer width="60%" height="100%" controls url={previewUrl} />
-        )}
+
+        <Tabs  >
+          <TabList>
+            <Tab>Cargar Video</Tab>
+            <Tab>Youtube</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel className="tab_video_iframe">
+            {previewUrl && (
+                <ReactPlayer
+                  width="60%"
+                  height="100%"
+                  controls
+                  url={previewUrl}
+                />
+              )}
         <Upload
           className="imgCrop"
           listType="picture-card"
           fileList={fileList}
           beforeUpload={beforeUpload}
           maxCount={1}
+          disabled={disableFileUpload} // Deshabilitar condicionalmente
+
           progress={true}
           showUploadList={false}
           onPreview={async (file) => {
@@ -175,7 +220,34 @@ export const AddEjercicio = ({ onClosePadre }) => {
         >
           {/* fileList.length < 1 &&  */ "Subir Video"}
         </Upload>
+        </TabPanel>
+            <TabPanel>
+              <FormControl
+                className="cont_input_edit"
+                variant="floating"
+                id="youtubeUrl"
+              >
+                <Textarea
+                  className={`input_edit `}
+                  placeholder=""
+                  name="youtubeUrl"
+                  variant="outlined"
+                  type="text"
+                  disabled={disableYoutubeInput} // Deshabilitar condicionalmente
+                  onChange={handleYoutubeUrlChange}
+                  value={youtubeUrl}
+                />
+                <FormLabel>URL de YouTube</FormLabel>
+              </FormControl>
+              {iframeUrl && (
+                <div style={{ marginTop: "1rem" }}>
+                        <div dangerouslySetInnerHTML={{ __html: iframeUrl }} />
 
+                </div>
+              )}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
         {/* SELECT DE LAS PATOLOGIAS */}
         <Select
           className="select_recetas input_edit"

@@ -54,6 +54,9 @@ export const InformacionProvider = ({ children }) => {
     if (!form?.nombre || form?.nombre?.length == 0) {
       errors.nombre = "El nombre es requerido";
     }
+    /* if (!form?.urlVideo || form?.urlVideo?.length == 0) {
+      errors.urlVideo = "La urlVideo es requerida";
+    } */
     if (!form?.descripcion || form?.descripcion?.length == 0) {
       errors.descripcion = "La descripcion es requerida";
     }
@@ -160,6 +163,7 @@ export const InformacionProvider = ({ children }) => {
   };
 
   const handleDelete = async (record) => {
+    console.log(record.id)
     setIdInformacion(record.id);
     setShowVentEmergenteDelete(true);
   };
@@ -344,6 +348,7 @@ export const InformacionProvider = ({ children }) => {
     setShowVentEmergenteEditInformacion: showVentEmergenteEditInformacion,
     informacionToInsert,
     bandInsert,
+    idInformacion,
     showVentEmergenteAddInformacion,
     showVentEmergenteConfInformacion,
     bandLoader,

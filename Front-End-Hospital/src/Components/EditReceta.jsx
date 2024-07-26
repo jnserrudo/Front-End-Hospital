@@ -38,6 +38,8 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
   const [patologiasAsociadas, setPatologiasAsociadas] = useState([]);
   const [patologiasNoAsociadas, setPatologiasNoAsociadas] = useState([]);
   const [selectedPatologias, setSelectedPatologias] = useState([]);
+  const [opcionesPatologias, setOpcionesPatologias] = useState([])
+
   const [fileList, setFileList] = useState(
     receta.urlFoto
       ? [
@@ -78,6 +80,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
   const handleCloseVentEmergente = async () => {
     setShowVentEmergenteConfirmacion(false);
   };
+  /* 
   const opcionesPatologias = [
     ...patologiasAsociadas.map((p) => ({
       label: p.nombre,
@@ -90,7 +93,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
       type: "no-asociada",
     })),
   ];
-
+ */
   const sharedProps = {
     mode: "multiple",
     style: { width: "100%" },
@@ -128,6 +131,43 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
   useEffect(() => {
     console.log("fileList", fileList);
   }, [fileList]);
+
+
+  useEffect(() => {
+    console.log(patologiasxRecetasEdit)
+    if (patologiasxRecetasEdit && Object.values(patologiasxRecetasEdit).length > 0) {
+      setPatologiasAsociadas(patologiasxRecetasEdit.patologiasAsociadas);
+      setPatologiasNoAsociadas(
+        patologiasxRecetasEdit.patologiasNoAsociadas
+      );
+      setSelectedPatologias(
+        patologiasxRecetasEdit.patologiasAsociadas.map((p) => p.id)
+      );
+    }
+  }, [patologiasxRecetasEdit]);
+
+  
+  useEffect(()=>{
+    if(patologiasAsociadas.length>0 || patologiasNoAsociadas.length>0 ){
+      
+      console.log("patologiasAsociadas,patologiasNoAsociadas: ",patologiasAsociadas,patologiasNoAsociadas)
+      setOpcionesPatologias([
+        ...patologiasAsociadas.map((p) => ({
+          label: p.nombre,
+          value: p.id,
+          type: "asociada",
+        })),
+        ...patologiasNoAsociadas.map((p) => ({
+          label: p.nombre,
+          value: p.id,
+          type: "no-asociada",
+        })),
+      ])
+    }
+  },[patologiasAsociadas,patologiasNoAsociadas])
+
+
+
   const handleFileUpload = async (file) => {
     const formData = new FormData();
     formData.append("file", file);

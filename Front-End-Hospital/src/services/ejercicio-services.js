@@ -58,6 +58,7 @@ export const getPatologiaToEjercicioEdit = async (id) => {
 export const inhabilitarEjercicio = async (
   id
 ) => {
+  console.log(id)
   const res = await fetch(`${entorno}/ejercicios/inhabilitar/${id}`, {
     method: "PUT",
     headers: {

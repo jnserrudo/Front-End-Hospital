@@ -226,6 +226,7 @@ export const RecetaProvider = ({ children }) => {
   useEffect(()=>{
     const getpatologiatorecetaadd=async()=>{
       const patologias= await getPatologiaToRecetaAdd()
+      console.log("PatologiasxRecetasAdd",patologiasxRecetasAdd)
       if(patologias.length>0){
         let alToSelect = patologias.map((pat) => {
           return {
@@ -245,14 +246,10 @@ export const RecetaProvider = ({ children }) => {
       const patologias= await getPatologiaToRecetaEdit(idReceta)
       console.log("trae patologias para recetas edit",patologias)
 
-      if(patologias.length>0){
-        let alToSelect = patologias.map((pat) => {
-          return {
-            label: pat.nombre ,
-            value: pat.id,
-          };
-        });
-        setPatologiasxRecetasEdit(alToSelect)
+      if(Object.values(patologias).length>0){
+        console.log(patologias)
+
+        setPatologiasxRecetasEdit(patologias)
       }
       
     }

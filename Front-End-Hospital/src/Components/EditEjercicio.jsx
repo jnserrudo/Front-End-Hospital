@@ -5,7 +5,9 @@ import {
   FormControl,
   FormLabel,
 } from "@chakra-ui/react";
-import { Space, Upload,Select } from "antd";
+import { Tabs, Tab, TabList, TabPanel, TabPanels } from "@chakra-ui/react";
+
+import { Space, Upload, Select } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import "../style.css";
 import ReactPlayer from "react-player";
@@ -33,8 +35,10 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
   const [bandUpdated, setBandUpdated] = useState(false);
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
-  const [previewUrl, setPreviewUrl] = useState(ejercicio?.urlVideo?(entorno.slice(0, -4) + ejercicio.urlVideo): null);
-const [urlVideo, setUrlVideo] = useState('')
+  const [previewUrl, setPreviewUrl] = useState(
+    ejercicio?.urlVideo ? entorno.slice(0, -4) + ejercicio.urlVideo : null
+  );
+  const [urlVideo, setUrlVideo] = useState("");
 
   const [fileList, setFileList] = useState(
     ejercicio.urlVideo
@@ -52,7 +56,7 @@ const [urlVideo, setUrlVideo] = useState('')
   const [patologiasNoAsociadas, setPatologiasNoAsociadas] = useState([]);
   const [selectedPatologias, setSelectedPatologias] = useState([]);
 
-  const [opcionesPatologias, setOpcionesPatologias] = useState([])
+  const [opcionesPatologias, setOpcionesPatologias] = useState([]);
   const {
     handleChangeInput,
     handleUpdate,
@@ -63,7 +67,7 @@ const [urlVideo, setUrlVideo] = useState('')
     return null;
   }
 
-  console.log("ejercicio:",ejercicio)
+  console.log("ejercicio:", ejercicio);
 
   const sharedProps = {
     mode: "multiple",
@@ -96,8 +100,8 @@ const [urlVideo, setUrlVideo] = useState('')
           ]
         : []
     );
-    if(ejercicio?.urlVideo){
-      setUrlVideo(ejercicio?.urlVideo)
+    if (ejercicio?.urlVideo) {
+      setUrlVideo(ejercicio?.urlVideo);
     }
 
     /* if (!previewUrl) {
@@ -105,31 +109,41 @@ const [urlVideo, setUrlVideo] = useState('')
     } */
   }, [ejercicio]);
 
+  useEffect(() => {
+    handleChangeInput({ target: { name: "urlVideo", value: urlVideo } });
 
-  useEffect(()=>{
-    if(urlVideo){
-      setPreviewUrl(entorno.slice(0, -4) + urlVideo);
+    if (urlVideo.includes("<iframe")) {
+      setPreviewUrl(urlVideo);
+    } else {
+      if (urlVideo.includes("blob")) {
+        setPreviewUrl(urlVideo);
+      } else {
+        setPreviewUrl(entorno.slice(0, -4) + urlVideo);
+      }
     }
-  },[urlVideo])
+  }, [urlVideo]);
 
   useEffect(() => {
-    console.log(patologiasxEjercicioEdit)
-    if (patologiasxEjercicioEdit && Object.values(patologiasxEjercicioEdit).length > 0) {
+    console.log(patologiasxEjercicioEdit);
+    if (
+      patologiasxEjercicioEdit &&
+      Object.values(patologiasxEjercicioEdit).length > 0
+    ) {
       setPatologiasAsociadas(patologiasxEjercicioEdit.patologiasAsociadas);
-      setPatologiasNoAsociadas(
-        patologiasxEjercicioEdit.patologiasNoAsociadas
-      );
+      setPatologiasNoAsociadas(patologiasxEjercicioEdit.patologiasNoAsociadas);
       setSelectedPatologias(
         patologiasxEjercicioEdit.patologiasAsociadas.map((p) => p.id)
       );
     }
   }, [patologiasxEjercicioEdit]);
 
-  
-  useEffect(()=>{
-    if(patologiasAsociadas.length>0 || patologiasNoAsociadas.length>0 ){
-      
-      console.log("patologiasAsociadas,patologiasNoAsociadas: ",patologiasAsociadas,patologiasNoAsociadas)
+  useEffect(() => {
+    if (patologiasAsociadas.length > 0 || patologiasNoAsociadas.length > 0) {
+      console.log(
+        "patologiasAsociadas,patologiasNoAsociadas: ",
+        patologiasAsociadas,
+        patologiasNoAsociadas
+      );
       setOpcionesPatologias([
         ...patologiasAsociadas.map((p) => ({
           label: p.nombre,
@@ -141,16 +155,18 @@ const [urlVideo, setUrlVideo] = useState('')
           value: p.id,
           type: "no-asociada",
         })),
-      ])
+      ]);
     }
-  },[patologiasAsociadas,patologiasNoAsociadas])
+  }, [patologiasAsociadas, patologiasNoAsociadas]);
 
   const handleFileChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
     if (newFileList.length > 0 && newFileList[0].originFileObj) {
       const file = newFileList[0].originFileObj;
       const url = URL.createObjectURL(file);
+      console.log(url);
       setPreviewUrl(url);
+      handleChangeInput({ target: { name: "urlVideo", value: url } });
     }
   };
   const beforeUpload = (file) => {
@@ -226,48 +242,76 @@ const [urlVideo, setUrlVideo] = useState('')
           <FormLabel>Nombre</FormLabel>
         </FormControl>
 
-        {previewUrl && (
-          <ReactPlayer width="60%" height="100%" controls url={previewUrl} />
-        )}
+        {previewUrl &&
+          (previewUrl.includes("<iframe") ? (
+            <div
+              style={{ height: "100%", padding: "2rem !important" }}
+              dangerouslySetInnerHTML={{ __html: previewUrl }}
+            />
+          ) : (
+            <ReactPlayer width="60%" height="100%" controls url={previewUrl} />
+          ))}
 
-        <Upload
-          className="imgCrop"
-          listType="picture-card"
-          fileList={fileList}
-          beforeUpload={beforeUpload}
-          maxCount={1}
-          progress={true}
-          disabled={!bandEdit}
-          onPreview={async (file) => {
-            // Si el archivo ya tiene una URL (por ejemplo, un archivo previamente subido)
-            if (file.url) {
-              // Abre la URL del archivo en una nueva ventana
-              window.open(file.url);
-            } else {
-              // Si el archivo no tiene URL, genera una URL de previsualización usando FileReader
-              const preview = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file.originFileObj); // Lee el archivo como una URL de datos
-                reader.onload = () => resolve(reader.result); // Resuelve la promesa con la URL de datos
-                reader.onerror = (error) => reject(error); // Rechaza la promesa si hay un error
-              });
-              // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
-              const imgWindow = window.open();
-              imgWindow.document.write(
-                `<img src="${preview}" alt="preview" />`
-              );
-            }
-          }}
-          showUploadList={false}
-          customRequest={({ file, onSuccess }) => {
-            setTimeout(() => {
-              onSuccess("ok");
-            }, 0);
-          }}
-          onChange={handleFileChange}
-        >
-          {"Subir Video"}
-        </Upload>
+        <Tabs variant="enclosed">
+          <TabList>
+            <Tab>Subir/Actualizar Video</Tab>
+            <Tab>Actualizar Iframe</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel className="tab_video_iframe">
+              <Upload
+                className="imgCrop"
+                listType="picture-card"
+                fileList={fileList}
+                beforeUpload={beforeUpload}
+                maxCount={1}
+                progress={true}
+                disabled={!bandEdit}
+                onPreview={async (file) => {
+                  // Si el archivo ya tiene una URL (por ejemplo, un archivo previamente subido)
+                  if (file.url) {
+                    // Abre la URL del archivo en una nueva ventana
+                    window.open(file.url);
+                  } else {
+                    // Si el archivo no tiene URL, genera una URL de previsualización usando FileReader
+                    const preview = await new Promise((resolve, reject) => {
+                      const reader = new FileReader();
+                      reader.readAsDataURL(file.originFileObj); // Lee el archivo como una URL de datos
+                      reader.onload = () => resolve(reader.result); // Resuelve la promesa con la URL de datos
+                      reader.onerror = (error) => reject(error); // Rechaza la promesa si hay un error
+                    });
+                    // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
+                    const imgWindow = window.open();
+                    imgWindow.document.write(
+                      `<img src="${preview}" alt="preview" />`
+                    );
+                  }
+                }}
+                showUploadList={false}
+                customRequest={({ file, onSuccess }) => {
+                  setTimeout(() => {
+                    onSuccess("ok");
+                  }, 0);
+                }}
+                onChange={handleFileChange}
+              >
+                {"Subir Video"}
+              </Upload>
+            </TabPanel>
+            <TabPanel>
+              <FormControl>
+                <FormLabel htmlFor="iframeUrl">Iframe URL</FormLabel>
+                <Input
+                  id="iframeUrl"
+                  disabled={!bandEdit}
+                  value={urlVideo}
+                  onChange={(e) => setUrlVideo(e.target.value)}
+                  placeholder="Ingrese la URL del iframe"
+                />
+              </FormControl>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
         {/* SELECT DE LAS PATOLOGIAS */}
         <Select
           disabled={!bandEdit}
@@ -275,10 +319,10 @@ const [urlVideo, setUrlVideo] = useState('')
           className="select_recetas input_edit"
           {...sharedProps}
           /* value={alumnos} */
-          onChange={(e)=>{
-            console.log(e)
-            handleChangeSelect(e)
-            setSelectedPatologias(e)
+          onChange={(e) => {
+            console.log(e);
+            handleChangeSelect(e);
+            setSelectedPatologias(e);
           }}
         />
 

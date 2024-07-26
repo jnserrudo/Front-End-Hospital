@@ -471,3 +471,11 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
  */
   margin-left: 1rem;
 }
+
+
+.tab_video_iframe{
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

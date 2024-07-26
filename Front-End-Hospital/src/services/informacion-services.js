@@ -59,14 +59,14 @@ export const getPatologiaToInformacionEdit = async (id) => {
 
 
 export const inhabilitarInformacion = async (
-  informacion
+  id
 ) => {
-  const res = await fetch(`${entorno}/informacion/inhabilitar`, {
+  const res = await fetch(`${entorno}/informacion/inhabilitar/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(informacion),
+    
   });
   const data = await res.json();
   return data;

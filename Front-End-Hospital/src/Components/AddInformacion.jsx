@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
+import { Tabs, Tab, TabList, TabPanel, TabPanels } from "@chakra-ui/react";
+
 import {
   Button,
   ButtonGroup,
@@ -24,7 +26,7 @@ export const AddInformacion = ({ onClosePadre }) => {
     handleInsert,
     handleChangeSelectInsert,
     handleCloseVentEmergConfirmacion,
-    patologiasxInformacionAdd
+    patologiasxInformacionAdd,
   } = useContext(InformacionsContext);
   const sharedProps = {
     mode: "multiple",
@@ -42,6 +44,12 @@ export const AddInformacion = ({ onClosePadre }) => {
   const [shouldInsert, setShouldInsert] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
 
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [iframeUrl, setIframeUrl] = useState(null);
+  const [useYoutube, setUseYoutube] = useState(false);
+  const [disableFileUpload, setDisableFileUpload] = useState(false);
+  const [disableYoutubeInput, setDisableYoutubeInput] = useState(false);
+
   const [bandPrueba, setBandPrueba] = useState(false);
 
   const handleCloseVentEmergente = async () => {
@@ -50,10 +58,31 @@ export const AddInformacion = ({ onClosePadre }) => {
 
   const handleFileChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
+    if (newFileList.length > 0) {
+      setDisableYoutubeInput(true); // Deshabilitar la entrada de URL de YouTube
+      setUseYoutube(false); // Indicar que no se utilizará la URL de YouTube
+    } else {
+      setDisableYoutubeInput(false); // Habilitar la entrada de URL de YouTube
+    }
     if (newFileList.length > 0 && newFileList[0].originFileObj) {
       const file = newFileList[0].originFileObj;
       const url = URL.createObjectURL(file);
+      console.log(url)
       setPreviewUrl(url);
+    }
+  };
+
+  const handleYoutubeUrlChange = (e) => {
+    const url = e.target.value;
+    setYoutubeUrl(url);
+    if (url) {
+      setDisableFileUpload(true); // Deshabilitar la carga de archivos
+      setIframeUrl(url); // Establecer la URL del iframe
+      setUseYoutube(true); // Indicar que se utilizará la URL de YouTube
+    } else {
+      setDisableFileUpload(false); // Habilitar la carga de archivos
+      setIframeUrl(null); // Limpiar la URL del iframe
+      setUseYoutube(false); // Indicar que no se utilizará la URL de YouTube
     }
   };
 
@@ -87,7 +116,10 @@ export const AddInformacion = ({ onClosePadre }) => {
     try {
       let urlVideo = "";
       // Indicar que se debe insertar la información después de cargar la URL del video
-      if (fileList.length > 0) {
+      if (useYoutube && youtubeUrl) {
+        // Si se está utilizando la URL de YouTube
+        urlVideo = youtubeUrl;
+      } else if (fileList.length > 0) {
         const uploadedVideoUrls = await Promise.all(
           fileList.map((file) => handleFileUpload(file.originFileObj))
         );
@@ -135,46 +167,88 @@ export const AddInformacion = ({ onClosePadre }) => {
           />
           <FormLabel>Nombre</FormLabel>
         </FormControl>
-        {previewUrl && (
-          <ReactPlayer width="60%" height="100%" controls url={previewUrl} />
-        )}
-        <Upload
-          className="imgCrop"
-          listType="picture-card"
-          fileList={fileList}
-          beforeUpload={beforeUpload}
-          maxCount={1}
-          progress={true}
-          showUploadList={false}
-          onPreview={async (file) => {
-            // Si el archivo ya tiene una URL (por ejemplo, un archivo previamente subido)
-            if (file.url) {
-              // Abre la URL del archivo en una nueva ventana
-              window.open(file.url);
-            } else {
-              // Si el archivo no tiene URL, genera una URL de previsualización usando FileReader
-              const preview = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file.originFileObj); // Lee el archivo como una URL de datos
-                reader.onload = () => resolve(reader.result); // Resuelve la promesa con la URL de datos
-                reader.onerror = (error) => reject(error); // Rechaza la promesa si hay un error
-              });
-              // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
-              const imgWindow = window.open();
-              imgWindow.document.write(
-                `<img src="${preview}" alt="preview" />`
-              );
-            }
-          }}
-          customRequest={({ file, onSuccess }) => {
-            setTimeout(() => {
-              onSuccess("ok");
-            }, 0);
-          }}
-          onChange={handleFileChange}
-        >
-          {/* fileList.length < 1 &&  */ "Subir Video"}
-        </Upload>
+
+        <Tabs  >
+          <TabList>
+            <Tab>Cargar Video</Tab>
+            <Tab>Youtube</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel className="tab_video_iframe">
+              {previewUrl && (
+                <ReactPlayer
+                  width="60%"
+                  height="100%"
+                  controls
+                  url={previewUrl}
+                />
+              )}
+              <Upload
+                className="imgCrop"
+                listType="picture-card"
+                fileList={fileList}
+                beforeUpload={beforeUpload}
+                maxCount={1}
+                disabled={disableFileUpload} // Deshabilitar condicionalmente
+                progress={true}
+                showUploadList={false}
+                onPreview={async (file) => {
+                  // Si el archivo ya tiene una URL (por ejemplo, un archivo previamente subido)
+                  if (file.url) {
+                    // Abre la URL del archivo en una nueva ventana
+                    window.open(file.url);
+                  } else {
+                    // Si el archivo no tiene URL, genera una URL de previsualización usando FileReader
+                    const preview = await new Promise((resolve, reject) => {
+                      const reader = new FileReader();
+                      reader.readAsDataURL(file.originFileObj); // Lee el archivo como una URL de datos
+                      reader.onload = () => resolve(reader.result); // Resuelve la promesa con la URL de datos
+                      reader.onerror = (error) => reject(error); // Rechaza la promesa si hay un error
+                    });
+                    // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
+                    const imgWindow = window.open();
+                    imgWindow.document.write(
+                      `<img src="${preview}" alt="preview" />`
+                    );
+                  }
+                }}
+                customRequest={({ file, onSuccess }) => {
+                  setTimeout(() => {
+                    onSuccess("ok");
+                  }, 0);
+                }}
+                onChange={handleFileChange}
+              >
+                {/* fileList.length < 1 &&  */ "Subir Video"}
+              </Upload>
+            </TabPanel>
+            <TabPanel>
+              <FormControl
+                className="cont_input_edit"
+                variant="floating"
+                id="youtubeUrl"
+              >
+                <Textarea
+                  className={`input_edit `}
+                  placeholder=""
+                  name="youtubeUrl"
+                  variant="outlined"
+                  type="text"
+                  disabled={disableYoutubeInput} // Deshabilitar condicionalmente
+                  onChange={handleYoutubeUrlChange}
+                  value={youtubeUrl}
+                />
+                <FormLabel>URL de YouTube</FormLabel>
+              </FormControl>
+              {iframeUrl && (
+                <div style={{ marginTop: "1rem" }}>
+                        <div dangerouslySetInnerHTML={{ __html: iframeUrl }} />
+
+                </div>
+              )}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
 
         {/* SELECT DE LAS PATOLOGIAS */}
         <Select
