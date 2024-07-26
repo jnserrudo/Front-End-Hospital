@@ -20,7 +20,12 @@ export const ListVideos = ({ videos }) => {
                 <ReactPlayer width="100%" height="100%" url={v.url} controls />
               </div>
             </TabPanel>
-            <TabPanel>{v.descripcion}</TabPanel>
+            <TabPanel  >
+              <div className="tabpanel_descripcion">
+
+              {v.descripcion}
+              </div>
+              </TabPanel>
           </TabPanels>
         </Tabs>
       ))}
