@@ -70,23 +70,33 @@
 
 .main_home {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Asegura el centrado vertical del contenedor */
+  height: 100vh; /* Asegúrate de que el main ocupe toda la altura de la ventana */
+
 }
 
 .img_fondo {
   display: block;
   width: 100%;
-  height: 85vh;
+  height: 100%; /* Ajusta la altura de la imagen de fondo para que ocupe toda la altura del contenedor */
   position: absolute;
+  top: 0;
+  left: 0;
+  object-fit: cover;
 }
 
 .cont_login {
-  width: 50%;
+  width: 380px;
   height: 350px;
   background-color: var(--primary);
   position: absolute;
   z-index: 100;
-  margin-top: 3rem;
-  left: 20%;
+  border-radius: 20px;
+  left: 50%;
+  top: 50%; /* Centra verticalmente el contenedor */
+  transform: translate(-50%, -50%); /* Ajusta la posición del contenedor */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -155,9 +165,9 @@
 .cont_recetas {
   border: 2px grey solid;
   border-radius: 5px;
-  margin-top: 2rem;
+  margin: 2rem 4rem 0;
   padding: 2rem;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .txt_tab {
@@ -173,9 +183,9 @@
   display: flex;
   /*   border: 2px red solid;
  */
+ flex-direction: column;
   width: 80%;
   font-weight: 700;
-  justify-content: space-between;
 }
 
 .select_recetas {
@@ -203,8 +213,8 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 .cont_videos {
   display: flex;
   flex-wrap: wrap;
-  border: 5px var(--primary) solid;
   border-radius: 5px;
+  margin-top: 1rem;
   width: 100%;
   justify-content: start;
   align-items: center;
@@ -245,9 +255,9 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 .header_vent_emergente {
   display: flex;
   align-items: center;
-  width: 100%;
+  width: 90%;
   justify-content: space-between;
-  padding: 0 1rem;
+  
 }
 
 .btn_agregar {
@@ -274,11 +284,12 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   flex-wrap: wrap !important;
   justify-content: center;
   align-items: center;
-}
+/*   border: 2px red solid;
+ */}
 
 .imgCrop {
-  width: 265px !important;
-  /*   border: 2px red solid !important;
+  width: 285px !important;
+/*     border: 2px red solid !important;
  */
   display: flex !important;
   justify-content: center;
@@ -305,8 +316,8 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 
 .receta_foto_ingredientes {
   display: flex;
-
-  justify-content: space-around;
+width: 100%;
+  justify-content: space-between;
   flex-wrap: wrap;
   overflow: auto;
   
@@ -331,7 +342,7 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 
 .box_shadow{
   padding: 0.5rem;
-  box-shadow: var(--primary) 0px 1px 2px 0px;
+  border: 0.5px var(--primary) solid;
 }
 
 .receta_ingredientes {
@@ -459,12 +470,17 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 
 .icon_imagen {
   display: block;
-  width: 50px;
-  height: 50px;
+  width: 75px;
+  height: 75px;
 }
 .receta_nombre {
   display: flex;
+  font-size: large;
+}
+
+.titulo_see{
   font-size: x-large;
+
 }
 
 .txt_nombre_receta {
@@ -484,4 +500,17 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 .tabpanel_descripcion{
   overflow: scroll !important;
   height: 250px !important;
+}
+
+
+/* Nuevo estilo para el contenedor del contenido */
+.content-container {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 200px); /* Ajusta la altura mínima para que el pie de página quede siempre abajo */
+}
+
+/* Estilo para el div que contiene el contenido principal y el footer */
+.content-main {
+  flex: 1; /* Permite que este contenedor ocupe el espacio restante */
 }

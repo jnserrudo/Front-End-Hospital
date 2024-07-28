@@ -23,18 +23,19 @@
     display: flex;
     flex-direction: column;
     justify-content: start;
-    align-items: center;
   }
   .popup-content.x-small {
     width: 25%; /* Anchura para ventanas pequeñas */
     max-height: 25%; /* Altura para ventanas pequeñas */
+    
+    align-items: center;
   }
   .popup-content.small {
     width: 40%; /* Anchura para ventanas pequeñas */
     max-height: 45%; /* Altura para ventanas pequeñas */
   }
   .popup-content.medium {
-    width: 50%; /* Anchura para ventanas medianas */
+    width: 60%; /* Anchura para ventanas medianas */
     max-height: 70%; /* Altura para ventanas medianas */
   }
 

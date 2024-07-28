@@ -1,4 +1,5 @@
 import { Tabs, Tab, TabList, TabPanel, TabPanels } from "@chakra-ui/react";
+import { PlusCircleOutlined } from "@ant-design/icons";
 
 import React from "react";
 import ReactPlayer from "react-player";
@@ -11,8 +12,8 @@ export const ListVideos = ({ videos }) => {
       {videos.map((v, index) => (
         <Tabs className="tabs_videos" key={index}>
           <TabList>
-            <Tab>{v.nombre}</Tab>
-            <Tab>Descripción</Tab>
+            <Tab style={{lineHeight:'14px'}} >{v.nombre}</Tab>
+            <Tab style={{width:'100px'}} ><PlusCircleOutlined style={{fontSize:'x-large'}} /></Tab>
           </TabList>
           <TabPanels>
             <TabPanel>

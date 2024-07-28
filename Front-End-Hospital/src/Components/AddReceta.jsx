@@ -192,7 +192,6 @@ export const AddReceta = ({ onClosePadre }) => {
           onChange={(e) => handleChangeInputInsert(e)}
         /> */}
 
-        <ImgCrop rotationSlider>
           <Upload
             className="imgCrop"
             listType="picture-card"
@@ -203,7 +202,8 @@ export const AddReceta = ({ onClosePadre }) => {
           >
             {fileList.length < 1 && "Imagen/Video"}
           </Upload>
-        </ImgCrop>
+        {/* <ImgCrop rotationSlider>
+        </ImgCrop> */}
 
         <FormControl
           className="cont_input_edit"
@@ -211,10 +211,11 @@ export const AddReceta = ({ onClosePadre }) => {
           id="ingredientes"
           isRequired
         >
-          <Input
+          <Textarea
             className={`input_edit`}
             placeholder=""
             name="ingredientes"
+            size="sm"
             variant="outlined"
             type="text"
             value={
@@ -277,7 +278,7 @@ export const AddReceta = ({ onClosePadre }) => {
           id="preparacion"
           isRequired
         >
-          <Input
+          <Textarea
             className={`input_edit`}
             placeholder=""
             name="preparacion"

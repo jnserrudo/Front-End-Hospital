@@ -15,7 +15,7 @@ import {
   ListIcon,
   OrderedList,
   UnorderedList,
-} from '@chakra-ui/react'
+} from "@chakra-ui/react";
 import RecetasContext from "../Contexts/RecetaContext";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@chakra-ui/react";
@@ -38,7 +38,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
   const [patologiasAsociadas, setPatologiasAsociadas] = useState([]);
   const [patologiasNoAsociadas, setPatologiasNoAsociadas] = useState([]);
   const [selectedPatologias, setSelectedPatologias] = useState([]);
-  const [opcionesPatologias, setOpcionesPatologias] = useState([])
+  const [opcionesPatologias, setOpcionesPatologias] = useState([]);
 
   const [fileList, setFileList] = useState(
     receta.urlFoto
@@ -63,19 +63,50 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
     return null;
   }
 
-  const renderOrderedList = (text) => {
+  const renderOrderedList = (text, desordenada = false) => {
     if (text) {
       return (
-        <OrderedList margin="0.2rem" width="250px" height="200px" overflowY="scroll" border="1px solid black" paddingLeft="20px" paddingTop={'2rem'}>
-          {text.split("\n").map((line, index) => (
-            <ListItem key={index}>{line}</ListItem>
-          ))}
-        </OrderedList>
+        <>
+          {desordenada ? (
+            <UnorderedList
+              margin="0.2rem"
+              styleType="'-'"
+
+              width="250px"
+              height="200px"
+              overflowY="scroll"
+              border="1px white black"
+              paddingLeft="20px"
+              paddingTop={"2rem"}
+            >
+              {text.split("\n").map((line, index) => (
+                <ListItem style={{ textAlign: "justify" }} key={index}>
+                  {line}
+                </ListItem>
+              ))}
+            </UnorderedList>
+          ) : (
+            <OrderedList
+              margin="0.2rem"
+              width="250px"
+              height="200px"
+              overflowY="scroll"
+              border="1px white black"
+              paddingLeft="20px"
+              paddingTop={"2rem"}
+            >
+              {text.split("\n").map((line, index) => (
+                <ListItem style={{ textAlign: "justify" }} key={index}>
+                  {line}
+                </ListItem>
+              ))}
+            </OrderedList>
+          )}
+        </>
       );
     }
     return null;
   };
-  
 
   const handleCloseVentEmergente = async () => {
     setShowVentEmergenteConfirmacion(false);
@@ -132,25 +163,27 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
     console.log("fileList", fileList);
   }, [fileList]);
 
-
   useEffect(() => {
-    console.log(patologiasxRecetasEdit)
-    if (patologiasxRecetasEdit && Object.values(patologiasxRecetasEdit).length > 0) {
+    console.log(patologiasxRecetasEdit);
+    if (
+      patologiasxRecetasEdit &&
+      Object.values(patologiasxRecetasEdit).length > 0
+    ) {
       setPatologiasAsociadas(patologiasxRecetasEdit.patologiasAsociadas);
-      setPatologiasNoAsociadas(
-        patologiasxRecetasEdit.patologiasNoAsociadas
-      );
+      setPatologiasNoAsociadas(patologiasxRecetasEdit.patologiasNoAsociadas);
       setSelectedPatologias(
         patologiasxRecetasEdit.patologiasAsociadas.map((p) => p.id)
       );
     }
   }, [patologiasxRecetasEdit]);
 
-  
-  useEffect(()=>{
-    if(patologiasAsociadas.length>0 || patologiasNoAsociadas.length>0 ){
-      
-      console.log("patologiasAsociadas,patologiasNoAsociadas: ",patologiasAsociadas,patologiasNoAsociadas)
+  useEffect(() => {
+    if (patologiasAsociadas.length > 0 || patologiasNoAsociadas.length > 0) {
+      console.log(
+        "patologiasAsociadas,patologiasNoAsociadas: ",
+        patologiasAsociadas,
+        patologiasNoAsociadas
+      );
       setOpcionesPatologias([
         ...patologiasAsociadas.map((p) => ({
           label: p.nombre,
@@ -162,11 +195,9 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
           value: p.id,
           type: "no-asociada",
         })),
-      ])
+      ]);
     }
-  },[patologiasAsociadas,patologiasNoAsociadas])
-
-
+  }, [patologiasAsociadas, patologiasNoAsociadas]);
 
   const handleFileUpload = async (file) => {
     const formData = new FormData();
@@ -318,7 +349,6 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
           value={receta?.urlFoto ? receta.urlFoto : ""}
           onChange={(e) => handleChangeInput(e)}
         /> */}
-        <ImgCrop rotationSlider>
           <Upload
             className="imgCrop"
             listType="picture-card"
@@ -328,7 +358,8 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
           >
             {/* fileList.length < 2 &&  */ "Imagen/Video"}
           </Upload>
-        </ImgCrop>
+        {/* <ImgCrop rotationSlider>
+        </ImgCrop> */}
         <FormControl
           className="cont_input_edit"
           variant="floating"
@@ -348,7 +379,6 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
             />
           ) : (
             renderOrderedList(receta.ingredientes)
-
           )}
           <FormLabel>Ingredientes</FormLabel>
         </FormControl>
@@ -375,7 +405,6 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
             />
           ) : (
             renderOrderedList(receta.tipsSaludables)
-
           )}
 
           <FormLabel>Tips Saludables</FormLabel>
@@ -403,8 +432,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
               onChange={(e) => handleChangeInput(e)}
             />
           ) : (
-            renderOrderedList(receta.composicionNutricional)
-
+            renderOrderedList(receta.composicionNutricional,true)
           )}
 
           <FormLabel>Composición Nutricional</FormLabel>
@@ -431,7 +459,6 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
             />
           ) : (
             renderOrderedList(receta.preparacion)
-
           )}
 
           <FormLabel>Preparacion</FormLabel>

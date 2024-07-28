@@ -36,7 +36,7 @@ export const FooterHospital = ({ setSelectedKey }) => {
           <PhoneOutlined /> 0387 422-1605
         </h3>
       </div>
-      <div className="cont_opciones_footer">
+      {/* <div className="cont_opciones_footer">
         <p className="titulo titulo_footer" onClick={() => setSelectedKey("2")}>
           Recetas
         </p>
@@ -46,8 +46,9 @@ export const FooterHospital = ({ setSelectedKey }) => {
         <p className="titulo titulo_footer" onClick={() => setSelectedKey("4")}>
           Ejercicio
         </p>
-      </div>
-      Hospital Oñativia ©{new Date().getFullYear()} Created by JNSIX
+      </div> */}
+      <p style={{textAlign:'center'}} >      Hospital Oñativia ©{new Date().getFullYear()} Created by JNSIX
+      </p>
 
     </>
   );

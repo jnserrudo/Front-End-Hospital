@@ -255,7 +255,7 @@ export const RecetaProvider = ({ children }) => {
     }
     
   getpatologiatorecetaedit()
-  },[])
+  },[idReceta])
 
   const columns = [
     {

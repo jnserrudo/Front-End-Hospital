@@ -10,8 +10,11 @@ import {
   Input,
   FormControl,
   FormLabel,
+  InputGroup,
+  InputRightElement,
+  Button,
 } from "@chakra-ui/react";
-import { CheckOutlined } from "@ant-design/icons";
+import { CheckOutlined, SearchOutlined } from "@ant-design/icons";
 import { VentEmergenteRecetaSee } from "../Components/VentEmergRecetaSee";
 import RecetaContext from "../Contexts/RecetaContext";
 import { getAllPatologias } from "../services/patologia-services";
@@ -23,55 +26,11 @@ export const Recetas = () => {
 
   const [recetaSee, setRecetaSee] = useState({});
 
-  const { db, dbSearch,handleSearch } = useContext(RecetaContext);
+  const { db, dbSearch, handleSearch } = useContext(RecetaContext);
   console.log(db);
 
   const [recetasPatologias, setRecetasPatologias] = useState([]);
 
-  /* let db = [
-    {
-      id: 1,
-      nombre: "Ensalada César",
-      urlFoto: "https://placehold.co/400x300/png",
-      porciones: 2,
-      calorias: 250,
-      tiempo: "15 minutos",
-      ingredientes: "Lechuga, Pollo, Queso Parmesano, Aderezo César",
-      preparacion: "Mezclar todos los ingredientes y servir frío.",
-    },
-    {
-      id: 2,
-      nombre: "Sopa de Tomate",
-      urlFoto: "https://via.placeholder.com/150",
-      porciones: 4,
-      calorias: 150,
-      tiempo: "30 minutos",
-      ingredientes: "Tomates, Cebolla, Ajo, Caldo de Pollo",
-      preparacion:
-        "Cocinar todos los ingredientes y licuar hasta obtener una mezcla homogénea.",
-    },
-    {
-      id: 3,
-      nombre: "Pasta Carbonara",
-      urlFoto: "https://via.placeholder.com/150",
-      porciones: 3,
-      calorias: 450,
-      tiempo: "20 minutos",
-      ingredientes: "Pasta, Huevo, Panceta, Queso Parmesano",
-      preparacion: "Cocinar la pasta y mezclar con los demás ingredientes.",
-    },
-    {
-      id: 4,
-      nombre: "Tacos de Pescado",
-      urlFoto: "https://via.placeholder.com/150",
-      porciones: 5,
-      calorias: 300,
-      tiempo: "25 minutos",
-      ingredientes: "Tortillas, Pescado, Repollo, Salsa de Yogur",
-      preparacion:
-        "Freír el pescado y servir en tortillas con los demás ingredientes.",
-    },
-  ]; */
   const [options, setOptions] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [clickCount, setClickCount] = useState(0);
@@ -148,66 +107,58 @@ export const Recetas = () => {
       <nav className="nav_recetas">
         <img src="/recetas.svg" className="icon_imagen" alt="" />
         <div className="cont_sel_recetas">
-          <p className="">Recetas Saludables</p>
-          {/* <p>Elige Patología</p>
-          <Select
-            className="select_recetas select_patologias"
-            mode="multiple"
-            allowClear
-            style={{
-              width: "100%",
-            }}
-            placeholder="Seleccione una Patologia"
-            onChange={handleChange}
-            options={options}
-            color
-          /> */}
+          <p  className="titulo_see" >Recetas Saludables</p>
 
           {/* Buscador */}
 
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="recetaSearch"
-            
-          >
-            <Input
-              className={`input_edit`}
-              placeholder=""
-              name="recetaSearch"
-              variant="outlined"
-              type="text"
-              value={recetaSearch}
-              onChange={(e) => {
-                setRecetaSearch(e.target.value);
-                handleSearch(e.target.value,recetasPatologias.length == 0?db:recetasPatologias);
-              }}
-            />
-            <FormLabel>Buscar Recetas</FormLabel>
+          <FormControl className="" variant="floating" id="recetaSearch">
+            <InputGroup>
+              <Input
+                placeholder=""
+                name="recetaSearch"
+                type="text"
+                value={recetaSearch}
+                onChange={(e) => {
+                  setRecetaSearch(e.target.value);
+                  handleSearch(
+                    e.target.value,
+                    recetasPatologias.length == 0 ? db : recetasPatologias
+                  );
+                }}
+              />
+              <InputRightElement
+                width="4.5rem"
+                style={{ color: "#046ba3", fontSize: "20px" }}
+              >
+                <SearchOutlined />
+              </InputRightElement>
+            </InputGroup>
+
+            <FormLabel></FormLabel>
           </FormControl>
         </div>
       </nav>
       <div className="cont_recetas">
-        <List spacing={3}>
+        <List spacing={0}>
           {recetaSearch.length > 0
             ? dbSearch.map((receta, index) => {
                 return (
                   <>
                     <ListItem
                       style={{
-                        backgroundColor:
-                          selectedItem === index ? "greenyellow" : "inherit",
-                        color: selectedItem === index ? "white" : "inherit",
+                        backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
+                        color: "black",
                       }}
                       onClick={() => {
-                        handleClick(index);
-                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms
+                        /*  handleClick(index);
+                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms */
                         setRecetaSee(receta);
                         //setShowVentEmergRecetaSee(true) esta en el useEffect
                       }}
                     >
                       <div className="receta_nombre">
-                        <CheckOutlined />
+                        {/*                         <CheckOutlined />
+                         */}{" "}
                         <p className="txt_nombre_receta">{receta.nombre}</p>
                       </div>
                     </ListItem>
@@ -220,19 +171,19 @@ export const Recetas = () => {
                   <>
                     <ListItem
                       style={{
-                        backgroundColor:
-                          selectedItem === index ? "greenyellow" : "inherit",
-                        color: selectedItem === index ? "white" : "inherit",
+                        backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
+                        color: "black",
                       }}
                       onClick={() => {
-                        handleClick(index);
-                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms
+                        /*  handleClick(index);
+                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms */
                         setRecetaSee(receta);
                         //setShowVentEmergRecetaSee(true) esta en el useEffect
                       }}
                     >
                       <div className="receta_nombre">
-                        <CheckOutlined />
+                        {/*                         <CheckOutlined />
+                         */}{" "}
                         <p className="txt_nombre_receta">{receta.nombre}</p>
                       </div>
                     </ListItem>
@@ -244,19 +195,19 @@ export const Recetas = () => {
                   <>
                     <ListItem
                       style={{
-                        backgroundColor:
-                          selectedItem === index ? "greenyellow" : "inherit",
-                        color: selectedItem === index ? "white" : "inherit",
+                        backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
+                        color: "black",
                       }}
                       onClick={() => {
-                        handleClick(index);
-                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms
+                        /*  handleClick(index);
+                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms */
                         setRecetaSee(receta);
                         //setShowVentEmergRecetaSee(true) esta en el useEffect
                       }}
                     >
                       <div className="receta_nombre">
-                        <CheckOutlined />
+                        {/*                         <CheckOutlined />
+                         */}{" "}
                         <p className="txt_nombre_receta">{receta.nombre}</p>
                       </div>
                     </ListItem>

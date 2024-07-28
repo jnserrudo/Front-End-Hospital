@@ -4,35 +4,16 @@ import { ListVideos } from "../Components/ListVideos";
 import EjercicioContext from "../Contexts/EjercicioContext";
 import { entorno } from "../services/config";
 import { getEjercicioxPaciente } from "../services/paciente-services";
-import { Input, FormControl, FormLabel } from "@chakra-ui/react";
+import {
+  Input,
+  FormControl,
+  FormLabel,
+  InputGroup,
+  InputRightElement,
+} from "@chakra-ui/react";
+import { SearchOutlined } from "@ant-design/icons";
 
 export const Ejercicio = () => {
-  /* let videos = [
-    {
-      url: "https://www.youtube.com/embed/9V_HpS9p4QY?si=Y39GmSEWvgUGROZ8",
-    },
-    {
-      url: "https://www.youtube.com/embed/9V_HpS9p4QY?si=Y39GmSEWvgUGROZ8",
-    },
-    {
-      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
-    },
-    {
-      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
-    },
-    {
-      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
-    },
-    {
-      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
-    },
-    {
-      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
-    },
-    {
-      url: "https://www.youtube.com/embed/OwX6e0F2x6s?si=ONEMbfM7-gkYpiGk",
-    },
-  ]; */
   const [videos, setVideos] = useState([]);
 
   const [options, setOptions] = useState([]);
@@ -102,42 +83,35 @@ export const Ejercicio = () => {
   return (
     <div>
       <nav className="nav_recetas">
-        <img src="/recetas.svg" alt="" />
+        <img className="icon_imagen" src="/recetas.svg" alt="" />
         <div className="cont_sel_recetas">
           <p>Ejercicios Saludables</p>
-          {/*  <p>Elige Patología</p>
-          <Select
-            className="select_recetas"
-            mode="multiple"
-            allowClear
-            style={{
-              width: "100%",
-            }}
-            placeholder="Please select"
-            defaultValue={["a10", "c12"]}
-            onChange={handleChange}
-            options={options}
-            color
-          /> */}
 
           <FormControl
             className="cont_input_edit"
             variant="floating"
             id="videosSearch"
           >
-            <Input
-              className={`input_edit`}
-              placeholder=""
-              name="videosSearch"
-              variant="outlined"
-              type="text"
-              value={videosSearch}
-              onChange={(e) => {
-                setVideosSearch(e.target.value);
-                handleSearch(e.target.value, videos);
-              }}
-            />
-            <FormLabel>Buscar Videos</FormLabel>
+            <InputGroup>
+              <Input
+                placeholder=""
+                name="videosSearch"
+                type="text"
+                value={videosSearch}
+                onChange={(e) => {
+                  setVideosSearch(e.target.value);
+                  handleSearch(e.target.value, videos);
+                }}
+              />
+              <InputRightElement
+                width="4.5rem"
+                style={{ color: "#046ba3", fontSize: "20px" }}
+              >
+                <SearchOutlined />
+              </InputRightElement>
+            </InputGroup>
+
+            <FormLabel></FormLabel>
           </FormControl>
         </div>
       </nav>

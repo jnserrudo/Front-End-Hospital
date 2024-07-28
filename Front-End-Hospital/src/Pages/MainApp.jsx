@@ -195,7 +195,7 @@ export const MainApp = () => {
           </Header> */}
           <CustomHeader setSelectedKey={setSelectedKey} />{" "}
           {/* Componente de cabecera personalizado */}
-          <Content style={{ margin: "0 16px", paddingTop: "0rem" }}>
+          <Content style={{ margin: "0 16px", paddingTop: "0rem" }} className="content-main" >
             {/* <Breadcrumb style={{ margin: '16px 0' }}>
               <Breadcrumb.Item>App</Breadcrumb.Item>
               <Breadcrumb.Item>{items.find(item => item.key === selectedKey)?.label}</Breadcrumb.Item> 
@@ -204,11 +204,13 @@ export const MainApp = () => {
             <div
               style={{
                 padding: '0 2px',
-                minHeight: "95vh",
+                
                 background: colorBgContainer,
                 borderRadius: borderRadiusLG,
                 color: "black",
               }}
+              className="content-container"
+
             >
               {/*  <Breadcrumb style={{ margin: "16px 0",color:'black' }}>
                 <Breadcrumb.Item>App</Breadcrumb.Item>
@@ -229,18 +231,9 @@ export const MainApp = () => {
               {selectedKey === "2" && <Recetas />}
               {selectedKey === "3" && <Info />}
               {selectedKey === "4" && <Ejercicio />}
-              <div
-                style={{
-                  padding: 0,
-                  minHeight: 320,
-                  background: colorBgContainer,
-                  borderRadius: borderRadiusLG,
-                }}
-              >
-                {+selectedKey > 5 && localStorage.getItem("rol") != 3 && (
+              {+selectedKey > 5 && localStorage.getItem("rol") != 3 && (
                   <PanelAdministracion selectedKey={selectedKey} />
                 )}
-              </div>
             </div>
             <FooterHospital setSelectedKey={setSelectedKey} />
 
