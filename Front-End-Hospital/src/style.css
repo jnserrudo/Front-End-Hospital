@@ -74,7 +74,6 @@
   justify-content: center;
   align-items: center; /* Asegura el centrado vertical del contenedor */
   height: 100vh; /* Asegúrate de que el main ocupe toda la altura de la ventana */
-
 }
 
 .img_fondo {
@@ -183,7 +182,7 @@
   display: flex;
   /*   border: 2px red solid;
  */
- flex-direction: column;
+  flex-direction: column;
   width: 80%;
   font-weight: 700;
 }
@@ -257,7 +256,6 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   align-items: center;
   width: 90%;
   justify-content: space-between;
-  
 }
 
 .btn_agregar {
@@ -271,25 +269,24 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   /* width: 40% !important; */
 }
 
-.ol{
+.ol {
   margin: 1.2rem;
   width: 250px !important;
   overflow: scroll !important;
 }
-
-
 
 .cont_form_input {
   display: flex;
   flex-wrap: wrap !important;
   justify-content: center;
   align-items: center;
-/*   border: 2px red solid;
- */}
+  /*   border: 2px red solid;
+ */
+}
 
 .imgCrop {
   width: 285px !important;
-/*     border: 2px red solid !important;
+  /*     border: 2px red solid !important;
  */
   display: flex !important;
   justify-content: center;
@@ -316,11 +313,10 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 
 .receta_foto_ingredientes {
   display: flex;
-width: 100%;
-  justify-content: space-between;
+  width: 100%;
+  justify-content: space-around;
   flex-wrap: wrap;
   overflow: auto;
-  
 }
 
 .img_receta {
@@ -337,10 +333,9 @@ width: 100%;
   align-items: start;
   color: var(--primary);
   margin: 0 0.5rem;
- 
 }
 
-.box_shadow{
+.box_shadow {
   padding: 0.5rem;
   border: 0.5px var(--primary) solid;
 }
@@ -386,8 +381,7 @@ width: 100%;
 .receta_composicion {
   display: flex;
   flex-direction: column;
-  margin:1rem;
-
+  margin: 1rem;
 }
 
 .cont_tips_composicion {
@@ -478,9 +472,8 @@ width: 100%;
   font-size: large;
 }
 
-.titulo_see{
+.titulo_see {
   font-size: x-large;
-
 }
 
 .txt_nombre_receta {
@@ -489,25 +482,25 @@ width: 100%;
   margin-left: 1rem;
 }
 
-
-.tab_video_iframe{
+.tab_video_iframe {
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.tabpanel_descripcion{
+.tabpanel_descripcion {
   overflow: scroll !important;
   height: 250px !important;
 }
-
 
 /* Nuevo estilo para el contenedor del contenido */
 .content-container {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 200px); /* Ajusta la altura mínima para que el pie de página quede siempre abajo */
+  min-height: calc(
+    100vh - 200px
+  ); /* Ajusta la altura mínima para que el pie de página quede siempre abajo */
 }
 
 /* Estilo para el div que contiene el contenido principal y el footer */

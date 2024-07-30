@@ -90,7 +90,7 @@ export const RecetaSee = ({ receta }) => {
     <div>
       <>
         <div className="receta_foto_ingredientes">
-          <div className="receta_foto box_shadow">
+          <div className="receta_foto ">
             <p className="titulo_receta">{receta.nombre}</p>
 
             <img
@@ -112,7 +112,7 @@ export const RecetaSee = ({ receta }) => {
           </ImgCrop> */}
           </div>
 
-          <div className="receta_ingredientes box_shadow">
+          <div className="receta_ingredientes ">
             <div className="receta_valores">
               <div className="receta_valor">
                 <p>Porciones</p>
