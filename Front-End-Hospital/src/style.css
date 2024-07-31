@@ -279,9 +279,9 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 .cont_form_input {
   display: flex;
   flex-wrap: wrap !important;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
-  /*   border: 2px red solid;
+/*     border: 2px red solid;
  */
 }
 
@@ -382,6 +382,7 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 .receta_composicion {
   display: flex;
   flex-direction: column;
+  
   margin: 1rem;
 }
 

@@ -51,7 +51,7 @@ export const RecetaSee = ({ receta }) => {
               textAlign={"center"}
               width="250px"
               height="200px"
-              overflowY="scroll"
+              overflowY="auto"
               border="1px solid white"
               paddingLeft="20px"
               paddingTop={"2rem"}
@@ -68,7 +68,7 @@ export const RecetaSee = ({ receta }) => {
               textAlign={"center"}
               width="250px"
               height="200px"
-              overflowY="scroll"
+              overflowY="auto"
               border="1px solid white"
               paddingLeft="20px"
               paddingTop={"2rem"}

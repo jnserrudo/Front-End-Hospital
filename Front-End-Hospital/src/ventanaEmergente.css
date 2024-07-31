@@ -34,8 +34,14 @@
     width: 40%; /* Anchura para ventanas pequeñas */
     max-height: 45%; /* Altura para ventanas pequeñas */
   }
-  .popup-content.medium {
+
+  .popup-content.medium_see_receta {
     width: 50%; /* Anchura para ventanas medianas */
+    max-height: 70%; /* Altura para ventanas medianas */
+  }
+
+  .popup-content.medium {
+    width: 40%; /* Anchura para ventanas medianas */
     max-height: 70%; /* Altura para ventanas medianas */
   }
 
