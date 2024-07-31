@@ -266,6 +266,7 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   border: 1px black solid;
   margin: 1.2rem;
   width: 250px !important;
+  overflow: auto;
   /* width: 40% !important; */
 }
 

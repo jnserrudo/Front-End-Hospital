@@ -470,7 +470,11 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
           className="select_recetas input_edit"
           {...sharedProps}
           /* value={alumnos} */
-          onChange={handleChangeSelect}
+          onChange={(e) => {
+            console.log(e);
+            handleChangeSelect(e);
+            setSelectedPatologias(e);
+          }}
         />
       </div>
       <div className="cont_btns_acciones_receta">

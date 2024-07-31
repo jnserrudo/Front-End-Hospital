@@ -35,7 +35,7 @@
     max-height: 45%; /* Altura para ventanas pequeñas */
   }
   .popup-content.medium {
-    width: 60%; /* Anchura para ventanas medianas */
+    width: 50%; /* Anchura para ventanas medianas */
     max-height: 70%; /* Altura para ventanas medianas */
   }
 
