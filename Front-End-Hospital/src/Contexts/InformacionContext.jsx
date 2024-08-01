@@ -7,6 +7,8 @@ import {
   insertInformacion,
   updateInformacion,
 } from "../services/informacion-services";
+import toast from "react-hot-toast";
+
 import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
 const InformacionContext = createContext();
 export const InformacionProvider = ({ children }) => {
@@ -66,21 +68,21 @@ export const InformacionProvider = ({ children }) => {
     return errors;
   };
 
-  const handleSearch=(busq,dataToSearch)=>{
-    console.log(busq)
-    console.log(dataToSearch)
-    
-    let coincidencias=[]
-    for(let pac of dataToSearch){
-      if(pac.nombre.toLowerCase().includes(busq.toLowerCase())){
-        console.log(pac)
-        coincidencias.push(pac)
+  const handleSearch = (busq, dataToSearch) => {
+    console.log(busq);
+    console.log(dataToSearch);
+
+    let coincidencias = [];
+    for (let pac of dataToSearch) {
+      if (pac.nombre.toLowerCase().includes(busq.toLowerCase())) {
+        console.log(pac);
+        coincidencias.push(pac);
       }
     }
 
-    setDbSearch(coincidencias)
-    console.log("coincidencias: ",coincidencias)
-  }
+    setDbSearch(coincidencias);
+    console.log("coincidencias: ", coincidencias);
+  };
 
   const handleCloseVentEmergenteEditInformacion = () => {
     setShowVentEmergenteEditInformacion(false);
@@ -99,8 +101,10 @@ export const InformacionProvider = ({ children }) => {
   const handleCloseConfInsert = async () => {
     //se confirmo que se agregara el Informacion
     setBandLoader(true);
-    await handleInsert();
-
+    const resultInsert=await handleInsert();
+    if (resultInsert.err) {
+      throw new Error(resultInsert.err.message);
+    }
     //setInformacionToInsert({})
     setBandInsert(false);
     setBandLoader(false);
@@ -152,7 +156,7 @@ export const InformacionProvider = ({ children }) => {
   };
 
   const handleChangeSelect = (e) => {
-    console.log(e)
+    console.log(e);
     let newValue = {
       ...informacionSelected,
       idsPatologias: e,
@@ -163,7 +167,7 @@ export const InformacionProvider = ({ children }) => {
   };
 
   const handleDelete = async (record) => {
-    console.log(record.id)
+    console.log(record.id);
     setIdInformacion(record.id);
     setShowVentEmergenteDelete(true);
   };
@@ -209,7 +213,7 @@ export const InformacionProvider = ({ children }) => {
   useEffect(() => {
     const getpatologiatoinformacionadd = async () => {
       const patologias = await getPatologiaToInformacionAdd();
-      console.log("trae patologias para info",patologias)
+      console.log("trae patologias para info", patologias);
       if (patologias.length > 0) {
         let alToSelect = patologias.map((pat) => {
           return {
@@ -226,11 +230,11 @@ export const InformacionProvider = ({ children }) => {
   useEffect(() => {
     const getpatologiatopatologiaedit = async () => {
       const patologias = await getPatologiaToInformacionEdit(idInformacion);
-      console.log("trae patologias para info edit",idInformacion ,patologias)
+      console.log("trae patologias para info edit", idInformacion, patologias);
 
       if (Object.values(patologias).length > 0) {
-        console.log(patologias)
-        setPatologiasxInformacionEdit(patologias)
+        console.log(patologias);
+        setPatologiasxInformacionEdit(patologias);
         /* let alToSelect = patologias.map((pat) => {
           return {
             label: pat.nombre,
@@ -238,7 +242,7 @@ export const InformacionProvider = ({ children }) => {
           };
         });
         console.log(alToSelect)
-        setPatologiasxInformacionEdit(alToSelect) */;
+        setPatologiasxInformacionEdit(alToSelect) */
       }
     };
 
@@ -294,7 +298,10 @@ export const InformacionProvider = ({ children }) => {
         " se esta por insertar el informacion: ",
         informacionToInsert
       );
-      await addInformacion(informacionToInsert);
+      const resultInsert=await addInformacion(informacionToInsert);
+      if (resultInsert.err) {
+        throw new Error(resultInsert.err.message);
+      }
       handleCloseVentEmergenteConfInformacion();
       handleCloseVentEmergenteAddInformacion();
     }
@@ -336,7 +343,11 @@ export const InformacionProvider = ({ children }) => {
     //setBandInsert()
     if (informacionToInsert?.urlVideo?.length > 0) {
       console.log("Ejecutando handleInsert");
-      handleInsert();
+      toast.promise(handleInsert(), {
+        loading: "Cargando",
+        success: <b>Se agrego la información!</b>,
+        error: <b>No se pudo agregar la información.</b>,
+      });
     }
   }, [informacionToInsert]);
 

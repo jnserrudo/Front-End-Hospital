@@ -7,6 +7,9 @@ import {
   insertEjercicio,
   updateEjercicio,
 } from "../services/ejercicio-services";
+
+import toast from "react-hot-toast";
+
 import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
 const EjercicioContext = createContext();
 export const EjercicioProvider = ({ children }) => {
@@ -16,28 +19,20 @@ export const EjercicioProvider = ({ children }) => {
   const [ejercicioSelected, setEjercicioSelected] = useState({});
 
   const [showVentEmergenteDelete, setShowVentEmergenteDelete] = useState(false);
-  const [
-    showVentEmergenteEditEjercicio,
-    setShowVentEmergenteEditEjercicio,
-  ] = useState(false);
+  const [showVentEmergenteEditEjercicio, setShowVentEmergenteEditEjercicio] =
+    useState(false);
   const [showVentEmergenteAddEjercicio, setShowVentEmergenteAddEjercicio] =
     useState(false);
   const [ejercicioToInsert, setEjercicioToInsert] = useState({});
   const [bandInsert, setBandInsert] = useState(false);
 
-  const [
-    showVentEmergenteConfEjercicio,
-    setShowVentEmergenteConfEjercicio,
-  ] = useState(false);
+  const [showVentEmergenteConfEjercicio, setShowVentEmergenteConfEjercicio] =
+    useState(false);
 
   const [bandLoader, setBandLoader] = useState(false);
 
-  const [patologiasxEjercicioAdd, setPatologiasxEjercicioAdd] = useState(
-    []
-  );
-  const [patologiasxEjercicioEdit, setPatologiasxEjercicioEdit] = useState(
-    []
-  );
+  const [patologiasxEjercicioAdd, setPatologiasxEjercicioAdd] = useState([]);
+  const [patologiasxEjercicioEdit, setPatologiasxEjercicioEdit] = useState([]);
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -66,22 +61,21 @@ export const EjercicioProvider = ({ children }) => {
     return errors;
   };
 
-  const handleSearch=(busq,dataToSearch)=>{
-    console.log(busq)
-    console.log(dataToSearch)
+  const handleSearch = (busq, dataToSearch) => {
+    console.log(busq);
+    console.log(dataToSearch);
 
-    let coincidencias=[]
-    for(let pac of dataToSearch){
-      if(pac.nombre.toLowerCase().includes(busq.toLowerCase())){
-        console.log(pac)
-        coincidencias.push(pac)
-        
+    let coincidencias = [];
+    for (let pac of dataToSearch) {
+      if (pac.nombre.toLowerCase().includes(busq.toLowerCase())) {
+        console.log(pac);
+        coincidencias.push(pac);
       }
     }
 
-    setDbSearch(coincidencias)
-    console.log("coincidencias: ",coincidencias)
-  }
+    setDbSearch(coincidencias);
+    console.log("coincidencias: ", coincidencias);
+  };
   const handleCloseVentEmergenteEditEjercicio = () => {
     setShowVentEmergenteEditEjercicio(false);
     setIdEjercicio(0);
@@ -99,8 +93,10 @@ export const EjercicioProvider = ({ children }) => {
   const handleCloseConfInsert = async () => {
     //se confirmo que se agregara el Ejercicio
     setBandLoader(true);
-    await handleInsert();
-
+    const resultInsert=await handleInsert();
+    if (resultInsert.err) {
+      throw new Error(resultInsert.err.message);
+    }
     //setEjercicioToInsert({})
     setBandInsert(false);
     setBandLoader(false);
@@ -162,7 +158,7 @@ export const EjercicioProvider = ({ children }) => {
   };
 
   const handleDelete = async (record) => {
-    console.log(record.id)
+    console.log(record.id);
     setIdEjercicio(record.id);
     setShowVentEmergenteDelete(true);
   };
@@ -208,7 +204,7 @@ export const EjercicioProvider = ({ children }) => {
   useEffect(() => {
     const getpatologiatoejercicioadd = async () => {
       const patologias = await getPatologiaToEjercicioAdd();
-      console.log("trae patologias para ejercicio",patologias)
+      console.log("trae patologias para ejercicio", patologias);
       if (patologias.length > 0) {
         let alToSelect = patologias.map((pat) => {
           return {
@@ -225,11 +221,15 @@ export const EjercicioProvider = ({ children }) => {
   useEffect(() => {
     const getpatologiatopatologiaedit = async () => {
       const patologias = await getPatologiaToEjercicioEdit(idEjercicio);
-      console.log("trae patologias para ejercicio edit",idEjercicio ,patologias)
+      console.log(
+        "trae patologias para ejercicio edit",
+        idEjercicio,
+        patologias
+      );
 
       if (Object.values(patologias).length > 0) {
-        console.log(patologias)
-        setPatologiasxEjercicioEdit(patologias)
+        console.log(patologias);
+        setPatologiasxEjercicioEdit(patologias);
         /* let alToSelect = patologias.map((pat) => {
           return {
             label: pat.nombre,
@@ -237,7 +237,7 @@ export const EjercicioProvider = ({ children }) => {
           };
         });
         console.log(alToSelect)
-        setPatologiasxEjercicioEdit(alToSelect) */;
+        setPatologiasxEjercicioEdit(alToSelect) */
       }
     };
 
@@ -289,10 +289,7 @@ export const EjercicioProvider = ({ children }) => {
   const handleInsert = async () => {
     if (bandInsert) {
       //validar para insert
-      console.log(
-        " se esta por insertar el ejercicio: ",
-        ejercicioToInsert
-      );
+      console.log(" se esta por insertar el ejercicio: ", ejercicioToInsert);
       await addEjercicio(ejercicioToInsert);
       handleCloseVentEmergenteConfEjercicio();
       handleCloseVentEmergenteAddEjercicio();
@@ -335,7 +332,11 @@ export const EjercicioProvider = ({ children }) => {
     //setBandInsert()
     if (ejercicioToInsert?.urlVideo?.length > 0) {
       console.log("Ejecutando handleInsert");
-      handleInsert();
+      toast.promise(handleInsert(), {
+        loading: "Cargando",
+        success: <b>Se agrego el Ejercicio!</b>,
+        error: <b>No se pudo agregar el ejercicio.</b>,
+      });
     }
   }, [ejercicioToInsert]);
 

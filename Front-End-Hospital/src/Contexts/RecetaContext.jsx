@@ -311,7 +311,10 @@ export const RecetaProvider = ({ children }) => {
     if (bandInsert) {
       //validar para insert
       console.log(" se esta por insertar el receta: ", recetaToInsert)
-      await addReceta(recetaToInsert);
+      const resultInsert=await addReceta(recetaToInsert);
+      if (resultInsert.err) {
+        throw new Error(resultInsert.err.message);
+      }
       handleCloseVentEmergenteConfReceta()
       handleCloseVentEmergenteAddReceta()
     }

@@ -16,6 +16,7 @@ import ReactPlayer from "react-player";
 
 import { Upload, Select } from "antd";
 import { entorno } from "../services/config";
+import  { Toaster } from "react-hot-toast";
 
 export const AddInformacion = ({ onClosePadre }) => {
   const {
@@ -147,6 +148,8 @@ export const AddInformacion = ({ onClosePadre }) => {
 
   return (
     <div className="">
+            <Toaster position="top-center" reverseOrder={false} />
+
       <div className="form_edit_informacion">
         <FormControl
           className="cont_input_edit"

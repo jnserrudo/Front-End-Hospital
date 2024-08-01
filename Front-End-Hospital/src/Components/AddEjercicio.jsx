@@ -13,6 +13,7 @@ import EjerciciosContext from "../Contexts/EjercicioContext";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { Input } from "@chakra-ui/react";
 import ReactPlayer from "react-player";
+import  { Toaster } from "react-hot-toast";
 
 import { Upload, Select } from "antd";
 import { entorno } from "../services/config";
@@ -145,6 +146,8 @@ export const AddEjercicio = ({ onClosePadre }) => {
 
   return (
     <div className="">
+                  <Toaster position="top-center" reverseOrder={false} />
+
       <div className="form_edit_informacion">
         <FormControl
           className="cont_input_edit"

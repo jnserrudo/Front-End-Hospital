@@ -15,6 +15,8 @@ import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { Input } from "@chakra-ui/react";
 import { getPatologiaToRecetaAdd } from "../services/recetas-services";
 import { entorno } from "../services/config";
+import toast, { Toaster } from "react-hot-toast";
+
 export const AddReceta = ({ onClosePadre }) => {
   const {
     recetaToInsert,
@@ -46,7 +48,11 @@ export const AddReceta = ({ onClosePadre }) => {
 
   useEffect(() => {
     if (shouldInsert) {
-      handleInsert();
+      toast.promise(handleInsert(), {
+        loading: "Cargando",
+        success: <b>Se agrego la receta!</b>,
+        error: <b>No se pudo agregar la receta.</b>,
+      });
       setShouldInsert(false); // Reiniciar el estado para futuras inserciones
     }
   }, [shouldInsert, handleInsert]);
@@ -107,6 +113,8 @@ export const AddReceta = ({ onClosePadre }) => {
 
   return (
     <div className="form_edit_receta">
+      <Toaster position="top-center" reverseOrder={false} />
+
       <div className="cont_form_input">
         <FormControl
           className="cont_input_edit"
@@ -192,16 +200,16 @@ export const AddReceta = ({ onClosePadre }) => {
           onChange={(e) => handleChangeInputInsert(e)}
         /> */}
 
-          <Upload
-            className="imgCrop"
-            listType="picture-card"
-            fileList={fileList}
-            beforeUpload={beforeUpload}
-            maxCount={1}
-            onChange={handleFileChange}
-          >
-            {fileList.length < 1 && "Imagen/Video"}
-          </Upload>
+        <Upload
+          className="imgCrop"
+          listType="picture-card"
+          fileList={fileList}
+          beforeUpload={beforeUpload}
+          maxCount={1}
+          onChange={handleFileChange}
+        >
+          {fileList.length < 1 && "Imagen/Video"}
+        </Upload>
         {/* <ImgCrop rotationSlider>
         </ImgCrop> */}
 
@@ -317,7 +325,15 @@ export const AddReceta = ({ onClosePadre }) => {
         onClose={handleCloseVentEmergente}
         mje={"Esta seguro de agregar a la receta? "}
         /* handleSi={handleInsert} */
-        handleSi={handleInsertWithImage}
+        handleSi={() => {
+          toast.promise(handleInsertWithImage, {
+            loading: "Cargando",
+            success: <b>Se agrego el usuario!</b>,
+            error: <b>No se pudo agregar al Usuario.</b>,
+          });
+
+          //toast.success("Se agrego el usuario!")
+        }}
         isOpen={showVentEmergenteConfirmacion}
       />
     </div>
