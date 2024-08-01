@@ -57,16 +57,16 @@ export const RecetaSee = ({ receta }) => {
               paddingTop={"2rem"}
             >
               {text.split("\n").map((line, index) => (
-                <ListItem style={{ textAlign: "justify" }} key={index}>
+                <ListItem style={{ textAlign: "justify"  }} key={index}>
                   {line}
                 </ListItem>
               ))}
             </UnorderedList>
           ) : (
             <OrderedList
-              margin="0 auto"
+              margin="0 "
               textAlign={"center"}
-              width="250px"
+              width=""
               height="200px"
               overflowY="auto"
               border="1px solid white"
@@ -74,7 +74,7 @@ export const RecetaSee = ({ receta }) => {
               paddingTop={"2rem"}
             >
               {text.split("\n").map((line, index) => (
-                <ListItem style={{ textAlign: "justify" }} key={index}>
+                <ListItem style={{ textAlign: "justify",  width:'100%' }} key={index}>
                   {line}
                 </ListItem>
               ))}
@@ -141,18 +141,18 @@ export const RecetaSee = ({ receta }) => {
           className={`cont_tips_composicion ${
             receta?.composicionNutricional.length > 0 ||
             receta?.tipsSaludables.length > 0
-              ? "box_shadow"
+              ? ""
               : ""
           }`}
         >
           {receta?.tipsSaludables.length > 0 ? (
-            <div className="receta_tipsSaludables">
+            <div className="receta_tipsSaludables ">
               <p className="titulo_receta">Tips Saludables</p>
               {renderOrderedList(receta.tipsSaludables)}
             </div>
           ) : null}
           {receta?.composicionNutricional.length > 0 ? (
-            <div className="receta_composicion">
+            <div className="receta_composicion ">
               <p className="titulo_receta">Composición Nutricional</p>
               {renderOrderedList(receta.composicionNutricional,true)}
             </div>
