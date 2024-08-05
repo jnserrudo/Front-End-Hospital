@@ -509,3 +509,35 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 .content-main {
   flex: 1; /* Permite que este contenedor ocupe el espacio restante */
 }
+
+
+
+/* Añadir este  */
+
+
+
+
+.cont_tablas_info {
+  padding: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: #f2f2f2;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+@media screen and (max-width: 600px) {
+  th, td {
+    white-space: nowrap;  /* Asegura que el contenido no se quiebre en líneas múltiples */
+  }
+}

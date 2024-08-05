@@ -19,6 +19,7 @@ import { PanelAdministracion } from "./PanelAdministracion";
 import { useNavigate } from "react-router-dom";
 import "../style.css"; // Importamos el archivo de estilos correcto
 import { FooterHospital } from "../Components/FooterHospital";
+import { TablasInformativas } from "../Components/TablasInformativas";
 
 const { Header, Content, Footer, Sider } = Layout; // Desestructuramos los componentes de Layout de Ant Design
 
@@ -46,6 +47,7 @@ const items = [
     getItem("Ejercicio", "9"),
     getItem("Usuario", "10"),
   ]),
+  getItem("Tablas", "11", <FileOutlined />),
 ];
 
 // Estilos activos personalizados para Chakra UI
@@ -195,7 +197,10 @@ export const MainApp = () => {
           </Header> */}
           <CustomHeader setSelectedKey={setSelectedKey} />{" "}
           {/* Componente de cabecera personalizado */}
-          <Content style={{ margin: "0 16px", paddingTop: "0rem" }} className="content-main" >
+          <Content
+            style={{ margin: "0 16px", paddingTop: "0rem" }}
+            className="content-main"
+          >
             {/* <Breadcrumb style={{ margin: '16px 0' }}>
               <Breadcrumb.Item>App</Breadcrumb.Item>
               <Breadcrumb.Item>{items.find(item => item.key === selectedKey)?.label}</Breadcrumb.Item> 
@@ -203,14 +208,13 @@ export const MainApp = () => {
             {/* Muestra la sección actual */}
             <div
               style={{
-                padding: '0 2px',
-                
+                padding: "0 2px",
+
                 background: colorBgContainer,
                 borderRadius: borderRadiusLG,
                 color: "black",
               }}
               className="content-container"
-
             >
               {/*  <Breadcrumb style={{ margin: "16px 0",color:'black' }}>
                 <Breadcrumb.Item>App</Breadcrumb.Item>
@@ -218,11 +222,13 @@ export const MainApp = () => {
                   {items.find((item) => item.key === selectedKey)?.label}
                 </Breadcrumb.Item>
               </Breadcrumb> */}
-              <Nav bandLogin={false} bandHospital={true} />{" "}
+              <Nav bandLogin={false} bandHospital={true} />
               {/* Componente Nav para manejo de sesión */}
+              
               {selectedKey === "1" && (
                 <main className="main_home">
                   <img src="/fondo.jpg" className="img_fondo" alt="" />
+                  
                   <ListCard
                     setTabIndex={(index) => setSelectedKey(index.toString())}
                   />
@@ -231,9 +237,10 @@ export const MainApp = () => {
               {selectedKey === "2" && <Recetas />}
               {selectedKey === "3" && <Info />}
               {selectedKey === "4" && <Ejercicio />}
-              {+selectedKey > 5 && localStorage.getItem("rol") != 3 && (
-                  <PanelAdministracion selectedKey={selectedKey} />
-                )}
+              {+selectedKey > 5 && +selectedKey < 11 && localStorage.getItem("rol") != 3 && (
+                <PanelAdministracion selectedKey={selectedKey} />
+              )}
+              {selectedKey === "11"  && localStorage.getItem("rol") != 3 && <TablasInformativas />}
             </div>
             <FooterHospital setSelectedKey={setSelectedKey} />
 
