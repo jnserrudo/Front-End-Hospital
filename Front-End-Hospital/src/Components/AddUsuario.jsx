@@ -55,36 +55,19 @@ export const AddUsuario = ({ onClosePadre }) => {
     setShowVentEmergenteConfirmacion(false);
   };
 
-
   return (
     <div className="form_edit_receta">
-       <Toaster position="top-center" reverseOrder={false} />
-       <div className="cont_form_input">
+      <Toaster position="top-center" reverseOrder={false} />
+      <div className="cont_form_input">
+        
         <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="dni"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="dni"
-            variant="outlined"
-            type="number"
-            value={usuarioToInsert?.dni ? usuarioToInsert.dni : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>DNI</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
+          className="cont_input_edit_large"
           variant="floating"
           id="nombre"
           isRequired
         >
           <Input
-            className={`input_edit`}
+            className={`input_edit_large`}
             placeholder=""
             name="nombre"
             variant="outlined"
@@ -93,6 +76,23 @@ export const AddUsuario = ({ onClosePadre }) => {
             onChange={(e) => handleChangeInputInsert(e)}
           />
           <FormLabel>Nombre</FormLabel>
+        </FormControl>
+        <FormControl
+          className="cont_input_edit_large"
+          variant="floating"
+          id="dni"
+          isRequired
+        >
+          <Input
+            className={`input_edit_large`}
+            placeholder=""
+            name="apellido"
+            variant="outlined"
+            type="text"
+            value={usuarioToInsert?.apellido ? usuarioToInsert.apellido : ""}
+            onChange={(e) => handleChangeInputInsert(e)}
+          />
+          <FormLabel>Apellido</FormLabel>
         </FormControl>
       </div>
 
@@ -106,13 +106,13 @@ export const AddUsuario = ({ onClosePadre }) => {
           <Input
             className={`input_edit`}
             placeholder=""
-            name="apellido"
+            name="dni"
             variant="outlined"
-            type="text"
-            value={usuarioToInsert?.apellido ? usuarioToInsert.apellido : ""}
+            type="number"
+            value={usuarioToInsert?.dni ? usuarioToInsert.dni : ""}
             onChange={(e) => handleChangeInputInsert(e)}
           />
-          <FormLabel>Apellido</FormLabel>
+          <FormLabel>Documento de identidad</FormLabel>
         </FormControl>
         <FormControl
           className="cont_input_edit"
@@ -205,7 +205,6 @@ export const AddUsuario = ({ onClosePadre }) => {
           className="cont_input_edit"
           variant="floating"
           id="detalle"
-          
         >
           <Textarea
             className={`input_edit`}
@@ -237,13 +236,13 @@ export const AddUsuario = ({ onClosePadre }) => {
         onClose={handleCloseVentEmergente}
         mje={"Esta seguro de agregar al usuario? "}
         /* handleSi={handleInsert} */
-        handleSi={()=>{
+        handleSi={() => {
           toast.promise(handleInsert(), {
             loading: "Cargando",
             success: <b>Se agrego el usuario!</b>,
             error: <b>No se pudo agregar al Usuario.</b>,
           });
-          
+
           //toast.success("Se agrego el usuario!")
         }}
         isOpen={showVentEmergenteConfirmacion}

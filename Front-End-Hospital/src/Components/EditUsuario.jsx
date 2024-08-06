@@ -156,6 +156,46 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
       <Toaster position="top-center" reverseOrder={false} />
 
       <div className="cont_form_input">
+        
+        <FormControl
+          className="cont_input_edit_large"
+          variant="floating"
+          id="nombre"
+          isRequired
+        >
+          <Input
+            className={`input_edit_large ${!bandEdit ? "input_disabled" : ""}`}
+            label=""
+            name="nombre"
+            variant="outlined"
+            type="text"
+            disabled={!bandEdit}
+            value={usuario.nombre ? usuario.nombre : ""}
+            onChange={(e) => handleChangeInput(e)}
+          />
+          <FormLabel>Nombre</FormLabel>
+        </FormControl>
+        <FormControl
+          className="cont_input_edit_large"
+          variant="floating"
+          id="apellido"
+          isRequired
+        >
+          <Input
+            className={`input_edit_large`}
+            placeholder=""
+            name="apellido"
+            disabled={!bandEdit}
+            variant="outlined"
+            type="text"
+            value={usuario?.apellido ? usuario.apellido : ""}
+            onChange={(e) => handleChangeInput(e)}
+          />
+          <FormLabel>Apellido</FormLabel>
+        </FormControl>
+      </div>
+      <div className="cont_form_input">
+        
         <FormControl
           className="cont_input_edit"
           variant="floating"
@@ -173,44 +213,6 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
             onChange={(e) => handleChangeInput(e)}
           />
           <FormLabel>Documento de identidad</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="nombre"
-          isRequired
-        >
-          <Input
-            className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-            label=""
-            name="nombre"
-            variant="outlined"
-            type="text"
-            disabled={!bandEdit}
-            value={usuario.nombre ? usuario.nombre : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
-          <FormLabel>Nombre</FormLabel>
-        </FormControl>
-      </div>
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="tiempo"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="apellido"
-            disabled={!bandEdit}
-            variant="outlined"
-            type="text"
-            value={usuario?.apellido ? usuario.apellido : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
-          <FormLabel>Apellido</FormLabel>
         </FormControl>
         <FormControl
           className="cont_input_edit"

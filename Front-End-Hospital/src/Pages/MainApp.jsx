@@ -240,7 +240,7 @@ export const MainApp = () => {
               {+selectedKey > 5 && +selectedKey < 11 && localStorage.getItem("rol") != 3 && (
                 <PanelAdministracion selectedKey={selectedKey} />
               )}
-              {selectedKey === "11"  && localStorage.getItem("rol") != 3 && <TablasInformativas />}
+              {selectedKey === "11"   && <TablasInformativas />}
             </div>
             <FooterHospital setSelectedKey={setSelectedKey} />
 
