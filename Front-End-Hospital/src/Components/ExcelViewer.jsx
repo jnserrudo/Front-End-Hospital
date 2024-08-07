@@ -46,7 +46,19 @@ const ExcelViewer = ({ filePath, toggleMessage }) => {
     title: header,
     dataIndex: index,
     key: index,
+    render: (text, record, rowIndex) => ({
+      children: text,
+      props: {
+        style: {
+          backgroundColor: rowIndex % 2 === 0 ? '#E0F2F1' : '#B2DFDB',
+        },
+      },
+    }),
   }));
+
+  const rowClassName = (record, index) => {
+    return index % 2 === 0  ? "#E0F2F1" : "#B2DFDB";
+  };
 
   return (
     <div style={{textAlign:'center'}} >
@@ -59,6 +71,8 @@ const ExcelViewer = ({ filePath, toggleMessage }) => {
             columns={columns}
             dataSource={data}
             pagination={{ pageSize: 10, position: ["bottomRight"] }}
+            rowClassName={rowClassName}
+            
           />
         </Box>
       )}
