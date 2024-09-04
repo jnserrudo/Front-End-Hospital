@@ -12,31 +12,34 @@ import { PatologiaProvider } from "./Contexts/PatologiaContext";
 import { RecetaProvider } from "./Contexts/RecetaContext";
 import { InformacionProvider } from "./Contexts/InformacionContext";
 import { EjercicioProvider } from "./Contexts/EjercicioContext";
+import { CategoriaProvider } from "./Contexts/CategoriaContext";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <>
-      <InformacionProvider>
-        <EjercicioProvider>
-          <UsuarioProvider>
-            <PatologiaProvider>
-              <RecetaProvider>
-                <BrowserRouter>
-                  <Routes>
-                    <Route path="/" element={<Home />}></Route>
-                    <Route path="/login" element={<Login />}></Route>
-                    <Route path="/hospital" element={<MainApp />}></Route>
+      <CategoriaProvider>
+        <InformacionProvider>
+          <EjercicioProvider>
+            <UsuarioProvider>
+              <PatologiaProvider>
+                <RecetaProvider>
+                  <BrowserRouter>
+                    <Routes>
+                      <Route path="/" element={<Home />}></Route>
+                      <Route path="/login" element={<Login />}></Route>
+                      <Route path="/hospital" element={<MainApp />}></Route>
 
-                    <Route path="/*" element={<PageNotFound />}></Route>
-                  </Routes>
-                </BrowserRouter>
-              </RecetaProvider>
-            </PatologiaProvider>
-          </UsuarioProvider>
-        </EjercicioProvider>
-      </InformacionProvider>
+                      <Route path="/*" element={<PageNotFound />}></Route>
+                    </Routes>
+                  </BrowserRouter>
+                </RecetaProvider>
+              </PatologiaProvider>
+            </UsuarioProvider>
+          </EjercicioProvider>
+        </InformacionProvider>
+      </CategoriaProvider>
     </>
   );
 }

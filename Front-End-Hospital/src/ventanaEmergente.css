@@ -84,3 +84,22 @@
     margin-top: 0;
   }
   
+
+  @media (max-width: 620px) {
+    .popup-content.small {
+      width: 70%; /* Ajustar el ancho para pantallas pequeñas */
+      max-height: 60%; /* Ajustar la altura */
+    }
+    
+    .popup-content.medium_see_receta, 
+    .popup-content.medium {
+      width: 80%; /* Ancho más amplio para pantallas pequeñas */
+      max-height: 70%; /* Altura mayor para pantallas pequeñas */
+    }
+  
+    .popup-content {
+      padding: 10px; /* Aumentar el padding para que los inputs sean visibles */
+      overflow-y: auto; /* Asegurar el desplazamiento si el contenido es mayor que la altura disponible */
+    }
+  }
+  

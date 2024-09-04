@@ -148,6 +148,7 @@ export const Recetas = () => {
                       style={{
                         backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
                         color: "black",
+                        cursor:'pointer'
                       }}
                       onClick={() => {
                         /*  handleClick(index);
@@ -173,6 +174,7 @@ export const Recetas = () => {
                       style={{
                         backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
                         color: "black",
+                        cursor:'pointer'
                       }}
                       onClick={() => {
                         /*  handleClick(index);
@@ -197,6 +199,7 @@ export const Recetas = () => {
                       style={{
                         backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
                         color: "black",
+                        cursor:'pointer'
                       }}
                       onClick={() => {
                         /*  handleClick(index);

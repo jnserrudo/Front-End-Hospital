@@ -15,6 +15,18 @@ export const getEjercicioById = async (id) => {
 };
 
 
+export const getCategoriaToEjercicioAdd = async () => {
+  console.log("se trae al receta con id: ");
+  const res = await fetch(`${entorno}/ejercicios/categoria/add`);
+  const data = await res.json();
+  return data;
+};
+export const getCategoriaToEjercicioEdit = async (id) => {
+  console.log("se trae al receta con id: ", id);
+  const res = await fetch(`${entorno}/ejercicios/categoria/edit/${id}`);
+  const data = await res.json();
+  return data;
+};
 
 export const updateEjercicio = async (ejercicio) => {
   const res = await fetch(`${entorno}/ejercicios/${ejercicio.id}`, {

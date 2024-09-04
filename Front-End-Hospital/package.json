@@ -27,6 +27,7 @@
     "react-router-dom": "^6.23.1",
     "react-select": "^5.8.0",
     "styled-components": "^6.1.11",
+    "vite-plugin-pwa": "^0.20.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

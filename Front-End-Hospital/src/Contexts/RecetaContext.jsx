@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 
 import { EditOutlined, DragOutlined,DeleteOutlined } from "@ant-design/icons";
-import { getAllRecetas, getPatologiaToRecetaAdd, getPatologiaToRecetaEdit, getRecetaById, getRecetaByPaciente, insertReceta, updateReceta } from "../services/recetas-services";
+import { getAllRecetas, getCategoriaToRecetaAdd, getPatologiaToRecetaAdd, getPatologiaToRecetaEdit, getRecetaById, getRecetaByPaciente, insertReceta, updateReceta } from "../services/recetas-services";
 const RecetaContext = createContext();
 export const RecetaProvider = ({ children }) => {
   const [db, setDb] = useState([]);
@@ -11,6 +11,9 @@ export const RecetaProvider = ({ children }) => {
   const [recetaSelected, setRecetaSelected] = useState({});
   const [patologiasxRecetasAdd, setPatologiasxRecetasAdd] = useState([])
   const [patologiasxRecetasEdit, setPatologiasxRecetasEdit] = useState([])
+
+  const [categoriasxRecetasAdd, setCategoriasxRecetasAdd] = useState([])
+  const [categoriasxRecetasEdit, setCategoriasxRecetasEdit] = useState([])
   
   const [showVentEmergenteDelete, setShowVentEmergenteDelete] =
   useState(false);
@@ -148,6 +151,30 @@ export const RecetaProvider = ({ children }) => {
     setRecetaSelected(newValue);
 
   }
+
+  const handleChangeSelectCategoriasInsert=(e)=>{
+
+    let newValue = {
+      ...recetaToInsert,
+      idsCategorias: e,
+    };
+    console.log(newValue);
+    setRecetaToInsert(newValue);
+  }
+  
+  const handleChangeSelectCategorias=(e)=>{
+
+    let newValue = {
+      ...recetaSelected,
+      idsCategorias: e
+    };
+    
+    console.log(newValue);
+    setRecetaSelected(newValue);
+
+  }
+
+
   const handleChangeInput = (e) => {
     console.log("name: ", e.target.name, " value: ", e.target.value);
 
@@ -237,7 +264,22 @@ export const RecetaProvider = ({ children }) => {
       setPatologiasxRecetasAdd(alToSelect)
       }
     }
+
+    const getcategoriatorecetaadd=async()=>{
+      const categorias= await getCategoriaToRecetaAdd()
+      console.log("CategoriasxRecetasAdd",categoriasxRecetasAdd)
+      if(categorias.length>0){
+        let alToSelect =categorias.map((cat) => {
+          return {
+            label: cat.nombre ,
+            value: cat.id,
+          };
+        });
+      setCategoriasxRecetasAdd(alToSelect)
+      }
+    }
     getpatologiatorecetaadd()
+    getcategoriatorecetaadd()
     
   },[])
   
@@ -383,7 +425,13 @@ export const RecetaProvider = ({ children }) => {
     patologiasxRecetasAdd,
     patologiasxRecetasEdit,
     idReceta,
-    showVentEmergenteDelete, 
+    showVentEmergenteDelete,
+    categoriasxRecetasAdd, 
+    categoriasxRecetasEdit,
+    handleChangeSelectCategoriasInsert,
+    handleChangeSelectCategorias, 
+    setCategoriasxRecetasAdd,
+    setCategoriasxRecetasEdit, 
     setShowVentEmergenteDelete,
     handleChangeSelectInsert,
     handleChangeSelect, 

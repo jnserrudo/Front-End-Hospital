@@ -4,44 +4,44 @@ import { EditOutlined, DragOutlined } from "@ant-design/icons";
 import { Button, ButtonGroup } from "@chakra-ui/react";
 import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
 
-import PatologiaContext from "../Contexts/PatologiaContext";
-import { VentEmergenteAddPatologia } from "./VentEmergenteAddPatologia";
-import { VentEmergenteEditPatologia } from "./VentEmergenteEditPatologia";
+import CategoriaContext from "../Contexts/CategoriaContext";
+import { VentEmergenteAddCategoria } from "./VentEmergenteAddCategoria";
+import { VentEmergenteEditCategoria } from "./VentEmergenteEditCategoria";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
-import { inhabilitarPatologia } from "../services/patologia-services";
-export const AdminPatologia = () => {
+import { inhabilitarCategoria } from "../services/categoria-services";
+export const AdminCategoria = () => {
   const {
     db,
     columns,
-    patologiaSelected,
-    showVentEmergenteEditPatologia,
-    handleCloseVentEmergenteEditPatologia,
-    showVentEmergenteAddPatologia,
-    setShowVentEmergenteAddPatologia,
-    handleCloseVentEmergenteAddPatologia,
+    categoriaSelected,
+    showVentEmergenteEditCategoria,
+    handleCloseVentEmergenteEditCategoria,
+    showVentEmergenteAddCategoria,
+    setShowVentEmergenteAddCategoria,
+    handleCloseVentEmergenteAddCategoria,
     handleSearch,
-    idPatologia,
+    idCategoria,
     showVentEmergenteDelete,
     setShowVentEmergenteDelete,
-  } = useContext(PatologiaContext);
+  } = useContext(CategoriaContext);
   console.log(columns);
 
   const inhabilitarRegistro = async (id) => {
     console.log("inhabilitarRegistro: ", id);
-    const result = await inhabilitarPatologia(id);
+    const result = await inhabilitarCategoria(id);
     console.log("resultado de inhabilitar: ", result);
   };
 
   return (
     <div>
-      <p className="titulo_administracion">Patologias</p>
+      <p className="titulo_administracion">Categorias</p>
       <div className="cont_btn_agregar">
         <Button
           className="btn_agregar"
           colorScheme="green"
-          onClick={() => setShowVentEmergenteAddPatologia(true)}
+          onClick={() => setShowVentEmergenteAddCategoria(true)}
         >
-          Agregar Patologia <UserAddOutlined className="icons" />
+          Agregar Categoria <UserAddOutlined className="icons" />
         </Button>
       </div>
       <Table
@@ -56,22 +56,22 @@ export const AdminPatologia = () => {
         dataSource={db}
       />
 
-      <VentEmergenteAddPatologia
-        isOpen={showVentEmergenteAddPatologia}
-        onClose={handleCloseVentEmergenteAddPatologia}
+      <VentEmergenteAddCategoria
+        isOpen={showVentEmergenteAddCategoria}
+        onClose={handleCloseVentEmergenteAddCategoria}
       />
 
-      <VentEmergenteEditPatologia
-        isOpen={showVentEmergenteEditPatologia}
-        patologiaSelected={patologiaSelected}
-        onClose={handleCloseVentEmergenteEditPatologia}
+      <VentEmergenteEditCategoria
+        isOpen={showVentEmergenteEditCategoria}
+        categoriaSelected={categoriaSelected}
+        onClose={handleCloseVentEmergenteEditCategoria}
       />
 
       <VentEmergConfirmacion
         mje={"Esta seguro de eliminar este registro?"}
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
-        handleSi={() => inhabilitarRegistro(idPatologia)}
+        handleSi={() => inhabilitarRegistro(idCategoria)}
       />
     </div>
   );

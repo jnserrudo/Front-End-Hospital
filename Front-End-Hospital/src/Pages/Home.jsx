@@ -17,13 +17,15 @@ export const Home = () => {
 
 
 
-    <Nav  bandLogin={bandLogin} setBandLogin={setBandLogin} bandHospital={false} />
+    <Nav  bandLogin={bandLogin} setBandLogin={setBandLogin} /* bandHospital={false}  */
+    />
 
       
 
       <main className='main_home'>
         <img src="/fondo.jpg"  className='img_fondo' alt="" />
-        {bandLogin?<Login/>:null}  
+        {/* {bandLogin?<Login/>:null}  */}
+        <Login/>
       </main>
 
       

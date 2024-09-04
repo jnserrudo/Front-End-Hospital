@@ -27,6 +27,24 @@ export const getPatologiaToRecetaEdit = async (id) => {
   return data;
 };
 
+
+export const getCategoriaToRecetaAdd = async () => {
+  console.log("se trae CATEGORIAS PARA AGREGAR A LAS RECETAS id: ");
+  const res = await fetch(`${entorno}/recetas/categoria/add`);
+  const data = await res.json();
+  console.log("CATEGORIAS PARA AGREGAR A LAS RECETAS: ",data);
+
+  return data;
+};
+export const getCategoriaToRecetaEdit = async (id) => {
+  console.log("se trae al receta con id: ", id);
+  const res = await fetch(`${entorno}/recetas/categoria/edit/${id}`);
+  const data = await res.json();
+  return data;
+};
+
+
+
 export const getRecetaByPatologia = async (idPatologia) => {
     console.log("se trae al receta con id: ", idPatologia);
     const res = await fetch(`${entorno}/recetas/patologia/${idPatologia}`);

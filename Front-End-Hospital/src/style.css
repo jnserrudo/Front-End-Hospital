@@ -73,7 +73,7 @@
   display: flex;
   justify-content: center;
   align-items: center; /* Asegura el centrado vertical del contenedor */
-  height: 100vh; /* Asegúrate de que el main ocupe toda la altura de la ventana */
+  min-height: calc(100vh - 100px); /* Ajusta 100px según el espacio aproximado que ocupan el header y el footer */
 }
 
 .img_fondo {
@@ -257,9 +257,14 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   width: 90%;
   justify-content: space-between;
 }
+.cont_btn_agregar{
+  width: 100%;
+  display: flex;
+  justify-content: end;
+}
 
 .btn_agregar {
-  margin-left: 70%;
+  margin-right: 50px ;
 }
 
 .input_edit {

@@ -22,11 +22,13 @@ export const AddReceta = ({ onClosePadre }) => {
     recetaToInsert,
     handleChangeInputInsert,
     handleChangeSelectInsert,
+    handleChangeSelectCategoriasInsert,
     addReceta,
     bandInsert,
     handleInsert,
     handleCloseVentEmergConfirmacion,
     patologiasxRecetasAdd,
+    categoriasxRecetasAdd
   } = useContext(RecetasContext);
 
   const sharedProps = {
@@ -36,6 +38,16 @@ export const AddReceta = ({ onClosePadre }) => {
     },
     options: patologiasxRecetasAdd,
     placeholder: "Seleccione una Patología",
+    maxTagCount: "responsive",
+  };
+
+  const sharedPropsCategorias = {
+    mode: "multiple",
+    style: {
+      width: "100%",
+    },
+    options: categoriasxRecetasAdd,
+    placeholder: "Seleccione una Categoría",
     maxTagCount: "responsive",
   };
 
@@ -308,7 +320,13 @@ export const AddReceta = ({ onClosePadre }) => {
           onChange={handleChangeSelectInsert}
         />
       </div>
-
+      <Select
+          className="select_recetas input_edit"
+          name="idCategorias"
+          {...sharedPropsCategorias}
+          /* value={alumnos} */
+          onChange={handleChangeSelectCategoriasInsert}
+        />
       {bandInsert ? (
         <Button
           className="btn_accion_edit_receta"

@@ -13,6 +13,7 @@ import {
   InputGroup,
   InputRightElement,
 } from "@chakra-ui/react";
+import { getAllInformacions } from "../services/informacion-services";
 export const Info = () => {
   //esta vble videos sera reemplazada por un listado de videos que ser iran cargando con sus URLs en la BD
   const [videos, setVideos] = useState([]);
@@ -41,7 +42,9 @@ export const Info = () => {
   }, []);
 
   const getinformacionxpaciente = async (idUsuario) => {
-    const infos = await getInformacionxPaciente(idUsuario);
+    //const infos = await getInformacionxPaciente(idUsuario); AHORA SE LLAMA A TODOS, SIN IMPORTAR LA PATOLOGIA
+    const infos =await getAllInformacions()
+
     let videosOfInfo = infos.map((videos) => {
       if (videos.urlVideo) {
         return {

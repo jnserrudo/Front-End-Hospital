@@ -17,7 +17,8 @@ export const Nav = ({ bandHospital, bandLogin, setBandLogin = false }) => {
   }, [nomUsuario]);
   return (
     <div className="cont_btn_login">
-      {!bandLogin && !bandHospital ? (
+      {/* {!bandLogin && 
+      !bandHospital ? (
         <ButtonAntd
           className="btn_login txt"
           type="primary"
@@ -25,9 +26,10 @@ export const Nav = ({ bandHospital, bandLogin, setBandLogin = false }) => {
         >
           Iniciar Sesión
         </ButtonAntd>
-      ) : null}
+      ) : null} */}
 
-      {!bandLogin && bandHospital ? (
+      {/* !bandLogin &&  */
+      bandHospital ? (
         <div className="cont_usuario">
           <UserOutlined style={{ fontSize: "50px" }} />
           <p style={{ margin: "0 1rem" }} className="">

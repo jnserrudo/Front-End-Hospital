@@ -46,8 +46,9 @@ const items = [
     getItem("Informacion", "8"),
     getItem("Ejercicio", "9"),
     getItem("Usuario", "10"),
+    getItem("Categorias", "11"),
   ]),
-  getItem("Tablas", "11", <FileOutlined />),
+  getItem("Tablas", "12", <FileOutlined />),
 ];
 
 // Estilos activos personalizados para Chakra UI
@@ -135,6 +136,25 @@ export const MainApp = () => {
     setToken(parsedToken);
   }, []);
 
+  
+ 
+  useEffect(() => {
+    const handlePopState = (event) => {
+      console.log('Evento popstate detectado', event,window.location.pathname);
+      if (window.location.pathname === '/hospital') {
+        setSelectedKey('1')
+        //navigate('/hospital'); // Redirige a la ruta deseada
+      }
+    };
+
+    window.history.pushState(null, '', window.location.href); // Forza una entrada en el historial
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [navigate]);
+  
   // Efecto para validar el token y mostrar un toast de éxito
   useEffect(() => {
     if (token) {
@@ -151,15 +171,21 @@ export const MainApp = () => {
 
       if (!isValid) {
         navigate("/");
+        console.log('al login por invalido')
       } else {
         const timeoutId = setTimeout(() => {
           navigate("/");
+          console.log('al login por timeoutid')
         }, token.exp * 1000 - Date.now());
 
         return () => clearTimeout(timeoutId);
       }
     }
   }, [token, navigate]);
+
+  useEffect(()=>{
+    setCollapsed(true)
+  },[selectedKey])
 
   return (
     <ChakraProvider theme={customTheme}>
@@ -237,10 +263,10 @@ export const MainApp = () => {
               {selectedKey === "2" && <Recetas />}
               {selectedKey === "3" && <Info />}
               {selectedKey === "4" && <Ejercicio />}
-              {+selectedKey > 5 && +selectedKey < 11 && localStorage.getItem("rol") != 3 && (
+              {+selectedKey > 5 && +selectedKey < 12 && localStorage.getItem("rol") != 3 && (
                 <PanelAdministracion selectedKey={selectedKey} />
               )}
-              {selectedKey === "11"   && <TablasInformativas />}
+              {selectedKey === "12"   && <TablasInformativas />}
             </div>
             <FooterHospital setSelectedKey={setSelectedKey} />
 

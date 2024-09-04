@@ -12,6 +12,7 @@ import {
   InputRightElement,
 } from "@chakra-ui/react";
 import { SearchOutlined } from "@ant-design/icons";
+import { getAllEjercicios } from "../services/ejercicio-services";
 
 export const Ejercicio = () => {
   const [videos, setVideos] = useState([]);
@@ -40,7 +41,10 @@ export const Ejercicio = () => {
   }, []);
 
   const getejerciciosxpaciente = async (idUsuario) => {
-    const ejercicios = await getEjercicioxPaciente(idUsuario);
+    //const ejercicios = await getEjercicioxPaciente(idUsuario); AHORA SE LLAMA A TODOS, SIN IMPORTAR LA PATOLOGIA
+
+    const ejercicios=await getAllEjercicios()
+
     console.log(ejercicios);
     let videosOfEjercicio = ejercicios.map((videos) => {
       if (videos.urlVideo) {

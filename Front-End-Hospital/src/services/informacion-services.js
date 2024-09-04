@@ -58,6 +58,21 @@ export const getPatologiaToInformacionEdit = async (id) => {
 };
 
 
+
+export const getCategoriaToInformacionAdd = async () => {
+  console.log("se trae al informacion add: ");
+  const res = await fetch(`${entorno}/informacion/categoria/add`);
+  const data = await res.json();
+  return data;
+};
+export const getCategoriaToInformacionEdit = async (id) => {
+  console.log("se trae al informacion con id: ", id);
+  const res = await fetch(`${entorno}/informacion/categoria/edit/${id}`);
+  const data = await res.json();
+  return data;
+};
+
+
 export const inhabilitarInformacion = async (
   id
 ) => {
