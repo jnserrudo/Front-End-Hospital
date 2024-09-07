@@ -59,10 +59,10 @@ export const Info = () => {
 
   useEffect(() => {
     console.log(db);
-    //vamos a traer las pagologias relacionadas con el usuario
+    //vamos a traer las patologias relacionadas con el usuario
     localStorage.getItem("idUsuario");
     console.log(localStorage.getItem("idUsuario"));
-    if (localStorage.getItem("rol") == 3) {
+    /* if (localStorage.getItem("rol") == 3) {
       getinformacionxpaciente(localStorage.getItem("idUsuario"));
     } else {
       if (db?.length > 0) {
@@ -77,7 +77,21 @@ export const Info = () => {
         console.log(videosOfInfo);
         setVideos(videosOfInfo);
       }
+    } */
+
+    if (db?.length > 0) {
+      let videosOfInfo = db.map((videos) => {
+        if (videos.urlVideo) {
+          return {
+            ...videos,
+            url: entorno.slice(0, -4) + videos.urlVideo,
+          };
+        }
+      });
+      console.log(videosOfInfo);
+      setVideos(videosOfInfo);
     }
+
   }, [db]);
 
   const handleChange = (value) => {

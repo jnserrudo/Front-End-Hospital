@@ -1,6 +1,8 @@
 import React, { createContext, useEffect, useState } from "react";
 import {
   getAllInformacions,
+  getCategoriaToInformacionAdd,
+  getCategoriaToInformacionEdit,
   getInformacionById,
   getPatologiaToInformacionAdd,
   getPatologiaToInformacionEdit,
@@ -38,6 +40,13 @@ export const InformacionProvider = ({ children }) => {
     []
   );
   const [patologiasxInformacionEdit, setPatologiasxInformacionEdit] = useState(
+    []
+  );
+
+  const [categoriasxInformacionAdd, setCategoriasxInformacionAdd] = useState(
+    []
+  );
+  const [categoriasxInformacionEdit, setCategoriasxInformacionEdit] = useState(
     []
   );
 
@@ -101,7 +110,7 @@ export const InformacionProvider = ({ children }) => {
   const handleCloseConfInsert = async () => {
     //se confirmo que se agregara el Informacion
     setBandLoader(true);
-    const resultInsert=await handleInsert();
+    const resultInsert = await handleInsert();
     if (resultInsert.err) {
       throw new Error(resultInsert.err.message);
     }
@@ -166,6 +175,24 @@ export const InformacionProvider = ({ children }) => {
     setInformacionSelected(newValue);
   };
 
+  const handleChangeSelectCategoriasInsert = (e) => {
+    let newValue = {
+      ...informacionToInsert,
+      idsCategorias: e,
+    };
+    console.log(newValue);
+    setInformacionToInsert(newValue);
+  };
+
+  const handleChangeSelectCategorias = (e) => {
+    let newValue = {
+      ...informacionSelected,
+      idsCategorias: e,
+    };
+    console.log(newValue);
+    setInformacionSelected(newValue);
+  };
+
   const handleDelete = async (record) => {
     console.log(record.id);
     setIdInformacion(record.id);
@@ -224,11 +251,29 @@ export const InformacionProvider = ({ children }) => {
         setPatologiasxInformacionAdd(alToSelect);
       }
     };
+
+    const getcategoriatoinformacionadd = async () => {
+      const categorias = await getCategoriaToInformacionAdd();
+      console.log("trae categorias para info", categorias);
+      if (categorias.length > 0) {
+        let alToSelect = categorias.map((pat) => {
+          return {
+            label: pat.nombre,
+            value: pat.id,
+          };
+        });
+        setCategoriasxInformacionAdd(alToSelect);
+      }
+    };
+
     getpatologiatoinformacionadd();
-  }, []);
+    getcategoriatoinformacionadd();
+
+
+  }, [db]);
 
   useEffect(() => {
-    const getpatologiatopatologiaedit = async () => {
+    const getpatologiatoinformacionedit = async () => {
       const patologias = await getPatologiaToInformacionEdit(idInformacion);
       console.log("trae patologias para info edit", idInformacion, patologias);
 
@@ -246,7 +291,27 @@ export const InformacionProvider = ({ children }) => {
       }
     };
 
-    getpatologiatopatologiaedit();
+    const getcategoriatoinformacionedit = async () => {
+      const categorias = await getCategoriaToInformacionEdit(idInformacion);
+      console.log("trae categorias para info edit", idInformacion, categorias);
+
+      if (Object.values(categorias).length > 0) {
+        console.log(categorias);
+        setCategoriasxInformacionEdit(categorias);
+        /* let alToSelect = patologias.map((pat) => {
+          return {
+            label: pat.nombre,
+            value: pat.id,
+          };
+        });
+        console.log(alToSelect)
+        setPatologiasxInformacionEdit(alToSelect) */
+      }
+    };
+
+    getpatologiatoinformacionedit();
+    getcategoriatoinformacionedit();
+
   }, [idInformacion]);
 
   const columns = [
@@ -298,7 +363,7 @@ export const InformacionProvider = ({ children }) => {
         " se esta por insertar el informacion: ",
         informacionToInsert
       );
-      const resultInsert=await addInformacion(informacionToInsert);
+      const resultInsert = await addInformacion(informacionToInsert);
       if (resultInsert.err) {
         throw new Error(resultInsert.err.message);
       }
@@ -367,6 +432,10 @@ export const InformacionProvider = ({ children }) => {
     showVentEmergenteDelete,
     patologiasxInformacionAdd,
     patologiasxInformacionEdit,
+    categoriasxInformacionAdd,
+    categoriasxInformacionEdit,
+    handleChangeSelectCategoriasInsert,
+    handleChangeSelectCategorias,
     handleChangeSelectInsert,
     handleChangeSelect,
     setShowVentEmergenteDelete,

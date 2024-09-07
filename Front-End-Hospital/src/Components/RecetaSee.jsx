@@ -12,12 +12,13 @@ import {
 
 import { Select, Tag } from "antd";
 import { getAllCategorias } from "../services/categoria-services";
+import { getCategoriaToRecetaEdit } from "../services/recetas-services";
 
 export const RecetaSee = ({ receta }) => {
-  const colors = ["gold", "lime", "green", "cyan", "blue", "red"];
+  const colors = ["gold", "lime", "green", "cyan", "blue", "red"]; // Colores cíclicos
 
   const [categorias, setCategorias] = useState([]);
-
+/* 
   const options = [
     {
       value: "gold",
@@ -35,7 +36,7 @@ export const RecetaSee = ({ receta }) => {
       value: "cyan",
       label: "CYAN",
     },
-  ];
+  ]; */
   const tagRender = (props) => {
     const { label, value, closable, onClose } = props;
     const onPreventMouseDown = (event) => {
@@ -44,7 +45,7 @@ export const RecetaSee = ({ receta }) => {
     };
 
     const option = categorias?.find((categoria) => categoria.value === value);
-
+  console.log( option)
     return (
       <Tag
         color={option?.color || "default"} // Usa el color de la opción, o un color por defecto
@@ -87,6 +88,24 @@ export const RecetaSee = ({ receta }) => {
           ]
         : []
     );
+
+    const categoriasasociadas = async () => {
+      let categorias = await getCategoriaToRecetaEdit(receta.id);
+      console.log(categorias);
+      
+      // Asignar colores cíclicos a las categorías asociadas
+      const categoriasConColor = categorias.categoriasAsociadas.map((cat, index) => ({
+        ...cat,
+        value: cat.id,
+        label: cat.nombre,
+        color: colors[index % colors.length], // Asignar color cíclico
+      }));
+
+      setCategorias(categoriasConColor);
+    };
+    categoriasasociadas()
+
+    
   }, [receta]);
 
   useEffect(() => {
@@ -100,7 +119,7 @@ export const RecetaSee = ({ receta }) => {
           color: colors[index % colors.length], // Asignar colores de manera cíclica
         };
       });
-      setCategorias;
+      setCategorias(categoriaToSelect);
       return cate;
     };
   }, []);
@@ -164,8 +183,9 @@ export const RecetaSee = ({ receta }) => {
             Categorias
             <Select
               mode="multiple"
-              tagRender={tagRender}
-              defaultValue={options.map((o) => o.value)}
+              tagRender={(props) =>
+                tagRender(props, categorias)
+              }              defaultValue={categorias.map((o) => o.value)}
               style={{
                 width: "100%",
                 border: "0px solid white", // Estilo para eliminar el borde
@@ -173,7 +193,7 @@ export const RecetaSee = ({ receta }) => {
 
                 cursor: "default", // Cambia el cursor para que no sea de edición
               }}
-              options={options}
+              options={categorias}
               open={false}
               suffixIcon={null} // Oculta la flecha hacia abajo
               onMouseDown={(e) => e.preventDefault()} // Evita la interacción al hacer clic

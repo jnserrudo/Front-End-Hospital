@@ -1,6 +1,8 @@
 import React, { createContext, useEffect, useState } from "react";
 import {
   getAllEjercicios,
+  getCategoriaToEjercicioAdd,
+  getCategoriaToEjercicioEdit,
   getEjercicioById,
   getPatologiaToEjercicioAdd,
   getPatologiaToEjercicioEdit,
@@ -33,6 +35,9 @@ export const EjercicioProvider = ({ children }) => {
 
   const [patologiasxEjercicioAdd, setPatologiasxEjercicioAdd] = useState([]);
   const [patologiasxEjercicioEdit, setPatologiasxEjercicioEdit] = useState([]);
+
+  const [categoriasxEjercicioAdd, setCategoriasxEjercicioAdd] = useState([]);
+  const [categoriasxEjercicioEdit, setCategoriasxEjercicioEdit] = useState([]);
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -93,7 +98,7 @@ export const EjercicioProvider = ({ children }) => {
   const handleCloseConfInsert = async () => {
     //se confirmo que se agregara el Ejercicio
     setBandLoader(true);
-    const resultInsert=await handleInsert();
+    const resultInsert = await handleInsert();
     if (resultInsert.err) {
       throw new Error(resultInsert.err.message);
     }
@@ -157,6 +162,24 @@ export const EjercicioProvider = ({ children }) => {
     setEjercicioSelected(newValue);
   };
 
+  const handleChangeSelectCategoriasInsert = (e) => {
+    let newValue = {
+      ...ejercicioToInsert,
+      idsCategorias: e,
+    };
+    console.log(newValue);
+    setEjercicioToInsert(newValue);
+  };
+
+  const handleChangeSelectCategorias = (e) => {
+    let newValue = {
+      ...ejercicioSelected,
+      idsCategorias: e,
+    };
+    console.log(newValue);
+    setEjercicioSelected(newValue);
+  };
+
   const handleDelete = async (record) => {
     console.log(record.id);
     setIdEjercicio(record.id);
@@ -215,11 +238,27 @@ export const EjercicioProvider = ({ children }) => {
         setPatologiasxEjercicioAdd(alToSelect);
       }
     };
+
+    const getcategoriatoejercicioadd = async () => {
+      const categorias = await getCategoriaToEjercicioAdd();
+      console.log("trae categorias para info", categorias);
+      if (categorias.length > 0) {
+        let alToSelect = categorias.map((pat) => {
+          return {
+            label: pat.nombre,
+            value: pat.id,
+          };
+        });
+        setCategoriasxEjercicioAdd(alToSelect);
+      }
+    };
+
     getpatologiatoejercicioadd();
-  }, []);
+    getcategoriatoejercicioadd();
+  }, [db]);
 
   useEffect(() => {
-    const getpatologiatopatologiaedit = async () => {
+    const getpatologiatoejercicioedit = async () => {
       const patologias = await getPatologiaToEjercicioEdit(idEjercicio);
       console.log(
         "trae patologias para ejercicio edit",
@@ -241,7 +280,30 @@ export const EjercicioProvider = ({ children }) => {
       }
     };
 
-    getpatologiatopatologiaedit();
+    const getcategoriatoejercicioedit = async () => {
+      const categorias = await getCategoriaToEjercicioEdit(idEjercicio);
+      console.log(
+        "trae categorias para ejercicios edit",
+        idEjercicio,
+        categorias
+      );
+
+      if (Object.values(categorias).length > 0) {
+        console.log(categorias);
+        setCategoriasxEjercicioEdit(categorias);
+        /* let alToSelect = patologias.map((pat) => {
+          return {
+            label: pat.nombre,
+            value: pat.id,
+          };
+        });
+        console.log(alToSelect)
+        setPatologiasxInformacionEdit(alToSelect) */
+      }
+    };
+
+    getpatologiatoejercicioedit();
+    getcategoriatoejercicioedit();
   }, [idEjercicio]);
 
   const columns = [
@@ -356,6 +418,10 @@ export const EjercicioProvider = ({ children }) => {
     showVentEmergenteDelete,
     patologiasxEjercicioAdd,
     patologiasxEjercicioEdit,
+    categoriasxEjercicioAdd,
+    categoriasxEjercicioEdit,
+    handleChangeSelectCategoriasInsert,
+    handleChangeSelectCategorias,
     handleChangeSelectInsert,
     handleChangeSelect,
     setShowVentEmergenteDelete,

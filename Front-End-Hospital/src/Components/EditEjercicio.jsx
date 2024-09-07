@@ -55,13 +55,24 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
   const [patologiasAsociadas, setPatologiasAsociadas] = useState([]);
   const [patologiasNoAsociadas, setPatologiasNoAsociadas] = useState([]);
   const [selectedPatologias, setSelectedPatologias] = useState([]);
-
   const [opcionesPatologias, setOpcionesPatologias] = useState([]);
+
+  /* ------------------------- */
+
+  const [categoriasAsociadas, setCategoriasAsociadas] = useState([]);
+  const [categoriasNoAsociadas, setCategoriasNoAsociadas] = useState([]);
+  const [selectedCategorias, setSelectedCategorias] = useState([]);
+  const [opcionesCategorias, setOpcionesCategorias] = useState([]);
+
+  /* ------------------------- */
+
   const {
     handleChangeInput,
     handleUpdate,
     handleChangeSelect,
     patologiasxEjercicioEdit,
+    categoriasxEjercicioEdit,
+    handleChangeSelectCategorias,
   } = useContext(EjerciciosContext);
   if (!ejercicio) {
     return null;
@@ -76,6 +87,20 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
     placeholder: "Seleccione una Patología",
     maxTagCount: "responsive",
     value: selectedPatologias,
+    renderOptionLabel: (option) => (
+      <div>
+        {option.label} {option.type === "asociada" ? "(Asociada)" : ""}
+      </div>
+    ),
+  };
+
+  const sharedPropsCategorias = {
+    mode: "multiple",
+    style: { width: "100%" },
+    options: opcionesCategorias,
+    placeholder: "Seleccione una Categoria",
+    maxTagCount: "responsive",
+    value: selectedCategorias,
     renderOptionLabel: (option) => (
       <div>
         {option.label} {option.type === "asociada" ? "(Asociada)" : ""}
@@ -127,7 +152,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
     console.log(patologiasxEjercicioEdit);
     if (
       patologiasxEjercicioEdit &&
-      Object.values(patologiasxEjercicioEdit).length > 0
+      Object.values(patologiasxEjercicioEdit).length > 1
     ) {
       setPatologiasAsociadas(patologiasxEjercicioEdit.patologiasAsociadas);
       setPatologiasNoAsociadas(patologiasxEjercicioEdit.patologiasNoAsociadas);
@@ -136,6 +161,20 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
       );
     }
   }, [patologiasxEjercicioEdit]);
+
+  useEffect(() => {
+    console.log(categoriasxEjercicioEdit);
+    if (
+      categoriasxEjercicioEdit &&
+      Object.values(categoriasxEjercicioEdit).length > 1
+    ) {
+      setCategoriasAsociadas(categoriasxEjercicioEdit.categoriasAsociadas);
+      setCategoriasNoAsociadas(categoriasxEjercicioEdit.categoriasNoAsociadas);
+      setSelectedCategorias(
+        categoriasxEjercicioEdit.categoriasAsociadas.map((p) => p.id)
+      );
+    }
+  }, [categoriasxEjercicioEdit]);
 
   useEffect(() => {
     if (patologiasAsociadas.length > 0 || patologiasNoAsociadas.length > 0) {
@@ -158,6 +197,28 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
       ]);
     }
   }, [patologiasAsociadas, patologiasNoAsociadas]);
+
+  useEffect(() => {
+    if (categoriasAsociadas.length > 0 || categoriasNoAsociadas.length > 0) {
+      console.log(
+        "categoriasAsociadas,categoriasNoAsociadas: ",
+        categoriasAsociadas,
+        categoriasNoAsociadas
+      );
+      setOpcionesCategorias([
+        ...categoriasAsociadas.map((p) => ({
+          label: p.nombre,
+          value: p.id,
+          type: "asociada",
+        })),
+        ...categoriasNoAsociadas.map((p) => ({
+          label: p.nombre,
+          value: p.id,
+          type: "no-asociada",
+        })),
+      ]);
+    }
+  }, [categoriasAsociadas, categoriasNoAsociadas]);
 
   const handleFileChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
@@ -323,6 +384,19 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
             console.log(e);
             handleChangeSelect(e);
             setSelectedPatologias(e);
+          }}
+        />
+        {/* SELECT DE LAS CATEGORIAS */}
+        <Select
+          disabled={!bandEdit}
+          name="idCategorias"
+          className="select_recetas input_edit"
+          {...sharedPropsCategorias}
+          /* value={alumnos} */
+          onChange={(e) => {
+            console.log(e);
+            handleChangeSelectCategorias(e);
+            setSelectedCategorias(e);
           }}
         />
 

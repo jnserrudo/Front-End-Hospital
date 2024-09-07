@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 
 import { EditOutlined, DragOutlined,DeleteOutlined } from "@ant-design/icons";
-import { getAllRecetas, getCategoriaToRecetaAdd, getPatologiaToRecetaAdd, getPatologiaToRecetaEdit, getRecetaById, getRecetaByPaciente, insertReceta, updateReceta } from "../services/recetas-services";
+import { getAllRecetas, getCategoriaToRecetaAdd, getCategoriaToRecetaEdit, getPatologiaToRecetaAdd, getPatologiaToRecetaEdit, getRecetaById, getRecetaByPaciente, insertReceta, updateReceta } from "../services/recetas-services";
 const RecetaContext = createContext();
 export const RecetaProvider = ({ children }) => {
   const [db, setDb] = useState([]);
@@ -253,7 +253,6 @@ export const RecetaProvider = ({ children }) => {
   useEffect(()=>{
     const getpatologiatorecetaadd=async()=>{
       const patologias= await getPatologiaToRecetaAdd()
-      console.log("PatologiasxRecetasAdd",patologiasxRecetasAdd)
       if(patologias.length>0){
         let alToSelect = patologias.map((pat) => {
           return {
@@ -267,7 +266,6 @@ export const RecetaProvider = ({ children }) => {
 
     const getcategoriatorecetaadd=async()=>{
       const categorias= await getCategoriaToRecetaAdd()
-      console.log("CategoriasxRecetasAdd",categoriasxRecetasAdd)
       if(categorias.length>0){
         let alToSelect =categorias.map((cat) => {
           return {
@@ -281,7 +279,7 @@ export const RecetaProvider = ({ children }) => {
     getpatologiatorecetaadd()
     getcategoriatorecetaadd()
     
-  },[])
+  },[db])
   
   useEffect(()=>{
     const getpatologiatorecetaedit=async()=>{
@@ -295,8 +293,22 @@ export const RecetaProvider = ({ children }) => {
       }
       
     }
+
+    const getcategoriatorecetaedit=async()=>{
+      const categorias= await getCategoriaToRecetaEdit(idReceta)
+      console.log("trae CATEGORIAS para recetas edit",categorias)
+
+      if(Object.values(categorias).length>0){
+        console.log(categorias)
+
+        setCategoriasxRecetasEdit(categorias)
+      }
+      
+    }
+
     
   getpatologiatorecetaedit()
+  getcategoriatorecetaedit()
   },[idReceta])
 
   const columns = [

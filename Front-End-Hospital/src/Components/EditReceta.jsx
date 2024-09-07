@@ -35,10 +35,20 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
   const [bandUpdated, setBandUpdated] = useState(false);
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
+    /* ------------------------- */
   const [patologiasAsociadas, setPatologiasAsociadas] = useState([]);
   const [patologiasNoAsociadas, setPatologiasNoAsociadas] = useState([]);
   const [selectedPatologias, setSelectedPatologias] = useState([]);
   const [opcionesPatologias, setOpcionesPatologias] = useState([]);
+    /* ------------------------- */
+
+    const [categoriasAsociadas, setCategoriasAsociadas] = useState([]);
+    const [categoriasNoAsociadas, setCategoriasNoAsociadas] = useState([]);
+    const [selectedCategorias, setSelectedCategorias] = useState([]);
+    const [opcionesCategorias, setOpcionesCategorias] = useState([]);
+
+
+    /* ------------------------- */
 
   const [fileList, setFileList] = useState(
     receta.urlFoto
@@ -57,7 +67,9 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
     handleChangeInput,
     handleUpdate,
     patologiasxRecetasEdit,
+    categoriasxRecetasEdit,
     handleChangeSelect,
+    handleChangeSelectCategorias
   } = useContext(RecetasContext);
   if (!receta) {
     return null;
@@ -139,6 +151,21 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
     ),
   };
 
+
+  const sharedPropsCategorias = {
+    mode: "multiple",
+    style: { width: "100%" },
+    options: opcionesCategorias,
+    placeholder: "Seleccione una Categoria",
+    maxTagCount: "responsive",
+    value: selectedCategorias,
+    renderOptionLabel: (option) => (
+      <div>
+        {option.label} {option.type === "asociada" ? "(Asociada)" : ""}
+      </div>
+    ),
+  };
+
   const handleFileChange = ({ fileList: newFileList }) => {
     console.log("handleFileChange");
     setFileList(newFileList);
@@ -177,6 +204,21 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
     }
   }, [patologiasxRecetasEdit]);
 
+
+  useEffect(() => {
+    console.log(categoriasxRecetasEdit);
+    if (
+      categoriasxRecetasEdit &&
+      Object.values(categoriasxRecetasEdit).length > 0
+    ) {
+      setCategoriasAsociadas(categoriasxRecetasEdit.categoriasAsociadas);
+      setCategoriasNoAsociadas(categoriasxRecetasEdit.categoriasNoAsociadas);
+      setSelectedCategorias(
+        categoriasxRecetasEdit.categoriasAsociadas.map((p) => p.id)
+      );
+    }
+  }, [categoriasxRecetasEdit]);
+
   useEffect(() => {
     if (patologiasAsociadas.length > 0 || patologiasNoAsociadas.length > 0) {
       console.log(
@@ -198,6 +240,29 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
       ]);
     }
   }, [patologiasAsociadas, patologiasNoAsociadas]);
+
+  useEffect(() => {
+    if (categoriasAsociadas.length > 0 || categoriasNoAsociadas.length > 0) {
+      console.log(
+        "categoriasAsociadas,categoriasNoAsociadas: ",
+        categoriasAsociadas,
+        categoriasNoAsociadas
+      );
+      setOpcionesCategorias([
+        ...categoriasAsociadas.map((p) => ({
+          label: p.nombre,
+          value: p.id,
+          type: "asociada",
+        })),
+        ...categoriasNoAsociadas.map((p) => ({
+          label: p.nombre,
+          value: p.id,
+          type: "no-asociada",
+        })),
+      ]);
+    }
+  }, [categoriasAsociadas, categoriasNoAsociadas]);
+
 
   const handleFileUpload = async (file) => {
     const formData = new FormData();
@@ -249,6 +314,16 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
       );
     }
   }, [patologiasxRecetasEdit]); // Dependencia cambiada a patologiasxRecetasEdit
+
+  useEffect(() => {
+    if (categoriasxRecetasEdit && categoriasxRecetasEdit.length > 0) {
+      setCategoriasAsociadas(categoriasxRecetasEdit.categoriasAsociadas);
+      setCategoriasNoAsociadas(categoriasxRecetasEdit.categoriasNoAsociadas);
+      setSelectedPatologias(
+        categoriasxRecetasEdit.categoriasAsociadas.map((p) => p.id)
+      );
+    }
+  }, [categoriasxRecetasEdit]);
 
   console.log("viendo al receta: ", receta);
   useEffect(() => {
@@ -474,6 +549,20 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
             console.log(e);
             handleChangeSelect(e);
             setSelectedPatologias(e);
+          }}
+        />
+
+         {/* SELECT DE LAS CATEGORIAS */}
+         <Select
+          disabled={!bandEdit}
+          name="idCategorias"
+          className="select_recetas input_edit"
+          {...sharedPropsCategorias}
+          /* value={alumnos} */
+          onChange={(e) => {
+            console.log(e);
+            handleChangeSelectCategorias(e);
+            setSelectedCategorias(e);
           }}
         />
       </div>

@@ -16,7 +16,7 @@ import ReactPlayer from "react-player";
 
 import { Upload, Select } from "antd";
 import { entorno } from "../services/config";
-import  { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 export const AddInformacion = ({ onClosePadre }) => {
   const {
@@ -28,7 +28,10 @@ export const AddInformacion = ({ onClosePadre }) => {
     handleChangeSelectInsert,
     handleCloseVentEmergConfirmacion,
     patologiasxInformacionAdd,
+    categoriasxInformacionAdd,
+    handleChangeSelectCategoriasInsert,
   } = useContext(InformacionsContext);
+
   const sharedProps = {
     mode: "multiple",
     style: {
@@ -38,6 +41,17 @@ export const AddInformacion = ({ onClosePadre }) => {
     placeholder: "Seleccione una Patología",
     maxTagCount: "responsive",
   };
+
+  const sharedPropsCategorias = {
+    mode: "multiple",
+    style: {
+      width: "100%",
+    },
+    options: categoriasxInformacionAdd,
+    placeholder: "Seleccione una Categoría",
+    maxTagCount: "responsive",
+  };
+
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
 
@@ -68,7 +82,7 @@ export const AddInformacion = ({ onClosePadre }) => {
     if (newFileList.length > 0 && newFileList[0].originFileObj) {
       const file = newFileList[0].originFileObj;
       const url = URL.createObjectURL(file);
-      console.log(url)
+      console.log(url);
       setPreviewUrl(url);
     }
   };
@@ -148,7 +162,7 @@ export const AddInformacion = ({ onClosePadre }) => {
 
   return (
     <div className="">
-            <Toaster position="top-center" reverseOrder={false} />
+      <Toaster position="top-center" reverseOrder={false} />
 
       <div className="form_edit_informacion">
         <FormControl
@@ -171,7 +185,7 @@ export const AddInformacion = ({ onClosePadre }) => {
           <FormLabel>Nombre</FormLabel>
         </FormControl>
 
-        <Tabs  >
+        <Tabs>
           <TabList>
             <Tab>Cargar Video</Tab>
             <Tab>Youtube</Tab>
@@ -245,8 +259,7 @@ export const AddInformacion = ({ onClosePadre }) => {
               </FormControl>
               {iframeUrl && (
                 <div style={{ marginTop: "1rem" }}>
-                        <div dangerouslySetInnerHTML={{ __html: iframeUrl }} />
-
+                  <div dangerouslySetInnerHTML={{ __html: iframeUrl }} />
                 </div>
               )}
             </TabPanel>
@@ -261,6 +274,16 @@ export const AddInformacion = ({ onClosePadre }) => {
           /* value={alumnos} */
           onChange={handleChangeSelectInsert}
         />
+
+        {/* SELECT DE LAS CATEGORIAS */}
+        <Select
+          className="select_recetas input_edit"
+          name="idCategorias"
+          {...sharedPropsCategorias}
+          /* value={alumnos} */
+          onChange={handleChangeSelectCategoriasInsert}
+        />
+
         <FormControl
           className="cont_input_edit"
           variant="floating"
