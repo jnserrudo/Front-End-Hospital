@@ -184,18 +184,18 @@ export const PatologiaProvider = ({ children }) => {
       title: "ID",
       dataIndex: "id",
       render: (text) => <a>{text}</a>,
-      align: "center",
+      align: "start",
     },
     {
       title: "Nombre",
       dataIndex: "nombre",
       render: (text) => <a>{text}</a>,
-      align: "center",
+      align: "start",
     },
     {
       title: "Descripcion",
       dataIndex: "descripcion",
-      align: "center",
+      align: "start",
     },
    
     {

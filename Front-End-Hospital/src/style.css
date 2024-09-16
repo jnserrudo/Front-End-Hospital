@@ -220,6 +220,14 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   text-align: center;
 }
 @media (max-width: 620px) {
+
+
+  .logo_hospital {
+    margin-left: 0;
+  
+  }
+  
+
   .cont_videos {
     justify-content: center;
     border: 0;
@@ -255,7 +263,7 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
   display: flex;
   align-items: center;
   width: 90%;
-  justify-content: space-between;
+  justify-content: end;
 }
 .cont_btn_agregar{
   width: 100%;

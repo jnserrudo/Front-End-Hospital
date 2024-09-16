@@ -7,6 +7,23 @@ export const getAllInformacions = async () => {
   return data;
 };
 
+export const getAllInformacionsFiltro = async (
+  informacion
+) => {
+
+  console.log("informaciones filtro ", informacion)
+  const res = await fetch(`${entorno}/informacion/filtro`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(informacion),
+  });
+  const data = await res.json();
+  return data;
+};
+
+
 export const getInformacionById = async (id) => {
   console.log("se trae al informacion con id: ", id);
   const res = await fetch(`${entorno}/informacion/${id}`);

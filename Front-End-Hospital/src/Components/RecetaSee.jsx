@@ -190,7 +190,7 @@ export const RecetaSee = ({ receta }) => {
                 width: "100%",
                 border: "0px solid white", // Estilo para eliminar el borde
                 boxShadow: "none", // Elimina la sombra que podría dar la apariencia de un borde
-
+                pointerEvents: "none", // Evita la interacción sin aplicar estilos visuales
                 cursor: "default", // Cambia el cursor para que no sea de edición
               }}
               options={categorias}
@@ -245,7 +245,7 @@ export const RecetaSee = ({ receta }) => {
             </div>
           </div>
         </div>
-        <div className="receta_preparacion box_shadow">
+        <div className="receta_preparacion ">
           <p className="titulo_receta">Preparación</p>
           {renderOrderedList(receta.preparacion)}
         </div>

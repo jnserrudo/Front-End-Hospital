@@ -7,6 +7,23 @@ export const getAllRecetas = async () => {
   return data;
 };
 
+
+export const getAllRecetasFiltro = async (
+  recetas
+) => {
+
+  console.log("recetas filtro ", recetas)
+  const res = await fetch(`${entorno}/recetas/filtro`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(recetas),
+  });
+  const data = await res.json();
+  return data;
+};
+
 export const getRecetaById = async (id) => {
   console.log("se trae al receta con id: ", id);
   const res = await fetch(`${entorno}/recetas/${id}`);

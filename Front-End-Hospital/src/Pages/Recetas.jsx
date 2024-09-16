@@ -26,7 +26,15 @@ export const Recetas = () => {
 
   const [recetaSee, setRecetaSee] = useState({});
 
-  const { db, dbSearch, handleSearch } = useContext(RecetaContext);
+  const {
+    db,
+    dbSearch,
+    handleSearch,
+    handleChangeSelectRecetasFiltrar,
+    handleChangeSelectCategoriasFiltrar,
+    patologiasxRecetasAdd,
+    categoriasxRecetasAdd,
+  } = useContext(RecetaContext);
   console.log(db);
 
   const [recetasPatologias, setRecetasPatologias] = useState([]);
@@ -35,6 +43,26 @@ export const Recetas = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [clickCount, setClickCount] = useState(0);
   const [recetaSearch, setRecetaSearch] = useState("");
+
+  const sharedProps = {
+    mode: "multiple",
+    style: {
+      width: "100%",
+    },
+    options: patologiasxRecetasAdd,
+    placeholder: "Seleccione una Patología",
+    maxTagCount: "responsive",
+  };
+
+  const sharedPropsCategorias = {
+    mode: "multiple",
+    style: {
+      width: "100%",
+    },
+    options: categoriasxRecetasAdd,
+    placeholder: "Seleccione una Categoría",
+    maxTagCount: "responsive",
+  };
 
   const handleClick = (value) => {
     // Si se hace doble clic en el mismo elemento
@@ -107,7 +135,7 @@ export const Recetas = () => {
       <nav className="nav_recetas">
         <img src="/recetas.svg" className="icon_imagen" alt="" />
         <div className="cont_sel_recetas">
-          <p  className="titulo_see" >Recetas Saludables</p>
+          <p className="titulo_see">Recetas Saludables</p>
 
           {/* Buscador */}
 
@@ -136,6 +164,24 @@ export const Recetas = () => {
 
             <FormLabel></FormLabel>
           </FormControl>
+
+          {/* SELECT DE LAS PATOLOGIAS */}
+          <Select
+            className="select_recetas input_edit"
+            name="idPatologias"
+            {...sharedProps}
+            /* value={alumnos} */
+            onChange={handleChangeSelectRecetasFiltrar}
+          />
+
+          {/* SELECT DE LAS CATEGORIAS */}
+          <Select
+            className="select_recetas input_edit"
+            name="idCategorias"
+            {...sharedPropsCategorias}
+            /* value={alumnos} */
+            onChange={handleChangeSelectCategoriasFiltrar}
+          />
         </div>
       </nav>
       <div className="cont_recetas">
@@ -148,7 +194,7 @@ export const Recetas = () => {
                       style={{
                         backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
                         color: "black",
-                        cursor:'pointer'
+                        cursor: "pointer",
                       }}
                       onClick={() => {
                         /*  handleClick(index);
@@ -174,7 +220,7 @@ export const Recetas = () => {
                       style={{
                         backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
                         color: "black",
-                        cursor:'pointer'
+                        cursor: "pointer",
                       }}
                       onClick={() => {
                         /*  handleClick(index);
@@ -199,7 +245,7 @@ export const Recetas = () => {
                       style={{
                         backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
                         color: "black",
-                        cursor:'pointer'
+                        cursor: "pointer",
                       }}
                       onClick={() => {
                         /*  handleClick(index);

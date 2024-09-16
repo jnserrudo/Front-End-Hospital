@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import {
   getAllEjercicios,
+  getAllEjerciciosFiltro,
   getCategoriaToEjercicioAdd,
   getCategoriaToEjercicioEdit,
   getEjercicioById,
@@ -38,6 +39,13 @@ export const EjercicioProvider = ({ children }) => {
 
   const [categoriasxEjercicioAdd, setCategoriasxEjercicioAdd] = useState([]);
   const [categoriasxEjercicioEdit, setCategoriasxEjercicioEdit] = useState([]);
+
+
+
+  const [idsPatologiasFiltro, setIdsPatologiasFiltro] = useState([]);
+
+  const [idsCategoriasFiltro, setIdsCategoriasFiltro] = useState([]);
+
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -152,6 +160,14 @@ export const EjercicioProvider = ({ children }) => {
     setEjercicioToInsert(newValue);
   };
 
+
+  const handleChangeSelectEjercicioFiltrar = (e) => {
+    //aca aplicamos la logica para poder actualizar la db y poder
+    //mostrar esto en la seccion de ejercicio
+    let idsPatologias = e;
+    setIdsPatologiasFiltro(idsPatologias);
+  };
+
   const handleChangeSelect = (e) => {
     let newValue = {
       ...ejercicioSelected,
@@ -169,6 +185,13 @@ export const EjercicioProvider = ({ children }) => {
     };
     console.log(newValue);
     setEjercicioToInsert(newValue);
+  };
+
+  const handleChangeSelectCategoriasFiltrar = (e) => {
+    //aca aplicamos la logica para poder actualizar la db y poder
+    //mostrar esto en la seccion de informacion
+    let idsCategorias = e;
+    setIdsCategoriasFiltro(idsCategorias);
   };
 
   const handleChangeSelectCategorias = (e) => {
@@ -205,6 +228,29 @@ export const EjercicioProvider = ({ children }) => {
   const handleSeePacient = (ejercicio) => {
     console.log("viendo: ", ejercicio);
   };
+
+
+  useEffect(() => {
+    const getejerfiltro = async (idsPatologiasFiltro, idsCategoriasFiltro) => {
+      const ejercicios = await getAllEjerciciosFiltro({
+        idsPatologias:idsPatologiasFiltro,
+        idsCategorias:idsCategoriasFiltro,
+      });
+      console.log(ejercicios);
+      setDb(ejercicios);
+    };
+
+    console.log(
+      "idsPatologiasFiltro, idsCategoriasFiltro",
+      idsPatologiasFiltro,
+      idsCategoriasFiltro
+    );
+    if (idsPatologiasFiltro.length > 0 || idsCategoriasFiltro.length > 0) {
+      getejerfiltro(idsPatologiasFiltro, idsCategoriasFiltro);
+    } else {
+      getallEjercicios();
+    }
+  }, [idsPatologiasFiltro, idsCategoriasFiltro]);
 
   useEffect(() => {
     //este useEffect lo que hara es que traera las recetas luego de una posible eliminacion
@@ -317,12 +363,12 @@ export const EjercicioProvider = ({ children }) => {
       title: "Nombre",
       dataIndex: "nombre",
       render: (text) => <a>{text}</a>,
-      align: "center",
+      align: "start",
     },
     {
       title: "Descripcion",
       dataIndex: "descripcion",
-      align: "center",
+      align: "start",
     },
 
     {
@@ -420,6 +466,8 @@ export const EjercicioProvider = ({ children }) => {
     patologiasxEjercicioEdit,
     categoriasxEjercicioAdd,
     categoriasxEjercicioEdit,
+    handleChangeSelectEjercicioFiltrar,
+    handleChangeSelectCategoriasFiltrar,
     handleChangeSelectCategoriasInsert,
     handleChangeSelectCategorias,
     handleChangeSelectInsert,

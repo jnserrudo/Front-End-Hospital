@@ -266,17 +266,17 @@ export const UsuarioProvider = ({ children }) => {
     {
       title: "Usuario",
       dataIndex: "usuario",
-      align: "center",
+      align: "start",
     },
     {
       title: "Nombre",
       dataIndex: "nombre",
-      align: "center",
+      align: "start",
     },
     {
       title: "Apellido",
       dataIndex: "apellido",
-      align: "center",
+      align: "start",
     },
 
     {

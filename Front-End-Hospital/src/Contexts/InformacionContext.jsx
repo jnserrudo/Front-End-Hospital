@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import {
   getAllInformacions,
+  getAllInformacionsFiltro,
   getCategoriaToInformacionAdd,
   getCategoriaToInformacionEdit,
   getInformacionById,
@@ -49,6 +50,10 @@ export const InformacionProvider = ({ children }) => {
   const [categoriasxInformacionEdit, setCategoriasxInformacionEdit] = useState(
     []
   );
+
+  const [idsPatologiasFiltro, setIdsPatologiasFiltro] = useState([]);
+
+  const [idsCategoriasFiltro, setIdsCategoriasFiltro] = useState([]);
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -164,6 +169,13 @@ export const InformacionProvider = ({ children }) => {
     setInformacionToInsert(newValue);
   };
 
+  const handleChangeSelectInformacionFiltrar = (e) => {
+    //aca aplicamos la logica para poder actualizar la db y poder
+    //mostrar esto en la seccion de informacion
+    let idsPatologias = e;
+    setIdsPatologiasFiltro(idsPatologias);
+  };
+
   const handleChangeSelect = (e) => {
     console.log(e);
     let newValue = {
@@ -182,6 +194,13 @@ export const InformacionProvider = ({ children }) => {
     };
     console.log(newValue);
     setInformacionToInsert(newValue);
+  };
+
+  const handleChangeSelectCategoriasFiltrar = (e) => {
+    //aca aplicamos la logica para poder actualizar la db y poder
+    //mostrar esto en la seccion de informacion
+    let idsCategorias = e;
+    setIdsCategoriasFiltro(idsCategorias);
   };
 
   const handleChangeSelectCategorias = (e) => {
@@ -218,6 +237,28 @@ export const InformacionProvider = ({ children }) => {
   const handleSeePacient = (informacion) => {
     console.log("viendo: ", informacion);
   };
+
+  useEffect(() => {
+    const getinfofiltro = async (idsPatologiasFiltro, idsCategoriasFiltro) => {
+      const infos = await getAllInformacionsFiltro({
+        idsPatologias:idsPatologiasFiltro,
+        idsCategorias:idsCategoriasFiltro,
+      });
+      console.log(infos);
+      setDb(infos);
+    };
+
+    console.log(
+      "idsPatologiasFiltro, idsCategoriasFiltro",
+      idsPatologiasFiltro,
+      idsCategoriasFiltro
+    );
+    if (idsPatologiasFiltro.length > 0 || idsCategoriasFiltro.length > 0) {
+      getinfofiltro(idsPatologiasFiltro, idsCategoriasFiltro);
+    } else {
+      getallInformacions();
+    }
+  }, [idsPatologiasFiltro, idsCategoriasFiltro]);
 
   useEffect(() => {
     //este useEffect lo que hara es que traera las recetas luego de una posible eliminacion
@@ -268,8 +309,6 @@ export const InformacionProvider = ({ children }) => {
 
     getpatologiatoinformacionadd();
     getcategoriatoinformacionadd();
-
-
   }, [db]);
 
   useEffect(() => {
@@ -311,7 +350,6 @@ export const InformacionProvider = ({ children }) => {
 
     getpatologiatoinformacionedit();
     getcategoriatoinformacionedit();
-
   }, [idInformacion]);
 
   const columns = [
@@ -325,12 +363,12 @@ export const InformacionProvider = ({ children }) => {
       title: "Nombre",
       dataIndex: "nombre",
       render: (text) => <a>{text}</a>,
-      align: "center",
+      align: "start",
     },
     {
       title: "Descripcion",
       dataIndex: "descripcion",
-      align: "center",
+      align: "start",
     },
 
     {
@@ -434,6 +472,8 @@ export const InformacionProvider = ({ children }) => {
     patologiasxInformacionEdit,
     categoriasxInformacionAdd,
     categoriasxInformacionEdit,
+    handleChangeSelectInformacionFiltrar,
+    handleChangeSelectCategoriasFiltrar,
     handleChangeSelectCategoriasInsert,
     handleChangeSelectCategorias,
     handleChangeSelectInsert,

@@ -20,8 +20,36 @@ export const Info = () => {
 
   const [options, setOptions] = useState([]);
   const [videosSearch, setVideosSearch] = useState("");
-  const { db, dbSearch, handleSearch } = useContext(InformacionContext);
+  const {
+    db,
+    dbSearch,
+    handleSearch,
+    patologiasxInformacionAdd,
+    categoriasxInformacionAdd,
+    handleChangeSelectInformacionFiltrar,
+    handleChangeSelectCategoriasFiltrar,
+  } = useContext(InformacionContext);
   console.log(db);
+
+  const sharedProps = {
+    mode: "multiple",
+    style: {
+      width: "100%",
+    },
+    options: patologiasxInformacionAdd,
+    placeholder: "Seleccione una Patología",
+    maxTagCount: "responsive",
+  };
+
+  const sharedPropsCategorias = {
+    mode: "multiple",
+    style: {
+      width: "100%",
+    },
+    options: categoriasxInformacionAdd,
+    placeholder: "Seleccione una Categoría",
+    maxTagCount: "responsive",
+  };
 
   // Generar opciones de patologías aleatorias
   const generateRandomPatologias = () => {
@@ -43,7 +71,7 @@ export const Info = () => {
 
   const getinformacionxpaciente = async (idUsuario) => {
     //const infos = await getInformacionxPaciente(idUsuario); AHORA SE LLAMA A TODOS, SIN IMPORTAR LA PATOLOGIA
-    const infos =await getAllInformacions()
+    const infos = await getAllInformacions();
 
     let videosOfInfo = infos.map((videos) => {
       if (videos.urlVideo) {
@@ -91,7 +119,6 @@ export const Info = () => {
       console.log(videosOfInfo);
       setVideos(videosOfInfo);
     }
-
   }, [db]);
 
   const handleChange = (value) => {
@@ -130,6 +157,24 @@ export const Info = () => {
 
             <FormLabel></FormLabel>
           </FormControl>
+
+          {/* SELECT DE LAS PATOLOGIAS */}
+          <Select
+            className="select_recetas input_edit"
+            name="idPatologias"
+            {...sharedProps}
+            /* value={alumnos} */
+            onChange={handleChangeSelectInformacionFiltrar}
+          />
+
+          {/* SELECT DE LAS CATEGORIAS */}
+          <Select
+            className="select_recetas input_edit"
+            name="idCategorias"
+            {...sharedPropsCategorias}
+            /* value={alumnos} */
+            onChange={handleChangeSelectCategoriasFiltrar}
+          />
         </div>
       </nav>
       <div className="cont_info">

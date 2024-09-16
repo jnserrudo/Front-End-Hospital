@@ -204,12 +204,12 @@ export const CategoriaProvider = ({ children }) => {
       title: "Nombre",
       dataIndex: "nombre",
       render: (text) => <a>{text}</a>,
-      align: "center",
+      align: "start",
     },
     {
       title: "Descripcion",
       dataIndex: "descripcion",
-      align: "center",
+      align: "start",
     },
 
     {

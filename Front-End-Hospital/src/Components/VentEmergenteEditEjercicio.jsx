@@ -14,8 +14,8 @@ export const VentEmergenteEditEjercicio = ({isOpen,onClose,ejercicioSelected}) =
     <div className="popup-container">
       <div className="popup-content small">
         <div className="header_vent_emergente">
-        <h2 className={`popup-title`} >Ejercicio</h2> 
-        <CloseOutlined  className='icon_accion icons' onClick={onClose} />
+{/*         <h2 className={`popup-title`} >Ejercicio</h2> 
+ */}        <CloseOutlined  className='icon_accion icons' onClick={onClose} />
         </div>
         
         <EditEjercicio onCloseEdit={onClose} ejercicio={ejercicioSelected} />

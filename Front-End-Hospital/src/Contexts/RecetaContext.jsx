@@ -1,33 +1,48 @@
 import React, { createContext, useEffect, useState } from "react";
 
-import { EditOutlined, DragOutlined,DeleteOutlined } from "@ant-design/icons";
-import { getAllRecetas, getCategoriaToRecetaAdd, getCategoriaToRecetaEdit, getPatologiaToRecetaAdd, getPatologiaToRecetaEdit, getRecetaById, getRecetaByPaciente, insertReceta, updateReceta } from "../services/recetas-services";
+import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  getAllRecetas,
+  getAllRecetasFiltro,
+  getCategoriaToRecetaAdd,
+  getCategoriaToRecetaEdit,
+  getPatologiaToRecetaAdd,
+  getPatologiaToRecetaEdit,
+  getRecetaById,
+  getRecetaByPaciente,
+  insertReceta,
+  updateReceta,
+} from "../services/recetas-services";
 const RecetaContext = createContext();
 export const RecetaProvider = ({ children }) => {
   const [db, setDb] = useState([]);
-  const [ndocuPaciente, setNdocuPaciente] = useState(0)
-  const [dbSearch, setDbSearch] = useState([])
+  const [ndocuPaciente, setNdocuPaciente] = useState(0);
+  const [dbSearch, setDbSearch] = useState([]);
   const [idReceta, setIdReceta] = useState(0);
   const [recetaSelected, setRecetaSelected] = useState({});
-  const [patologiasxRecetasAdd, setPatologiasxRecetasAdd] = useState([])
-  const [patologiasxRecetasEdit, setPatologiasxRecetasEdit] = useState([])
+  const [patologiasxRecetasAdd, setPatologiasxRecetasAdd] = useState([]);
+  const [patologiasxRecetasEdit, setPatologiasxRecetasEdit] = useState([]);
 
-  const [categoriasxRecetasAdd, setCategoriasxRecetasAdd] = useState([])
-  const [categoriasxRecetasEdit, setCategoriasxRecetasEdit] = useState([])
-  
-  const [showVentEmergenteDelete, setShowVentEmergenteDelete] =
-  useState(false);
+  const [categoriasxRecetasAdd, setCategoriasxRecetasAdd] = useState([]);
+  const [categoriasxRecetasEdit, setCategoriasxRecetasEdit] = useState([]);
+
+  const [showVentEmergenteDelete, setShowVentEmergenteDelete] = useState(false);
 
   const [showVentEmergenteEditReceta, setShowVentEmergenteEditReceta] =
     useState(false);
-    const [showVentEmergenteAddReceta, setShowVentEmergenteAddReceta] =
+  const [showVentEmergenteAddReceta, setShowVentEmergenteAddReceta] =
     useState(false);
   const [recetaToInsert, setRecetaToInsert] = useState({});
   const [bandInsert, setBandInsert] = useState(false);
 
-  const [showVentEmergenteConfReceta, setShowVentEmergenteConfReceta] = useState(false);
+  const [showVentEmergenteConfReceta, setShowVentEmergenteConfReceta] =
+    useState(false);
 
-  const [bandLoader, setBandLoader] = useState(false)
+  const [bandLoader, setBandLoader] = useState(false);
+
+  const [idsPatologiasFiltro, setIdsPatologiasFiltro] = useState([]);
+
+  const [idsCategoriasFiltro, setIdsCategoriasFiltro] = useState([]);
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -66,58 +81,55 @@ export const RecetaProvider = ({ children }) => {
     if (!form?.preparacion || form?.preparacion?.length == 0) {
       errors.preparacion = "La preparacion es requerida";
     }
-   /*  if (!form?.idsPatologias || !form?.idsPatologias?.length == 0) {
+    /*  if (!form?.idsPatologias || !form?.idsPatologias?.length == 0) {
       errors.idsPatologias = "Las idsPatologias es requerida";
     } */
-    
+
     return errors;
   };
 
-  const handleSearch=(busq,dataToSearch)=>{
-    console.log(busq)
-    console.log(dataToSearch)
-    
-    let coincidencias=[]
-    for(let pac of dataToSearch){
-      if(pac.nombre.toLowerCase().includes(busq.toLowerCase())){
-        console.log(pac)
-        coincidencias.push(pac)
+  const handleSearch = (busq, dataToSearch) => {
+    console.log(busq);
+    console.log(dataToSearch);
+
+    let coincidencias = [];
+    for (let pac of dataToSearch) {
+      if (pac.nombre.toLowerCase().includes(busq.toLowerCase())) {
+        console.log(pac);
+        coincidencias.push(pac);
       }
     }
 
-    setDbSearch(coincidencias)
-    console.log("coincidencias: ",coincidencias)
-  }
-
+    setDbSearch(coincidencias);
+    console.log("coincidencias: ", coincidencias);
+  };
 
   const handleCloseVentEmergenteEditReceta = () => {
     setShowVentEmergenteEditReceta(false);
-    setIdReceta(0)
-    setRecetaSelected({})
+    setIdReceta(0);
+    setRecetaSelected({});
   };
 
   const handleCloseVentEmergenteAddReceta = () => {
     setShowVentEmergenteAddReceta(false);
-    setRecetaToInsert({})
+    setRecetaToInsert({});
   };
 
   const handleCloseVentEmergenteConfReceta = () => {
-    setShowVentEmergenteConfReceta(false);    
-    setRecetaSelected({})
-
+    setShowVentEmergenteConfReceta(false);
+    setRecetaSelected({});
   };
 
-  const handleCloseConfInsert=async()=>{
+  const handleCloseConfInsert = async () => {
     //se confirmo que se agregara el Receta
-    setBandLoader(true)
-    await handleInsert()
-   
-    setRecetaToInsert({})
-    setBandInsert(false)
-    setBandLoader(false)
+    setBandLoader(true);
+    await handleInsert();
+
+    setRecetaToInsert({});
+    setBandInsert(false);
+    setBandLoader(false);
     //de alguna manera actualizar la tabla para que se pueda ver al nuevo Receta
-  
-  }
+  };
 
   const handleChangeInputInsert = (e) => {
     console.log("name: ", e.target.name, " value: ", e.target.value);
@@ -130,50 +142,57 @@ export const RecetaProvider = ({ children }) => {
     setRecetaToInsert(newValue);
   };
 
-  const handleChangeSelectInsert=(e)=>{
-
+  const handleChangeSelectInsert = (e) => {
     let newValue = {
       ...recetaToInsert,
       idsPatologias: e,
     };
     console.log(newValue);
     setRecetaToInsert(newValue);
-  }
-  
-  const handleChangeSelect=(e)=>{
+  };
 
+  const handleChangeSelectRecetasFiltrar = (e) => {
+    //aca aplicamos la logica para poder actualizar la db y poder
+    //mostrar esto en la seccion de informacion
+    let idsPatologias = e;
+    setIdsPatologiasFiltro(idsPatologias);
+  };
+
+  const handleChangeSelect = (e) => {
     let newValue = {
       ...recetaSelected,
-      idsPatologias: e
+      idsPatologias: e,
     };
-    
+
     console.log(newValue);
     setRecetaSelected(newValue);
+  };
 
-  }
+  const handleChangeSelectCategoriasFiltrar = (e) => {
+    //aca aplicamos la logica para poder actualizar la db y poder
+    //mostrar esto en la seccion de informacion
+    let idsCategorias = e;
+    setIdsCategoriasFiltro(idsCategorias);
+  };
 
-  const handleChangeSelectCategoriasInsert=(e)=>{
-
+  const handleChangeSelectCategoriasInsert = (e) => {
     let newValue = {
       ...recetaToInsert,
       idsCategorias: e,
     };
     console.log(newValue);
     setRecetaToInsert(newValue);
-  }
-  
-  const handleChangeSelectCategorias=(e)=>{
+  };
 
+  const handleChangeSelectCategorias = (e) => {
     let newValue = {
       ...recetaSelected,
-      idsCategorias: e
+      idsCategorias: e,
     };
-    
+
     console.log(newValue);
     setRecetaSelected(newValue);
-
-  }
-
+  };
 
   const handleChangeInput = (e) => {
     console.log("name: ", e.target.name, " value: ", e.target.value);
@@ -182,7 +201,7 @@ export const RecetaProvider = ({ children }) => {
       ...recetaSelected,
       [e.target.name]: e.target.value,
     };
-    
+
     console.log(newValue);
     setRecetaSelected(newValue);
   };
@@ -200,36 +219,54 @@ export const RecetaProvider = ({ children }) => {
     setShowVentEmergenteEditReceta(true);
   };
 
+  const handleDelete = async (record) => {
+    setIdReceta(record.id);
+    setShowVentEmergenteDelete(true);
+  };
 
-  const handleDelete=async(record)=>{
-    setIdReceta(record.id)
-    setShowVentEmergenteDelete(true)
+  const handleUpdate = async (receta) => {
+    const actualizarReceta = async (receta) => {
+      console.log("se esta por actualizar este receta: ", receta);
+      const update = await updateReceta(receta);
+      console.log("update: ", update);
+    };
 
+    //activar loader
+    setBandLoader(true);
+    let resupdate = await actualizarReceta(receta);
+    getallRecetas();
 
-  }
-
-  const handleUpdate=async(receta)=>{
-      
-    const actualizarReceta=async(receta)=>{
-      console.log("se esta por actualizar este receta: ",receta)
-      const update=await updateReceta(receta)
-      console.log("update: ",update)
-    }
-    
-      //activar loader
-      setBandLoader(true);
-      let resupdate=await  actualizarReceta(receta)
-      getallRecetas();
-
-      console.log(resupdate)
-      setBandLoader(false);
-    
-
-  }
+    console.log(resupdate);
+    setBandLoader(false);
+  };
 
   const handleSeePacient = (receta) => {
     console.log("viendo: ", receta);
   };
+
+
+
+  useEffect(() => {
+    const getrecetasfiltro = async (idsPatologiasFiltro, idsCategoriasFiltro) => {
+      const recetas = await getAllRecetasFiltro({
+        idsPatologias:idsPatologiasFiltro,
+        idsCategorias:idsCategoriasFiltro,
+      });
+      console.log(recetas);
+      setDb(recetas);
+    };
+
+    console.log(
+      "idsPatologiasFiltro, idsCategoriasFiltro",
+      idsPatologiasFiltro,
+      idsCategoriasFiltro
+    );
+    if (idsPatologiasFiltro.length > 0 || idsCategoriasFiltro.length > 0) {
+      getrecetasfiltro(idsPatologiasFiltro, idsCategoriasFiltro);
+    } else {
+      getallRecetas();
+    }
+  }, [idsPatologiasFiltro, idsCategoriasFiltro]);
 
   useEffect(() => {
     const getRecetabyidReceta = async () => {
@@ -249,67 +286,62 @@ export const RecetaProvider = ({ children }) => {
     }
   }, [showVentEmergenteDelete]);
 
-
-  useEffect(()=>{
-    const getpatologiatorecetaadd=async()=>{
-      const patologias= await getPatologiaToRecetaAdd()
-      if(patologias.length>0){
+  useEffect(() => {
+    const getpatologiatorecetaadd = async () => {
+      const patologias = await getPatologiaToRecetaAdd();
+      if (patologias.length > 0) {
         let alToSelect = patologias.map((pat) => {
           return {
-            label: pat.nombre ,
+            label: pat.nombre,
             value: pat.id,
           };
         });
-      setPatologiasxRecetasAdd(alToSelect)
+        setPatologiasxRecetasAdd(alToSelect);
       }
-    }
+    };
 
-    const getcategoriatorecetaadd=async()=>{
-      const categorias= await getCategoriaToRecetaAdd()
-      if(categorias.length>0){
-        let alToSelect =categorias.map((cat) => {
+    const getcategoriatorecetaadd = async () => {
+      const categorias = await getCategoriaToRecetaAdd();
+      if (categorias.length > 0) {
+        let alToSelect = categorias.map((cat) => {
           return {
-            label: cat.nombre ,
+            label: cat.nombre,
             value: cat.id,
           };
         });
-      setCategoriasxRecetasAdd(alToSelect)
+        setCategoriasxRecetasAdd(alToSelect);
       }
-    }
-    getpatologiatorecetaadd()
-    getcategoriatorecetaadd()
-    
-  },[db])
-  
-  useEffect(()=>{
-    const getpatologiatorecetaedit=async()=>{
-      const patologias= await getPatologiaToRecetaEdit(idReceta)
-      console.log("trae patologias para recetas edit",patologias)
+    };
+    getpatologiatorecetaadd();
+    getcategoriatorecetaadd();
+  }, [db]);
 
-      if(Object.values(patologias).length>0){
-        console.log(patologias)
+  useEffect(() => {
+    const getpatologiatorecetaedit = async () => {
+      const patologias = await getPatologiaToRecetaEdit(idReceta);
+      console.log("trae patologias para recetas edit", patologias);
 
-        setPatologiasxRecetasEdit(patologias)
+      if (Object.values(patologias).length > 0) {
+        console.log(patologias);
+
+        setPatologiasxRecetasEdit(patologias);
       }
-      
-    }
+    };
 
-    const getcategoriatorecetaedit=async()=>{
-      const categorias= await getCategoriaToRecetaEdit(idReceta)
-      console.log("trae CATEGORIAS para recetas edit",categorias)
+    const getcategoriatorecetaedit = async () => {
+      const categorias = await getCategoriaToRecetaEdit(idReceta);
+      console.log("trae CATEGORIAS para recetas edit", categorias);
 
-      if(Object.values(categorias).length>0){
-        console.log(categorias)
+      if (Object.values(categorias).length > 0) {
+        console.log(categorias);
 
-        setCategoriasxRecetasEdit(categorias)
+        setCategoriasxRecetasEdit(categorias);
       }
-      
-    }
+    };
 
-    
-  getpatologiatorecetaedit()
-  getcategoriatorecetaedit()
-  },[idReceta])
+    getpatologiatorecetaedit();
+    getcategoriatorecetaedit();
+  }, [idReceta]);
 
   const columns = [
     {
@@ -321,22 +353,22 @@ export const RecetaProvider = ({ children }) => {
     {
       title: "Nombre",
       dataIndex: "nombre",
-      align: "center",
+      align: "start",
     },
     {
       title: "Porciones",
       dataIndex: "porciones",
-      align: "center",
+      align: "start",
     },
     {
       title: "Calorias",
       dataIndex: "calorias",
-      align: "center",
+      align: "start",
     },
     {
       title: "Tiempo",
       dataIndex: "tiempo",
-      align: "center",
+      align: "start",
     },
 
     {
@@ -355,32 +387,30 @@ export const RecetaProvider = ({ children }) => {
           />
           <DeleteOutlined
             className="icon_accion"
-            onClick={(e) => handleDelete(record)} />
+            onClick={(e) => handleDelete(record)}
+          />
         </div>
       ),
     },
   ];
 
-  const handleInsert = async() => {
+  const handleInsert = async () => {
     if (bandInsert) {
       //validar para insert
-      console.log(" se esta por insertar el receta: ", recetaToInsert)
-      const resultInsert=await addReceta(recetaToInsert);
+      console.log(" se esta por insertar el receta: ", recetaToInsert);
+      const resultInsert = await addReceta(recetaToInsert);
       if (resultInsert.err) {
         throw new Error(resultInsert.err.message);
       }
-      handleCloseVentEmergenteConfReceta()
-      handleCloseVentEmergenteAddReceta()
+      handleCloseVentEmergenteConfReceta();
+      handleCloseVentEmergenteAddReceta();
     }
   };
   const addReceta = async (receta) => {
-    
-    let insert = await insertReceta(
-      receta
-    );
+    let insert = await insertReceta(receta);
     console.log(insert);
-      //esto es solo de prueba para que se visualize momentaneamente el receta agregado
-      setDb([insert/* receta */,...db])
+    //esto es solo de prueba para que se visualize momentaneamente el receta agregado
+    setDb([insert /* receta */, ...db]);
 
     return insert;
   };
@@ -398,16 +428,13 @@ export const RecetaProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    
     //en el caso que el usuario que entre tengo un rol diferente al de paciente, se mostraran todas las recetas
-    if(ndocuPaciente>0){
-      getallRecetasbypaciente(ndocuPaciente)
-    }else{
+    if (ndocuPaciente > 0) {
+      getallRecetasbypaciente(ndocuPaciente);
+    } else {
       getallRecetas();
     }
     //ahora traemos las recetas del paciente, de acuerdo a su ndocu
-
-
   }, [ndocuPaciente]);
 
   useEffect(() => {
@@ -416,7 +443,7 @@ export const RecetaProvider = ({ children }) => {
     console.log(Object.keys(errores).length);
     if (Object.keys(errores).length == 0) {
       setBandInsert(true);
-    }else{
+    } else {
       setBandInsert(false);
     }
     //setBandInsert()
@@ -430,23 +457,25 @@ export const RecetaProvider = ({ children }) => {
     setShowVentEmergenteEditReceta: showVentEmergenteEditReceta,
     recetaToInsert,
     bandInsert,
-    showVentEmergenteAddReceta, 
-    showVentEmergenteConfReceta, 
+    showVentEmergenteAddReceta,
+    showVentEmergenteConfReceta,
     bandLoader,
     dbSearch,
     patologiasxRecetasAdd,
     patologiasxRecetasEdit,
     idReceta,
     showVentEmergenteDelete,
-    categoriasxRecetasAdd, 
+    categoriasxRecetasAdd,
     categoriasxRecetasEdit,
+    handleChangeSelectRecetasFiltrar,
+    handleChangeSelectCategoriasFiltrar,
     handleChangeSelectCategoriasInsert,
-    handleChangeSelectCategorias, 
+    handleChangeSelectCategorias,
     setCategoriasxRecetasAdd,
-    setCategoriasxRecetasEdit, 
+    setCategoriasxRecetasEdit,
     setShowVentEmergenteDelete,
     handleChangeSelectInsert,
-    handleChangeSelect, 
+    handleChangeSelect,
     setPatologiasxRecetasAdd,
     setPatologiasxRecetasEdit,
     handleSearch,
@@ -464,13 +493,10 @@ export const RecetaProvider = ({ children }) => {
     handleChangeInput,
     addReceta,
     handleInsert,
-    handleUpdate
+    handleUpdate,
   };
   return (
-    <RecetaContext.Provider value={data}>
-      {" "}
-      {children}{" "}
-    </RecetaContext.Provider>
+    <RecetaContext.Provider value={data}> {children} </RecetaContext.Provider>
   );
 };
 export default RecetaContext;

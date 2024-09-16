@@ -7,6 +7,23 @@ export const getAllEjercicios = async () => {
   return data;
 };
 
+
+export const getAllEjerciciosFiltro = async (
+  ejercicio
+) => {
+
+  console.log("ejercicios filtro ",ejercicio)
+  const res = await fetch(`${entorno}/ejercicios/filtro`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(ejercicio),
+  });
+  const data = await res.json();
+  return data;
+};
+
 export const getEjercicioById = async (id) => {
   console.log("se trae al ejercicio con id: ", id);
   const res = await fetch(`${entorno}/ejercicios/${id}`);

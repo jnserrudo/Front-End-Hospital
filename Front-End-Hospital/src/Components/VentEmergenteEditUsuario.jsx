@@ -14,8 +14,8 @@ export const VentEmergenteEditUsuario = ({isOpen,onClose,usuarioSelected}) => {
     <div className="popup-container">
       <div className="popup-content medium">
         <div className="header_vent_emergente">
-        <h2 className={`popup-title`} >Usuario</h2> 
-        <CloseOutlined  className='icon_accion icons' onClick={onClose} />
+{/*         <h2 className={`popup-title`} >Usuario</h2> 
+ */}        <CloseOutlined  className='icon_accion icons' onClick={onClose} />
         </div>
         
         <EditUsuario onCloseEdit={onClose} usuario={usuarioSelected} />
