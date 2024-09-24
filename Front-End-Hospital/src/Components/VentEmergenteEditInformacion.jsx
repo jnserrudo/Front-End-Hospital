@@ -10,7 +10,11 @@ export const VentEmergenteEditInformacion = ({isOpen,onClose,informacionSelected
 
 
   return (
-    <div className="popup-container">
+    <div className="popup-container" onClick={(e) => {
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    }}>
       <div className="popup-content small">
         <div className="header_vent_emergente">
 {/*         <h2 className={`popup-title`} >Informacion</h2> 

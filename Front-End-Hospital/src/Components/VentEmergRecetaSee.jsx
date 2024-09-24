@@ -11,8 +11,11 @@ export const VentEmergenteRecetaSee = ({isOpen,onClose,recetaSelected}) => {
     
 
   return (
-    <div className="popup-container">
-      <div className="popup-content medium_see_receta">
+<div className="popup-container" onClick={(e) => {
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    }}>      <div className="popup-content medium_see_receta">
         <div className="header_vent_emergente">
 {/*         <h2 className={`popup-title`} > {recetaSelected.nombre} </h2> 
  */}        <CloseOutlined  className='icon_accion icons' onClick={onClose} />

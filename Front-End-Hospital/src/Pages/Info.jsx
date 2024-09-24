@@ -159,13 +159,12 @@ export const Info = () => {
           </FormControl>
 
           {/* SELECT DE LAS PATOLOGIAS */}
-          <Select
+         {/*  <Select
             className="select_recetas input_edit"
             name="idPatologias"
             {...sharedProps}
-            /* value={alumnos} */
             onChange={handleChangeSelectInformacionFiltrar}
-          />
+          /> */}
 
           {/* SELECT DE LAS CATEGORIAS */}
           <Select

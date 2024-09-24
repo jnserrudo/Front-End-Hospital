@@ -26,12 +26,11 @@ export const AdminReceta = () => {
     setShowVentEmergenteDelete,
   } = useContext(RecetaContext);
 
-  const inhabilitarRegistro=async(id)=>{
-    console.log("inhabilitarRegistro: ",id)
-    const result=await inhabilitarRecetas(id)
-    console.log("resultado de inhabilitar: ",result)
-
-  }
+  const inhabilitarRegistro = async (id) => {
+    console.log("inhabilitarRegistro: ", id);
+    const result = await inhabilitarRecetas(id);
+    console.log("resultado de inhabilitar: ", result);
+  };
 
   useEffect(() => {
     //necesito saber el rol del usuario, si es 3 es paciente
@@ -43,7 +42,7 @@ export const AdminReceta = () => {
 
   return (
     <div>
-            <p className='titulo_administracion'>Recetas</p>
+      <p className="titulo_administracion">Recetas</p>
 
       <Button
         className="btn_agregar"
@@ -78,7 +77,7 @@ export const AdminReceta = () => {
         mje={"Esta seguro de eliminar este registro?"}
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
-        handleSi={()=>inhabilitarRegistro(idReceta)}
+        handleSi={() => inhabilitarRegistro(idReceta)}
       />
     </div>
   );

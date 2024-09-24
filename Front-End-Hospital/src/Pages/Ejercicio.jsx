@@ -161,13 +161,12 @@ export const Ejercicio = () => {
           </FormControl>
 
           {/* SELECT DE LAS PATOLOGIAS */}
-          <Select
+          {/* <Select
             className="select_recetas input_edit"
             name="idPatologias"
             {...sharedProps}
-            /* value={alumnos} */
             onChange={handleChangeSelectEjercicioFiltrar}
-          />
+          /> */}
 
           {/* SELECT DE LAS CATEGORIAS */}
           <Select

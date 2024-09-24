@@ -306,8 +306,8 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
         {previewUrl &&
           (previewUrl.includes("<iframe") ? (
             <div
-              style={{ height: "100%", padding: "2rem !important" }}
-              dangerouslySetInnerHTML={{ __html: previewUrl }}
+              style={{ height: "50% !important" , width:"50% !important" , padding: "2rem !important" }}
+              dangerouslySetInnerHTML={{  __html: previewUrl.replace("<iframe", "<iframe style='width: 100%; height: 100%; border: none;'") }}
             />
           ) : (
             <ReactPlayer width="60%" height="100%" controls url={previewUrl} />

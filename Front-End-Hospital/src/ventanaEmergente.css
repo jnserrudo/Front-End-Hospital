@@ -35,7 +35,7 @@
     max-height: 45%; /* Altura para ventanas pequeñas */
   }
   .popup-content.mini {
-    width: 40%; /* Anchura para ventanas pequeñas */
+    width: 43%; /* Anchura para ventanas pequeñas */
     max-height: 35%  !important ; /* Altura para ventanas pequeñas */
   }
 
@@ -99,8 +99,8 @@
 
   @media (max-width: 620px) {
     .popup-content.small {
-      width: 70%; /* Ajustar el ancho para pantallas pequeñas */
-      max-height: 60%; /* Ajustar la altura */
+      width: 75%; /* Ajustar el ancho para pantallas pequeñas */
+      max-height: 65%; /* Ajustar la altura */
     }
     
     .popup-content.medium_see_receta, 

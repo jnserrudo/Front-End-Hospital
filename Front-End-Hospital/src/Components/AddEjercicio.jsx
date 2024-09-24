@@ -256,7 +256,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
               </FormControl>
               {iframeUrl && (
                 <div style={{ marginTop: "1rem" }}>
-                  <div dangerouslySetInnerHTML={{ __html: iframeUrl }} />
+                  <div dangerouslySetInnerHTML={{ __html: iframeUrl.replace("<iframe", "<iframe style='width: 100%; height: 100%; border: none;'") }} />
                 </div>
               )}
             </TabPanel>

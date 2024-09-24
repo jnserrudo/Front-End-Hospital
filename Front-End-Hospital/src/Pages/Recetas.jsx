@@ -20,6 +20,8 @@ import RecetaContext from "../Contexts/RecetaContext";
 import { getAllPatologias } from "../services/patologia-services";
 import { getRecetaByPatologia } from "../services/recetas-services";
 import "../style.css"; // Importamos el archivo de estilos correcto
+import { Tag } from "antd"; // Asegúrate de importar Tag de Ant Design
+import { MedicineBoxOutlined } from "@ant-design/icons"; // Icono opcional para destacar las patologías
 
 export const Recetas = () => {
   const [showVentEmergRecetaSee, setShowVentEmergRecetaSee] = useState(false);
@@ -166,13 +168,12 @@ export const Recetas = () => {
           </FormControl>
 
           {/* SELECT DE LAS PATOLOGIAS */}
-          <Select
+          {/* <Select
             className="select_recetas input_edit"
             name="idPatologias"
             {...sharedProps}
-            /* value={alumnos} */
             onChange={handleChangeSelectRecetasFiltrar}
-          />
+          /> */}
 
           {/* SELECT DE LAS CATEGORIAS */}
           <Select
@@ -189,78 +190,102 @@ export const Recetas = () => {
           {recetaSearch.length > 0
             ? dbSearch.map((receta, index) => {
                 return (
-                  <>
-                    <ListItem
-                      style={{
-                        backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
-                        color: "black",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => {
-                        /*  handleClick(index);
-                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms */
-                        setRecetaSee(receta);
-                        //setShowVentEmergRecetaSee(true) esta en el useEffect
-                      }}
-                    >
-                      <div className="receta_nombre">
-                        {/*                         <CheckOutlined />
-                         */}{" "}
-                        <p className="txt_nombre_receta">{receta.nombre}</p>
+                  <ListItem
+                    key={receta.id}
+                    className="list-item-receta" // Clase nueva para aplicar los estilos
+                    style={{
+                      backgroundColor: index % 2 === 0 ? "#E0F2F1" : "#B2DFDB",
+                      color: "black",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      setRecetaSee(receta);
+                    }}
+                  >
+                    <div className="receta-content">
+                      <p className="txt_nombre_receta">{receta.nombre}</p>
+                      <div className="receta-patologias">
+                      <div className="patologias-header">
+                          <MedicineBoxOutlined style={{ marginRight: 5 }} />
+                          <span>Patologías:</span>
+                        </div>
+                        {receta.patologia?.map((pat) => (
+                          <Tag color="blue" key={pat.patologia.id}>
+                            {" "}
+                            {/* Tag de Ant Design para visualizar las patologías */}
+                            {pat.patologia.nombre}{" "}
+                          </Tag>
+                        ))}
                       </div>
-                    </ListItem>
-                  </>
+                    </div>
+                  </ListItem>
                 );
               })
-            : recetasPatologias.length == 0
+            : recetasPatologias.length === 0
             ? db.map((receta, index) => {
                 return (
-                  <>
-                    <ListItem
-                      style={{
-                        backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
-                        color: "black",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => {
-                        /*  handleClick(index);
-                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms */
-                        setRecetaSee(receta);
-                        //setShowVentEmergRecetaSee(true) esta en el useEffect
-                      }}
-                    >
-                      <div className="receta_nombre">
-                        {/*                         <CheckOutlined />
-                         */}{" "}
-                        <p className="txt_nombre_receta">{receta.nombre}</p>
+                  <ListItem
+                    key={receta.id}
+                    className="list-item-receta" // Clase nueva para aplicar los estilos
+                    style={{
+                      backgroundColor: index % 2 === 0 ? "#E0F2F1" : "#B2DFDB",
+                      color: "black",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      setRecetaSee(receta);
+                    }}
+                  >
+                    <div className="receta-content">
+                      <p className="txt_nombre_receta">{receta.nombre}</p>
+                      <div className="receta-patologias">
+                      <div className="patologias-header">
+                          <MedicineBoxOutlined style={{ marginRight: 5 }} />
+                          <span>Patologías:</span>
+                        </div>
+                        {receta.patologia?.map((pat) => (
+                          <Tag color="blue" key={pat.patologia.id}>
+                            {" "}
+                            {/* Tag de Ant Design para visualizar las patologías */}
+                            {pat.patologia.nombre}{" "}
+                          </Tag>
+                        ))}
                       </div>
-                    </ListItem>
-                  </>
+                    </div>
+                  </ListItem>
                 );
               })
             : recetasPatologias.map((receta, index) => {
                 return (
-                  <>
-                    <ListItem
-                      style={{
-                        backgroundColor: index % 2 == 0 ? "#E0F2F1" : "#B2DFDB",
-                        color: "black",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => {
-                        /*  handleClick(index);
-                        setTimeout(() => setSelectedItem(null), 300); // Reiniciar contador después de 300 ms */
-                        setRecetaSee(receta);
-                        //setShowVentEmergRecetaSee(true) esta en el useEffect
-                      }}
-                    >
-                      <div className="receta_nombre">
-                        {/*                         <CheckOutlined />
-                         */}{" "}
-                        <p className="txt_nombre_receta">{receta.nombre}</p>
+                  <ListItem
+                    key={receta.id}
+                    className="list-item-receta" // Clase nueva para aplicar los estilos
+                    style={{
+                      backgroundColor: index % 2 === 0 ? "#E0F2F1" : "#B2DFDB",
+                      color: "black",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      setRecetaSee(receta);
+                    }}
+                  >
+                    <div className="receta-content">
+                      <p className="txt_nombre_receta">{receta.nombre}</p>
+                      <div className="receta-patologias">
+                        <div className="patologias-header">
+                          <MedicineBoxOutlined style={{ marginRight: 5 }} />
+                          <span>Patologías:</span>
+                        </div>
+                        {receta.patologia?.map((pat) => (
+                          <Tag color="blue" key={pat.patologia.id}>
+                            {" "}
+                            {/* Tag de Ant Design para visualizar las patologías */}
+                            {pat.patologia.nombre}{" "}
+                          </Tag>
+                        ))}
                       </div>
-                    </ListItem>
-                  </>
+                    </div>
+                  </ListItem>
                 );
               })}
         </List>
