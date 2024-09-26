@@ -565,6 +565,8 @@ usa antd en su select mediante el inspector de elementos para poder identificar 
 .tabpanel_descripcion {
   overflow: scroll !important;
   height: 250px !important;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Nuevo estilo para el contenedor del contenido */

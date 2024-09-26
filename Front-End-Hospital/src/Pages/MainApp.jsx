@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import "../style.css"; // Importamos el archivo de estilos correcto
 import { FooterHospital } from "../Components/FooterHospital";
 import { TablasInformativas } from "../Components/TablasInformativas";
+import { ConversionUnidades } from "../Components/ConversionUnidades";
 
 const { Header, Content, Footer, Sider } = Layout; // Desestructuramos los componentes de Layout de Ant Design
 
@@ -49,6 +50,7 @@ const items = [
     getItem("Categorias", "11"),
   ]),
   getItem("Tablas", "12", <FileOutlined />),
+  getItem("Conversor Un.Med.", "13", <FileOutlined />),
 ];
 
 // Estilos activos personalizados para Chakra UI
@@ -267,6 +269,7 @@ export const MainApp = () => {
                 <PanelAdministracion selectedKey={selectedKey} />
               )}
               {selectedKey === "12"   && <TablasInformativas />}
+              {selectedKey === "13"   && <ConversionUnidades/>}
             </div>
             <FooterHospital setSelectedKey={setSelectedKey} />
 

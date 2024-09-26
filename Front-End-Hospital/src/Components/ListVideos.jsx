@@ -4,6 +4,7 @@ import { Select, Tag } from "antd";
 
 import React, { useState } from "react";
 import ReactPlayer from "react-player";
+import { MedicineBoxOutlined } from "@ant-design/icons"; // Icono opcional para destacar las patologías
 
 export const ListVideos = ({ videos }) => {
   //esta lista servira para los videos de informacion y ejercicios
@@ -51,7 +52,7 @@ export const ListVideos = ({ videos }) => {
     const option = categoriasConColor?.find(
       (categoria) => categoria.id === value
     );
-    console.log("option",option)
+    console.log("option", option);
 
     return (
       <Tag
@@ -100,48 +101,44 @@ export const ListVideos = ({ videos }) => {
                 </TabPanel>
                 <TabPanel>
                   <div className="tabpanel_descripcion">
-                    
                     {categoriasConColor && categoriasConColor.length > 0 && (
                       <>
-                        {/* Categorias */}
-                        <Select
-                          mode="multiple"
-                          tagRender={(props) =>
-                            tagRender(props, categoriasConColor)
-                          }
-                          defaultValue={categoriasConColor.map((cat) => ({
-                            value: cat.id,
-                            label: cat.label || cat.nombre, // Asegúrate de usar el campo correcto
-                            color: cat.color || "red", // Si tienes un color para cada categoría
-                          }))}
-                          style={{
-                            width: "100%",
-                            border: "0px solid white", // Estilo para eliminar el borde
-                            boxShadow: "none", // Elimina la sombra que podría dar la apariencia de un borde
-
-                            cursor: "default", // Cambia el cursor para que no sea de edición
-                          }}
-                          options={categoriasConColor.map((cat) => ({
-                            value: cat.id,
-                            label: cat.label || cat.nombre, // Asegúrate de usar el campo correcto
-                            color: cat.color || "red", // Si tienes un color para cada categoría
-                          }))}
-                          open={false}
-                          suffixIcon={null} // Oculta la flecha hacia abajo
-                          onMouseDown={(e) => e.preventDefault()} // Evita la interacción al hacer clic
-                        />
+                        <div className="categorias-header">
+                          <MedicineBoxOutlined style={{ marginRight: 5 }} />
+                          <span>Categorías:</span>
+                        </div>
+                        {categoriasConColor.map((cat) => (
+                          <Tag color="gold" key={cat.id}>
+                            {cat.nombre}{" "}
+                            {/* Asegúrate de que uses el campo correcto */}
+                          </Tag>
+                        ))}
                       </>
                     )}
+
+                    {/* Sección para mostrar las patologías */}
+                    {v.patologia?.length > 0 && (
+                      <>
+                        <div className="patologias-header">
+                          <MedicineBoxOutlined style={{ marginRight: 5 }} />
+                          <span>Patologías:</span>
+                        </div>
+                        {v.patologia.map((pat) => (
+                          <Tag color="blue" key={pat.patologia.id}>
+                            {pat.patologia.nombre}
+                          </Tag>
+                        ))}
+                      </>
+                    )}
+                    {/* Sección para mostrar la descripcion */}
                     {v.descripcion}
                   </div>
                 </TabPanel>
               </TabPanels>
             </Tabs>
-            
           </>
         );
       })}
-      
     </div>
   );
 };
