@@ -614,3 +614,27 @@ th, td {
     white-space: nowrap;  /* Asegura que el contenido no se quiebre en líneas múltiples */
   }
 }
+
+
+
+.cont_btns_pacientes{
+  
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  width: 80%;
+  height: 40%;
+  margin: 0 auto;
+}
+
+.cont_habilitamiento{
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+
+  justify-content: space-evenly;
+ /*  width: 80%;
+  height: 40%; */
+  margin: 0 auto;
+}
+

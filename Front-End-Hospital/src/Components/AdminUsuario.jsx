@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Table } from "antd";
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import { Button, ButtonGroup } from '@chakra-ui/react'
+import { Button, ButtonGroup } from "@chakra-ui/react";
 import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
 
 import UsuarioContext from "../Contexts/UsuarioContext";
@@ -24,22 +24,21 @@ export const AdminUsuario = () => {
     showVentEmergenteDelete,
     setShowVentEmergenteDelete,
   } = useContext(UsuarioContext);
-console.log(db,columns)
+  console.log(db, columns);
 
-const inhabilitarRegistro=async(id)=>{
-  console.log("inhabilitarRegistro: ",id)
-  const result=await inhabilitarUsuario(id)
-  console.log("resultado de inhabilitar: ",result)
-
-}
+  const inhabilitarRegistro = async (id) => {
+    console.log("inhabilitarRegistro: ", id);
+    const result = await inhabilitarUsuario(id);
+    console.log("resultado de inhabilitar: ", result);
+  };
 
   return (
     <div>
-            <p className='titulo_administracion'>Usuarios</p>
+      <p className="titulo_administracion">Usuarios</p>
 
       <Button
         className="btn_agregar"
-        colorScheme='green'
+        colorScheme="green"
         onClick={() => setShowVentEmergenteAddUsuario(true)}
       >
         Agregar Usuario <UserAddOutlined className="icons" />
@@ -66,12 +65,12 @@ const inhabilitarRegistro=async(id)=>{
         usuarioSelected={usuarioSelected}
         onClose={handleCloseVentEmergenteEditUsuario}
       />
-      
+
       <VentEmergConfirmacion
         mje={"Esta seguro de eliminar este registro?"}
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
-        handleSi={()=>inhabilitarRegistro(idUsuario)}
+        handleSi={() => inhabilitarRegistro(idUsuario)}
       />
     </div>
   );

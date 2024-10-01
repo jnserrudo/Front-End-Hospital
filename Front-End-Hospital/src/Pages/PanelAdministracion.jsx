@@ -14,7 +14,7 @@ import { AdminInformacion } from "../Components/AdminInformacion";
 import { AdminEjercicio } from "../Components/AdminEjercicio";
 import { AdminUsuario } from "../Components/AdminUsuario";
 import { AdminCategoria } from "../Components/AdminCategoria";
-export const PanelAdministracion = ({ selectedKey }) => {
+export const PanelAdministracion = ({ selectedKey,key }) => {
   console.log("selectedKey: ",selectedKey)
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -37,7 +37,8 @@ export const PanelAdministracion = ({ selectedKey }) => {
         {selectedKey === "8" && <AdminInformacion />}
         {selectedKey === "9" && <AdminEjercicio />}
         {selectedKey === "10" && <AdminUsuario />}
-        {selectedKey === "11" && <AdminCategoria/>  }
+        {selectedKey === "11" && <AdminPaciente selectedKey={key} />}
+        {selectedKey === "12" && <AdminCategoria/>  }
 
       </div>
     </>

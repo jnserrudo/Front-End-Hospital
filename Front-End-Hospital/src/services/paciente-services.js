@@ -14,6 +14,46 @@ export const getPacienteByNdocu = async (dni) => {
   const data = await res.json();
   return data;
 };
+export const getPacienteById = async (id) => {
+  console.log("se trae al paciente con id: ", id);
+  const res = await fetch(`${entorno}/pacientes/${id}`);
+  const data = await res.json();
+  return data;
+};
+
+export const DeshabilitarPaciente = async (pacienteId, usuarioId, motivo) => {
+  const res = await fetch(`${entorno}/pacientes/deshabilitar`,{
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({pacienteId, usuarioId, motivo}),
+  });
+
+  const data = await res.json();
+  if(data.err){
+    throw new Error(data.err.message);
+  }
+
+
+  return data;
+};
+
+export const HabilitarPaciente = async (pacienteId, usuarioId, motivo) => {
+  const res = await fetch(`${entorno}/pacientes/habilitar`,{
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({pacienteId, usuarioId, motivo}),
+  });
+  const data = await res.json();
+  if(data.err){
+    throw new Error(data.err.message);
+  }
+
+  return data;
+};
 
 export const updatePaciente = async (paciente) => {
   const res = await fetch(`${entorno}/pacientes/${paciente.dni}`, {

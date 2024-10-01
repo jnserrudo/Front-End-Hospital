@@ -47,10 +47,11 @@ const items = [
     getItem("Informacion", "8"),
     getItem("Ejercicio", "9"),
     getItem("Usuario", "10"),
-    getItem("Categorias", "11"),
+    getItem("Paciente", "11"),
+    getItem("Categorias", "12"),
   ]),
-  getItem("Tablas", "12", <FileOutlined />),
-  getItem("Conversor Un.Med.", "13", <FileOutlined />),
+  getItem("Tablas", "13", <FileOutlined />),
+  getItem("Conversor Un.Med.", "14", <FileOutlined />),
 ];
 
 // Estilos activos personalizados para Chakra UI
@@ -265,11 +266,11 @@ export const MainApp = () => {
               {selectedKey === "2" && <Recetas />}
               {selectedKey === "3" && <Info />}
               {selectedKey === "4" && <Ejercicio />}
-              {+selectedKey > 5 && +selectedKey < 12 && localStorage.getItem("rol") != 3 && (
-                <PanelAdministracion selectedKey={selectedKey} />
+              {+selectedKey > 5 && +selectedKey < 13 && localStorage.getItem("rol") != 3 && (
+                <PanelAdministracion key={selectedKey} selectedKey={selectedKey} />
               )}
-              {selectedKey === "12"   && <TablasInformativas />}
-              {selectedKey === "13"   && <ConversionUnidades/>}
+              {selectedKey === "13"   && <TablasInformativas />}
+              {selectedKey === "14"   && <ConversionUnidades/>}
             </div>
             <FooterHospital setSelectedKey={setSelectedKey} />
 
