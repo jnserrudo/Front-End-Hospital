@@ -4,6 +4,7 @@ import { Button, ButtonGroup } from '@chakra-ui/react'
 
 import { CloseOutlined } from "@ant-design/icons";
 import { AddInformacion } from "./AddInformacion";
+import { Row, Col } from "antd";
 
 export const VentEmergenteAddInformacion = ({ isOpen, onClose }) => {
   if (!isOpen) {
@@ -16,11 +17,16 @@ export const VentEmergenteAddInformacion = ({ isOpen, onClose }) => {
         onClose();
       }
     }}>
-      <div className="popup-content small">
-        <div className="header_vent_emergente">
-          <h2 className={`popup-title`}>Informacion</h2>
-          <CloseOutlined className="icon_accion icons" onClick={onClose} />
-        </div>
+      <div className="popup-content">
+      <Row
+          justify="space-between"
+          align="middle"
+          className="header_vent_emergente"
+        >
+          <Col>
+            <CloseOutlined className="icon_accion icons" onClick={onClose} />
+          </Col>
+        </Row>
 
         <AddInformacion onClosePadre={onClose} />
 

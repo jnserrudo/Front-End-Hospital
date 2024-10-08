@@ -13,6 +13,7 @@ import { SwapOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
+
 export const ConversionUnidades = () => {
   const [valor, setValor] = useState();
   const [unidadOrigen, setUnidadOrigen] = useState("g");
@@ -26,6 +27,14 @@ export const ConversionUnidades = () => {
     lb: { g: 453.592, mg: 453592, kg: 0.453592, lb: 1 },
   };
 
+  const formatearNumero = (numero) => {
+    // Formatea el número con separadores de miles y hasta 4 decimales, sin ceros innecesarios
+    return new Intl.NumberFormat("es-ES", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 4,
+    }).format(numero);
+  };
+
   const realizarConversion = () => {
     const factorConversion = conversiones[unidadOrigen][unidadDestino];
     const resultadoConversion = valor * factorConversion;
@@ -35,7 +44,7 @@ export const ConversionUnidades = () => {
   return (
     <Card style={{ maxWidth: 600, margin: "0 auto", padding: 20 }}>
       <Title level={3}>Conversión de Unidades de Medida</Title>
-      <Row  gutter={[16, 16]} align="middle">
+      <Row gutter={[16, 16]} align="middle">
         <Col xs={24} sm={8}>
           <Input
             type="number"
@@ -76,10 +85,28 @@ export const ConversionUnidades = () => {
 
       <Divider />
 
-      <Row justify="center" style={{ marginTop: 20 }}>
-        <Button type="primary" onClick={realizarConversion}>
-          Convertir
-        </Button>
+      <Row
+        gutter={[16, 16]}
+        align={"middle"}
+        justify="center"
+        style={{ marginTop: 20 }}
+      >
+        <Col>
+          <Button type="primary" onClick={realizarConversion}>
+            Convertir
+          </Button>
+        </Col>
+        <Col>
+          <Button
+            type="primary"
+            onClick={() => {
+              setValor("");
+              setResultado(null);
+            }}
+          >
+            Resetear
+          </Button>
+        </Col>
       </Row>
 
       {resultado !== null && (
@@ -92,10 +119,11 @@ export const ConversionUnidades = () => {
           }}
         >
           <Text style={{ fontSize: 20 }}>
-            <b>{valor}</b> {unidadOrigen.toUpperCase()} es equivalente a:
+            <b>{formatearNumero(valor)}</b> {unidadOrigen.toUpperCase()} es
+            equivalente a:
           </Text>
           <Title level={2} style={{ marginTop: 10 }}>
-            {resultado.toFixed(4)} {unidadDestino.toUpperCase()}
+            {formatearNumero(resultado)} {unidadDestino.toUpperCase()}
           </Title>
         </Card>
       )}

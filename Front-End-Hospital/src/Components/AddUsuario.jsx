@@ -5,6 +5,8 @@ import {
   FormControl,
   FormLabel,
   Textarea,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import "../style.css";
 import { Select, Space, Tooltip, Upload } from "antd";
@@ -30,9 +32,9 @@ export const AddUsuario = ({ onClosePadre }) => {
 
   const sharedPropsRoles = {
     /* mode: "multiple", */
-    /* style: {
+    style: {
       width: "100%",
-    }, */
+    },
     options: allRolesAdd,
     placeholder: "Seleccione un Rol",
     maxTagCount: "responsive",
@@ -56,170 +58,178 @@ export const AddUsuario = ({ onClosePadre }) => {
   };
 
   return (
-    <div className="form_edit_receta">
-      <Toaster position="top-center" reverseOrder={false} />
-      <div className="cont_form_input">
-        
-        <FormControl
-          className="cont_input_edit_large"
-          variant="floating"
-          id="nombre"
-          isRequired
-        >
-          <Input
-            className={`input_edit_large`}
-            placeholder=""
-            name="nombre"
-            variant="outlined"
-            type="text"
-            value={usuarioToInsert?.nombre ? usuarioToInsert.nombre : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Nombre</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit_large"
-          variant="floating"
-          id="dni"
-          isRequired
-        >
-          <Input
-            className={`input_edit_large`}
-            placeholder=""
-            name="apellido"
-            variant="outlined"
-            type="text"
-            value={usuarioToInsert?.apellido ? usuarioToInsert.apellido : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Apellido</FormLabel>
-        </FormControl>
-      </div>
-
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="apellido"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="dni"
-            variant="outlined"
-            type="number"
-            value={usuarioToInsert?.dni ? usuarioToInsert.dni : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Documento de identidad</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="usuario"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="usuario"
-            variant="outlined"
-            type="text"
-            value={usuarioToInsert?.usuario ? usuarioToInsert.usuario : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Usuario</FormLabel>
-        </FormControl>
-      </div>
-
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="password"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="password"
-            variant="outlined"
-            type="password"
-            value={usuarioToInsert?.password ? usuarioToInsert.password : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Contraseña</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="email"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="email"
-            variant="outlined"
-            type="email"
-            value={usuarioToInsert?.email ? usuarioToInsert.email : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Email</FormLabel>
-        </FormControl>
-      </div>
-
-      <div className="cont_form_input">
-        <Select
-          className="select_recetas input_edit"
-          name="idRol"
-          {...sharedPropsRoles}
-          /* value={alumnos} */
-          onChange={handleChangeSelectRolInsert}
-        />
-
+    <div className="form">
+      <Grid
+        className="grid_chackra"
+        templateColumns={{
+          base: "1fr",
+          md: "repeat(auto-fit, minmax(300px, 1fr))",
+        }}
+        gap={10}
+      >
+        <Toaster position="top-center" reverseOrder={false} />
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit_large"
+            variant="floating"
+            id="nombre"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder=""
+              name="nombre"
+              variant="outlined"
+              type="text"
+              value={usuarioToInsert?.nombre ? usuarioToInsert.nombre : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Nombre</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit_large"
+            variant="floating"
+            id="dni"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder=""
+              name="apellido"
+              variant="outlined"
+              type="text"
+              value={usuarioToInsert?.apellido ? usuarioToInsert.apellido : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Apellido</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="apellido"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder=""
+              name="dni"
+              variant="outlined"
+              type="number"
+              value={usuarioToInsert?.dni ? usuarioToInsert.dni : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">
+              Documento de identidad
+            </FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="usuario"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder=""
+              name="usuario"
+              variant="outlined"
+              type="text"
+              value={usuarioToInsert?.usuario ? usuarioToInsert.usuario : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Usuario</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="password"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder=""
+              name="password"
+              variant="outlined"
+              type="password"
+              value={usuarioToInsert?.password ? usuarioToInsert.password : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Contraseña</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="email"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder=""
+              name="email"
+              variant="outlined"
+              type="email"
+              value={usuarioToInsert?.email ? usuarioToInsert.email : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Email</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: usuarioToInsert.idRol == 3 ? 1 : 2 }}>
+          <FormControl isRequired>
+            <FormLabel>Rol</FormLabel>
+            <Select
+              /* className="select_recetas input_edit" */
+              name="idRol"
+              {...sharedPropsRoles}
+              /* value={alumnos} */
+              onChange={handleChangeSelectRolInsert}
+            />
+          </FormControl>
+        </GridItem>
         {usuarioToInsert.idRol == 3 ? (
-          <Select
-            className="select_recetas input_edit"
-            name="idPatologias"
-            {...sharedProps}
-            /* value={alumnos} */
-            onChange={handleChangeSelectInsert}
-          />
+          <GridItem colSpan={{ base: 1, md: 1 }}>
+            <FormControl isRequired>
+              <FormLabel>Patologia</FormLabel>
+              <Select
+                /* className="select_recetas input_edit" */
+                name="idPatologias"
+                {...sharedProps}
+                /* value={alumnos} */
+                onChange={handleChangeSelectInsert}
+              />
+            </FormControl>
+          </GridItem>
         ) : null}
-      </div>
-      {/* <div className="cont_form_input">
-        <Button
-          className="btn_accion_edit_receta"
-          colorScheme="blue"
-          style={{ margin: "1rem auto 0" }}
-          
-        >
-          Blanquear Contraseña
-        </Button>
-      </div> */}
-
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="detalle"
-        >
-          <Textarea
-            className={`input_edit`}
-            placeholder=""
-            name="detalle"
-            size="sm"
-            variant="outlined"
-            type="text"
-            value={usuarioToInsert?.detalle ? usuarioToInsert.detalle : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Detalle</FormLabel>
-        </FormControl>
-      </div>
-
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="detalle"
+          >
+            <Textarea
+              className={`input_floating`}
+              placeholder=""
+              name="detalle"
+              size="sm"
+              variant="outlined"
+              type="text"
+              value={usuarioToInsert?.detalle ? usuarioToInsert.detalle : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel>Detalle</FormLabel>
+          </FormControl>
+        </GridItem>{" "}
+      </Grid>
       {bandInsert ? (
         <Button
           className="btn_accion_edit_receta"

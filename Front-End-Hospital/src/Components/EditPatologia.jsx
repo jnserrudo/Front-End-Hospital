@@ -4,6 +4,8 @@ import {
   Textarea,
   FormControl,
   FormLabel,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import { Space } from "antd";
 import React, { useContext, useEffect, useState } from "react";
@@ -38,52 +40,59 @@ export const EditPatologia = ({ patologia, onCloseEdit }) => {
   }, [bandEdit]);
 
   return (
-    <div className="form_edit_patologia">
-      {/* <h2>
-        {patologia.nombre} {patologia.apellido}{" "}
-      </h2>
- */}
-      <div className="">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="nombre"
-          isRequired
-        >
-          <Input
-            className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-            label="Nombre"
-            name="nombre"
-            variant="outlined"
-            type="text"
-            disabled={!bandEdit}
-            value={patologia.nombre ? patologia.nombre : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
-          <FormLabel>Nombre</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="descripcion"
-          isRequired
-        >
-          <Textarea
-            className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-            label="Descripcion"
-            name="descripcion"
-            size="sm"
-            variant="outlined"
-            type="text"
-            disabled={!bandEdit}
-            value={patologia.descripcion ? patologia.descripcion : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
-          <FormLabel>Descripción</FormLabel>
-        </FormControl>
-      </div>
+    <div className="form">
+      <Grid
+        className="grid_chackra"
+        templateColumns={{
+          base: "1fr",
+          md: "repeat(auto-fit, minmax(300px, 1fr))",
+        }}
+        gap={10}
+      >
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="nombre"
+            isRequired
+          >
+            <Input
+              className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
+              label="Nombre"
+              name="nombre"
+              variant="outlined"
+              type="text"
+              disabled={!bandEdit}
+              value={patologia.nombre ? patologia.nombre : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+            <FormLabel className="label_floating" >Nombre</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="descripcion"
+            isRequired
+          >
+            <Textarea
+              className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
+              label="Descripcion"
+              name="descripcion"
+              size="sm"
+              variant="outlined"
+              type="text"
+              disabled={!bandEdit}
+              value={patologia.descripcion ? patologia.descripcion : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+            <FormLabel className="label_floating">Descripción</FormLabel>
+          </FormControl>
+        </GridItem>
+      </Grid>
 
-      <div className="cont_btns_acciones_patologia">
+      <div className="cont_btns_acciones">
         {!bandEdit ? (
           <Button
             className="btn_accion_edit_patologia"
@@ -103,21 +112,19 @@ export const EditPatologia = ({ patologia, onCloseEdit }) => {
             Cancelar
           </Button>
         )}
-      
-      {bandUpdated ? (
-        <Button
-          className="btn_accion_edit_patologia"
-          colorScheme="green"
-          /* variant="contained"
-          style={{ margin: "1rem auto 0" }} */
-          onClick={() => setShowVentEmergenteConfirmacion(true)}
-        >
-          Actualizar
-        </Button>
-      ) : null}
-      </div>
 
-      
+        {bandUpdated ? (
+          <Button
+            className="btn_accion_edit_patologia"
+            colorScheme="green"
+            /* variant="contained"
+          style={{ margin: "1rem auto 0" }} */
+            onClick={() => setShowVentEmergenteConfirmacion(true)}
+          >
+            Actualizar
+          </Button>
+        ) : null}
+      </div>
 
       <VentEmergConfirmacion
         onClosePadre={onCloseEdit}

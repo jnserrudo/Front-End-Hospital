@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { EditInformacion } from './EditInformacion';
 
 import {CloseOutlined} from '@ant-design/icons';
+import { Row, Col } from "antd";
 
 export const VentEmergenteEditInformacion = ({isOpen,onClose,informacionSelected}) => {
     if (!isOpen) {
@@ -15,11 +16,16 @@ export const VentEmergenteEditInformacion = ({isOpen,onClose,informacionSelected
         onClose();
       }
     }}>
-      <div className="popup-content small">
-        <div className="header_vent_emergente">
-{/*         <h2 className={`popup-title`} >Informacion</h2> 
- */}        <CloseOutlined  className='icon_accion icons' onClick={onClose} />
-        </div>
+      <div className="popup-content">
+      <Row
+          justify="space-between"
+          align="middle"
+          className="header_vent_emergente"
+        >
+          <Col>
+            <CloseOutlined className="icon_accion icons" onClick={onClose} />
+          </Col>
+        </Row>
         
         <EditInformacion onCloseEdit={onClose} informacion={informacionSelected} />
 {/*         <button className={`popup-close-btn`} onClick={onClose}>Aceptar</button>

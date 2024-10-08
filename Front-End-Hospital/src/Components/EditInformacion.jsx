@@ -6,6 +6,8 @@ import {
   Textarea,
   FormControl,
   FormLabel,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import { Space, Upload, Select } from "antd";
 import React, { useContext, useEffect, useState } from "react";
@@ -149,7 +151,6 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
     if (
       patologiasxInformacionEdit &&
       Object.values(patologiasxInformacionEdit).length > 1
-      
     ) {
       setPatologiasAsociadas(patologiasxInformacionEdit.patologiasAsociadas);
       setPatologiasNoAsociadas(
@@ -283,35 +284,61 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
   };
 
   return (
-    <div className="">
-      <div className="form_edit_informacion">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="nombre"
-          isRequired
-        >
-          <Input
-            className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-            label="Nombre"
-            name="nombre"
-            variant="outlined"
-            type="text"
-            disabled={!bandEdit}
-            value={informacion.nombre ? informacion.nombre : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
-          <FormLabel>Nombre</FormLabel>
-        </FormControl>
-
+    <div className="form">
+      <Grid
+        className="grid_chackra"
+        templateColumns={{
+          base: "1fr",
+          md: "repeat(auto-fit, minmax(470px, 1fr))",
+        }}
+        gap={10}
+      >
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="nombre"
+            isRequired
+          >
+            <Input
+              className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
+              label="Nombre"
+              name="nombre"
+              variant="outlined"
+              type="text"
+              disabled={!bandEdit}
+              value={informacion.nombre ? informacion.nombre : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+            <FormLabel>Nombre</FormLabel>
+          </FormControl>
+        </GridItem>
         {previewUrl &&
           (previewUrl.includes("<iframe") ? (
-            <div
-              style={{ height: "100%", padding: "2rem !important" }}
-              dangerouslySetInnerHTML={{ __html: previewUrl.replace("<iframe", "<iframe style='width: 100%; height: 100%; border: none;'") }}
-            />
+            <GridItem
+              colSpan={{ base: 1, md: 2 }}
+              rowSpan={2}
+              style={{ height: "60vh" }}
+            >
+              <div
+                style={{ height: "100%", padding: "2rem !important" }}
+                dangerouslySetInnerHTML={{
+                  __html: previewUrl.replace(
+                    "<iframe",
+                    "<iframe style='width: 100%; height: 100%; border: none;'"
+                  ),
+                }}
+              />
+            </GridItem>
           ) : (
-            <ReactPlayer width="60%" height="100%" controls url={previewUrl} />
+            <GridItem colSpan={{ base: 1, md: 2 }}>
+              <ReactPlayer
+                width="60%"
+                height="100%"
+                controls
+                url={previewUrl}
+              />
+            </GridItem>
           ))}
 
         <Tabs variant="enclosed">
@@ -321,105 +348,118 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
           </TabList>
           <TabPanels>
             <TabPanel className="tab_video_iframe">
-              <Upload
-                className="imgCrop"
-                listType="picture-card"
-                fileList={fileList}
-                beforeUpload={beforeUpload}
-                maxCount={1}
-                progress={true}
-                disabled={!bandEdit}
-                onPreview={async (file) => {
-                  if (file.url) {
-                    window.open(file.url);
-                  } else {
-                    const preview = await new Promise((resolve, reject) => {
-                      const reader = new FileReader();
-                      reader.readAsDataURL(file.originFileObj);
-                      reader.onload = () => resolve(reader.result);
-                      reader.onerror = (error) => reject(error);
-                    });
-                    const imgWindow = window.open();
-                    imgWindow.document.write(
-                      `<img src="${preview}" alt="preview" />`
-                    );
-                  }
-                }}
-                showUploadList={false}
-                customRequest={({ file, onSuccess }) => {
-                  setTimeout(() => {
-                    onSuccess("ok");
-                  }, 0);
-                }}
-                onChange={handleFileChange}
-              >
-                {"Subir Video"}
-              </Upload>
+              <GridItem colSpan={{ base: 1, md: 2 }}>
+                <Upload
+                  className="imgCrop"
+                  listType="picture-card"
+                  fileList={fileList}
+                  beforeUpload={beforeUpload}
+                  maxCount={1}
+                  progress={true}
+                  disabled={!bandEdit}
+                  onPreview={async (file) => {
+                    if (file.url) {
+                      window.open(file.url);
+                    } else {
+                      const preview = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file.originFileObj);
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = (error) => reject(error);
+                      });
+                      const imgWindow = window.open();
+                      imgWindow.document.write(
+                        `<img src="${preview}" alt="preview" />`
+                      );
+                    }
+                  }}
+                  showUploadList={false}
+                  customRequest={({ file, onSuccess }) => {
+                    setTimeout(() => {
+                      onSuccess("ok");
+                    }, 0);
+                  }}
+                  onChange={handleFileChange}
+                >
+                  {"Subir Video"}
+                </Upload>
+              </GridItem>
             </TabPanel>
             <TabPanel>
-              <FormControl>
-                <FormLabel htmlFor="iframeUrl">Iframe URL</FormLabel>
-                <Input
-                  id="iframeUrl"
-                  disabled={!bandEdit}
-                  value={urlVideo}
-                  onChange={(e) => setUrlVideo(e.target.value)}
-                  placeholder="Ingrese la URL del iframe"
-                />
-              </FormControl>
+              <GridItem colSpan={{ base: 1, md: 2 }}>
+                <FormControl >
+                  <FormLabel htmlFor="iframeUrl">Iframe URL</FormLabel>
+                  <Textarea
+                    className={`input_floating ${
+                      !bandEdit ? "input_disabled" : ""
+                    }`}
+                    size="sm"
+                    variant="outlined"
+                    type="text"
+                    id="iframeUrl"
+                    disabled={!bandEdit}
+                    value={urlVideo}
+                    onChange={(e) => setUrlVideo(e.target.value)}
+                    placeholder="Ingrese la URL del iframe"
+                  />
+                </FormControl>
+              </GridItem>
             </TabPanel>
           </TabPanels>
         </Tabs>
-        {/* SELECT DE LAS PATOLOGIAS */}
-        <Select
-          disabled={!bandEdit}
-          name="idPatologias"
-          className="select_recetas input_edit"
-          {...sharedProps}
-          /* value={alumnos} */
-          onChange={(e) => {
-            console.log(e);
-            handleChangeSelect(e);
-            setSelectedPatologias(e);
-          }}
-        />
 
-        {/* SELECT DE LAS CATEGORIAS */}
-        <Select
-          disabled={!bandEdit}
-          name="idCategorias"
-          className="select_recetas input_edit"
-          {...sharedPropsCategorias}
-          /* value={alumnos} */
-          onChange={(e) => {
-            console.log(e);
-            handleChangeSelectCategorias(e);
-            setSelectedCategorias(e);
-          }}
-        />
-
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="descripcion"
-          isRequired
-        >
-          <Textarea
-            className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-            label="Descripcion"
-            name="descripcion"
-            size="sm"
-            variant="outlined"
-            type="text"
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          {/* SELECT DE LAS PATOLOGIAS */}
+          <Select
             disabled={!bandEdit}
-            value={informacion.descripcion ? informacion.descripcion : ""}
-            onChange={(e) => handleChangeInput(e)}
+            name="idPatologias"
+            {...sharedProps}
+            /* value={alumnos} */
+            onChange={(e) => {
+              console.log(e);
+              handleChangeSelect(e);
+              setSelectedPatologias(e);
+            }}
           />
-          <FormLabel>Descripción</FormLabel>
-        </FormControl>
-      </div>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          {/* SELECT DE LAS CATEGORIAS */}
+          <Select
+            disabled={!bandEdit}
+            name="idCategorias"
+            {...sharedPropsCategorias}
+            /* value={alumnos} */
+            onChange={(e) => {
+              console.log(e);
+              handleChangeSelectCategorias(e);
+              setSelectedCategorias(e);
+            }}
+          />
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="descripcion"
+            isRequired
+          >
+            <Textarea
+              className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
+              label="Descripcion"
+              name="descripcion"
+              size="sm"
+              variant="outlined"
+              type="text"
+              disabled={!bandEdit}
+              value={informacion.descripcion ? informacion.descripcion : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+            <FormLabel>Descripción</FormLabel>
+          </FormControl>
+        </GridItem>
+      </Grid>
 
-      <div className="cont_btns_acciones_informacion">
+      <div className="cont_btns_acciones">
         {!bandEdit ? (
           <Button
             className="btn_accion_edit_informacion"

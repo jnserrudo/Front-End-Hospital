@@ -202,10 +202,13 @@ export const Recetas = () => {
                       setRecetaSee(receta);
                     }}
                   >
-                    <div className="receta-content">
+                    <div
+                      className="receta-content"
+                      style={{ width: "100%", cursor: "pointer" }}
+                    >
                       <p className="txt_nombre_receta">{receta.nombre}</p>
                       <div className="receta-patologias">
-                      <div className="patologias-header">
+                        <div className="patologias-header">
                           <MedicineBoxOutlined style={{ marginRight: 5 }} />
                           <span>Patologías:</span>
                         </div>
@@ -236,10 +239,13 @@ export const Recetas = () => {
                       setRecetaSee(receta);
                     }}
                   >
-                    <div className="receta-content">
+                    <div
+                      className="receta-content"
+                      style={{ width: "100%", cursor: "pointer" }}
+                    >
                       <p className="txt_nombre_receta">{receta.nombre}</p>
                       <div className="receta-patologias">
-                      <div className="patologias-header">
+                        <div className="patologias-header">
                           <MedicineBoxOutlined style={{ marginRight: 5 }} />
                           <span>Patologías:</span>
                         </div>
@@ -269,7 +275,10 @@ export const Recetas = () => {
                       setRecetaSee(receta);
                     }}
                   >
-                    <div className="receta-content">
+                    <div
+                      className="receta-content"
+                      style={{ width: "100%", cursor: "pointer" }}
+                    >
                       <p className="txt_nombre_receta">{receta.nombre}</p>
                       <div className="receta-patologias">
                         <div className="patologias-header">

@@ -33,7 +33,7 @@ export const FooterHospital = ({ setSelectedKey }) => {
           <FacebookOutlined /> Hospital Oñativia
         </div>
         <h3 className="txt">
-          <PhoneOutlined /> 0387 422-1605
+          <PhoneOutlined style={{ transform: 'rotate(90deg)' }} /> 0387 422-1605
         </h3>
       </div>
       {/* <div className="cont_opciones_footer">

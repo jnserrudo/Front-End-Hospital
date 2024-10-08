@@ -19,6 +19,7 @@
     "antd": "^5.17.2",
     "antd-img-crop": "^4.22.0",
     "framer-motion": "^11.2.4",
+    "front-end-hospital": "file:",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",

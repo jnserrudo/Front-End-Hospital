@@ -4,6 +4,8 @@ import {
   Textarea,
   FormControl,
   FormLabel,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import { Tabs, Tab, TabList, TabPanel, TabPanels } from "@chakra-ui/react";
 
@@ -282,146 +284,179 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
   };
 
   return (
-    <div className="">
-      <div className="form_edit_informacion">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="nombre"
-          isRequired
-        >
-          <Input
-            className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-            label="Nombre"
-            name="nombre"
-            variant="outlined"
-            type="text"
-            disabled={!bandEdit}
-            value={ejercicio.nombre ? ejercicio.nombre : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
-          <FormLabel>Nombre</FormLabel>
-        </FormControl>
-
+    <div className="form">
+      <Grid
+        className="grid_chackra"
+        templateColumns={{
+          base: "1fr",
+          md: "repeat(auto-fit, minmax(350px, 1fr))",
+        }}
+        gap={10}
+      >
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="nombre"
+            isRequired
+          >
+            <Input
+              className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
+              label="Nombre"
+              name="nombre"
+              variant="outlined"
+              type="text"
+              disabled={!bandEdit}
+              value={ejercicio.nombre ? ejercicio.nombre : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+            <FormLabel>Nombre</FormLabel>
+          </FormControl>
+        </GridItem>
         {previewUrl &&
           (previewUrl.includes("<iframe") ? (
-            <div
-              style={{ height: "50% !important" , width:"50% !important" , padding: "2rem !important" }}
-              dangerouslySetInnerHTML={{  __html: previewUrl.replace("<iframe", "<iframe style='width: 100%; height: 100%; border: none;'") }}
-            />
+            <GridItem
+              colSpan={{ base: 1, md: 2 }}
+              rowSpan={2}
+              style={{ height: "60vh" }}
+            >
+              <div
+                style={{
+                  height: "100% ",
+                  padding: "2rem !important",
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: previewUrl.replace(
+                    "<iframe",
+                    "<iframe style='width: 100%; height: 100%; border: none;'"
+                  ),
+                }}
+              />
+            </GridItem>
           ) : (
             <ReactPlayer width="60%" height="100%" controls url={previewUrl} />
           ))}
-
-        <Tabs variant="enclosed">
-          <TabList>
-            <Tab>Subir/Actualizar Video</Tab>
-            <Tab>Actualizar Iframe</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel className="tab_video_iframe">
-              <Upload
-                className="imgCrop"
-                listType="picture-card"
-                fileList={fileList}
-                beforeUpload={beforeUpload}
-                maxCount={1}
-                progress={true}
-                disabled={!bandEdit}
-                onPreview={async (file) => {
-                  // Si el archivo ya tiene una URL (por ejemplo, un archivo previamente subido)
-                  if (file.url) {
-                    // Abre la URL del archivo en una nueva ventana
-                    window.open(file.url);
-                  } else {
-                    // Si el archivo no tiene URL, genera una URL de previsualización usando FileReader
-                    const preview = await new Promise((resolve, reject) => {
-                      const reader = new FileReader();
-                      reader.readAsDataURL(file.originFileObj); // Lee el archivo como una URL de datos
-                      reader.onload = () => resolve(reader.result); // Resuelve la promesa con la URL de datos
-                      reader.onerror = (error) => reject(error); // Rechaza la promesa si hay un error
-                    });
-                    // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
-                    const imgWindow = window.open();
-                    imgWindow.document.write(
-                      `<img src="${preview}" alt="preview" />`
-                    );
-                  }
-                }}
-                showUploadList={false}
-                customRequest={({ file, onSuccess }) => {
-                  setTimeout(() => {
-                    onSuccess("ok");
-                  }, 0);
-                }}
-                onChange={handleFileChange}
-              >
-                {"Subir Video"}
-              </Upload>
-            </TabPanel>
-            <TabPanel>
-              <FormControl>
-                <FormLabel htmlFor="iframeUrl">Iframe URL</FormLabel>
-                <Input
-                  id="iframeUrl"
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <Tabs variant="enclosed">
+            <TabList>
+              <Tab>Subir/Actualizar Video</Tab>
+              <Tab>Actualizar Iframe</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel className="tab_video_iframe">
+                <Upload
+                  className="imgCrop"
+                  listType="picture-card"
+                  fileList={fileList}
+                  beforeUpload={beforeUpload}
+                  maxCount={1}
+                  progress={true}
                   disabled={!bandEdit}
-                  value={urlVideo}
-                  onChange={(e) => setUrlVideo(e.target.value)}
-                  placeholder="Ingrese la URL del iframe"
-                />
-              </FormControl>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-        {/* SELECT DE LAS PATOLOGIAS */}
-        <Select
-          disabled={!bandEdit}
-          name="idPatologias"
-          className="select_recetas input_edit"
-          {...sharedProps}
-          /* value={alumnos} */
-          onChange={(e) => {
-            console.log(e);
-            handleChangeSelect(e);
-            setSelectedPatologias(e);
-          }}
-        />
-        {/* SELECT DE LAS CATEGORIAS */}
-        <Select
-          disabled={!bandEdit}
-          name="idCategorias"
-          className="select_recetas input_edit"
-          {...sharedPropsCategorias}
-          /* value={alumnos} */
-          onChange={(e) => {
-            console.log(e);
-            handleChangeSelectCategorias(e);
-            setSelectedCategorias(e);
-          }}
-        />
+                  onPreview={async (file) => {
+                    // Si el archivo ya tiene una URL (por ejemplo, un archivo previamente subido)
+                    if (file.url) {
+                      // Abre la URL del archivo en una nueva ventana
+                      window.open(file.url);
+                    } else {
+                      // Si el archivo no tiene URL, genera una URL de previsualización usando FileReader
+                      const preview = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file.originFileObj); // Lee el archivo como una URL de datos
+                        reader.onload = () => resolve(reader.result); // Resuelve la promesa con la URL de datos
+                        reader.onerror = (error) => reject(error); // Rechaza la promesa si hay un error
+                      });
+                      // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
+                      const imgWindow = window.open();
+                      imgWindow.document.write(
+                        `<img src="${preview}" alt="preview" />`
+                      );
+                    }
+                  }}
+                  showUploadList={false}
+                  customRequest={({ file, onSuccess }) => {
+                    setTimeout(() => {
+                      onSuccess("ok");
+                    }, 0);
+                  }}
+                  onChange={handleFileChange}
+                >
+                  {"Subir Video"}
+                </Upload>
+              </TabPanel>
+              <TabPanel>
+                <FormControl>
+                  <FormLabel htmlFor="iframeUrl">Iframe URL</FormLabel>
+                  <Input
+                    id="iframeUrl"
+                    disabled={!bandEdit}
+                    value={urlVideo}
+                    onChange={(e) => setUrlVideo(e.target.value)}
+                    placeholder="Ingrese la URL del iframe"
+                  />
+                </FormControl>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </GridItem>
 
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="descripcion"
-          isRequired
-        >
-          <Textarea
-            className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-            label="Descripcion"
-            name="descripcion"
-            size="sm"
-            variant="outlined"
-            type="text"
-            disabled={!bandEdit}
-            value={ejercicio.descripcion ? ejercicio.descripcion : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
-          <FormLabel>Descripción</FormLabel>
-        </FormControl>
-      </div>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          {/* SELECT DE LAS PATOLOGIAS */}
+          <FormControl isRequired>
+            <FormLabel>Patologias</FormLabel>
+            <Select
+              disabled={!bandEdit}
+              name="idPatologias"
+              {...sharedProps}
+              /* value={alumnos} */
+              onChange={(e) => {
+                console.log(e);
+                handleChangeSelect(e);
+                setSelectedPatologias(e);
+              }}
+            />
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          {/* SELECT DE LAS CATEGORIAS */}
+          <FormControl isRequired>
+            <FormLabel>Categorias</FormLabel>
+            <Select
+              disabled={!bandEdit}
+              name="idCategorias"
+              {...sharedPropsCategorias}
+              /* value={alumnos} */
+              onChange={(e) => {
+                console.log(e);
+                handleChangeSelectCategorias(e);
+                setSelectedCategorias(e);
+              }}
+            />
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="descripcion"
+            isRequired
+          >
+            <Textarea
+              className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
+              label="Descripcion"
+              name="descripcion"
+              size="sm"
+              variant="outlined"
+              type="text"
+              disabled={!bandEdit}
+              value={ejercicio.descripcion ? ejercicio.descripcion : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+            <FormLabel>Descripción</FormLabel>
+          </FormControl>
+        </GridItem>
+      </Grid>
 
-      <div className="cont_btns_acciones_ejercicio">
+      <div className="cont_btns_acciones">
         {!bandEdit ? (
           <Button
             className="btn_accion_edit_ejercicio"

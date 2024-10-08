@@ -26,7 +26,7 @@ export const Header = ({setSelectedKey}) => {
           <EnvironmentOutlined /> Paz Chaín 30 4400 Salta Salta · 03 km
         </p>
         <h3 className="txt">
-          <PhoneOutlined /> 0387 422-1605
+          <PhoneOutlined  style={{ transform: 'rotate(90deg)' }} /> 0387 422-1605
         </h3>
       </div>
     </>

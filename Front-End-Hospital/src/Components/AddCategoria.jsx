@@ -5,6 +5,8 @@ import {
   Textarea,
   FormControl,
   FormLabel,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import "../style.css";
 import { Select } from "antd";
@@ -20,9 +22,8 @@ export const AddCategoria = ({ onClosePadre }) => {
     bandInsert,
     handleInsert,
     handleCloseVentEmergConfirmacion,
-    handleChangeSelectTiposInsert
+    handleChangeSelectTiposInsert,
   } = useContext(CategoriasContext);
-
 
   const sharedPropsCategorias = {
     style: {
@@ -30,16 +31,17 @@ export const AddCategoria = ({ onClosePadre }) => {
     },
     options: [
       {
-        value:1,
-        label:"Ejercicio"
-      },{
-        value:2,
-        label:"Información"
-      }
-      ,{
-        value:3,
-        label:"Recetas"
-      }
+        value: 1,
+        label: "Ejercicio",
+      },
+      {
+        value: 2,
+        label: "Información",
+      },
+      {
+        value: 3,
+        label: "Recetas",
+      },
     ],
     placeholder: "Seleccione una Tipo",
     maxTagCount: "responsive",
@@ -51,57 +53,67 @@ export const AddCategoria = ({ onClosePadre }) => {
     setShowVentEmergenteConfirmacion(false);
   };
   return (
-    <div className="form_edit_categoria">
-      <div className="">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="nombre"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="nombre"
-            variant="outlined"
-            type="text"
-            value={categoriaToInsert?.nombre ? categoriaToInsert.nombre : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Nombre</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="descripcion"
-          isRequired
-        >
-          <Textarea
-            className={`input_edit`}
-            placeholder=""
-            name="descripcion"
-            size="sm"
-            variant="outlined"
-            type="text"
-            value={
-              categoriaToInsert?.descripcion
-                ? categoriaToInsert.descripcion
-                : ""
-            }
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Descripción</FormLabel>
-        </FormControl>
+    <div className="form">
+      <Grid
+        className="grid_chackra"
+        templateColumns={{
+          base: "1fr",
+          md: "repeat(auto-fit, minmax(300px, 1fr))",
+        }}
+        gap={10}
+      >
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl isRequired>
+            <Input
+              className="input_floating"
+              placeholder=" "
+              name="nombre"
+              variant={"outlined"}
+              type="text"
+              value={categoriaToInsert?.nombre ? categoriaToInsert.nombre : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Nombre</FormLabel>
+          </FormControl>
+        </GridItem>
 
-        <Select
-          className="select_recetas input_edit"
-          name="idTipos"
-          {...sharedPropsCategorias}
-          /* value={alumnos} */
-          onChange={handleChangeSelectTiposInsert}
-        />
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="descripcion"
+            isRequired
+          >
+            <Textarea
+              className={`input_floating`}
+              placeholder=""
+              name="descripcion"
+              size="sm"
+              variant="outlined"
+              type="text"
+              value={
+                categoriaToInsert?.descripcion
+                  ? categoriaToInsert.descripcion
+                  : ""
+              }
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Descripción</FormLabel>
+          </FormControl>
+        </GridItem>
 
-      </div>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl isRequired>
+            <FormLabel>Tipo</FormLabel>
+            <Select
+              name="idTipos"
+              {...sharedPropsCategorias}
+              /* value={alumnos} */
+              onChange={handleChangeSelectTiposInsert}
+            />
+          </FormControl>
+        </GridItem>
+      </Grid>
 
       {bandInsert ? (
         <Button

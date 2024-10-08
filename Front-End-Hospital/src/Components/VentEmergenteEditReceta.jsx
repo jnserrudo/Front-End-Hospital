@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { EditReceta } from "./EditReceta";
 
 import { CloseOutlined } from "@ant-design/icons";
+import { Row, Col } from "antd";
 
 export const VentEmergenteEditReceta = ({
   isOpen,
@@ -22,12 +23,16 @@ export const VentEmergenteEditReceta = ({
       }}
     >
       {" "}
-      <div className="popup-content medium">
-        <div className="header_vent_emergente">
-          {/*         <h2 className={`popup-title`} >Receta</h2>
-           */}{" "}
-          <CloseOutlined className="icon_accion icons" onClick={onClose} />
-        </div>
+      <div className="popup-content">
+        <Row
+          justify="space-between"
+          align="middle"
+          className="header_vent_emergente"
+        >
+          <Col>
+            <CloseOutlined className="icon_accion icons" onClick={onClose} />
+          </Col>
+        </Row>
         <EditReceta onCloseEdit={onClose} receta={recetaSelected} />
         {/*         <button className={`popup-close-btn`} onClick={onClose}>Aceptar</button>
          */}{" "}

@@ -3,6 +3,7 @@ import { EditReceta } from "./EditReceta";
 
 import { CloseOutlined } from "@ant-design/icons";
 import { AddReceta } from "./AddReceta";
+import { Row, Col } from "antd";
 
 export const VentEmergenteAddReceta = ({ isOpen, onClose }) => {
   if (!isOpen) {
@@ -18,17 +19,19 @@ export const VentEmergenteAddReceta = ({ isOpen, onClose }) => {
         }
       }}
     >
-      {" "}
-      <div className="popup-content medium">
-        <div className="header_vent_emergente">
-          <h2 className={`popup-title`}>Receta</h2>
-          <CloseOutlined className="icon_accion icons" onClick={onClose} />
-        </div>
+      <div className="popup-content">
+        <Row
+          justify="space-between"
+          align="middle"
+          className="header_vent_emergente"
+        >
+          <Col>
+            <CloseOutlined className="icon_accion icons" onClick={onClose} />
+          </Col>
+        </Row>
 
         <AddReceta />
 
-        {/*         <button className={`popup-close-btn`} onClick={onClose}>Aceptar</button>
-         */}
       </div>
     </div>
   );

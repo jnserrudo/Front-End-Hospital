@@ -3,6 +3,7 @@ import { EditUsuario } from "./EditUsuario";
 
 import { CloseOutlined } from "@ant-design/icons";
 import { AddUsuario } from "./AddUsuario";
+import { Row, Col } from "antd";
 
 export const VentEmergenteAddUsuario = ({ isOpen, onClose }) => {
   if (!isOpen) {
@@ -18,13 +19,17 @@ export const VentEmergenteAddUsuario = ({ isOpen, onClose }) => {
         }
       }}
     >
-      <div className="popup-content medium">
-        <div className="header_vent_emergente">
-       <CloseOutlined className="icon_accion icons" onClick={onClose} />
-        </div>
+      <div className="popup-content ">
+        <Row
+          justify="space-between"
+          align="middle"
+          className="header_vent_emergente"
+        >
+          <Col>
+            <CloseOutlined className="icon_accion icons" onClick={onClose} />
+          </Col>
+        </Row>
         <AddUsuario />
-        {/*         <button className={`popup-close-btn`} onClick={onClose}>Aceptar</button>
-         */}{" "}
       </div>
     </div>
   );

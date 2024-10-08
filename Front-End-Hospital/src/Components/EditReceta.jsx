@@ -4,6 +4,8 @@ import {
   FormControl,
   FormLabel,
   Textarea,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
 import "../style.css";
@@ -35,20 +37,19 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
   const [bandUpdated, setBandUpdated] = useState(false);
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
-    /* ------------------------- */
+  /* ------------------------- */
   const [patologiasAsociadas, setPatologiasAsociadas] = useState([]);
   const [patologiasNoAsociadas, setPatologiasNoAsociadas] = useState([]);
   const [selectedPatologias, setSelectedPatologias] = useState([]);
   const [opcionesPatologias, setOpcionesPatologias] = useState([]);
-    /* ------------------------- */
+  /* ------------------------- */
 
-    const [categoriasAsociadas, setCategoriasAsociadas] = useState([]);
-    const [categoriasNoAsociadas, setCategoriasNoAsociadas] = useState([]);
-    const [selectedCategorias, setSelectedCategorias] = useState([]);
-    const [opcionesCategorias, setOpcionesCategorias] = useState([]);
+  const [categoriasAsociadas, setCategoriasAsociadas] = useState([]);
+  const [categoriasNoAsociadas, setCategoriasNoAsociadas] = useState([]);
+  const [selectedCategorias, setSelectedCategorias] = useState([]);
+  const [opcionesCategorias, setOpcionesCategorias] = useState([]);
 
-
-    /* ------------------------- */
+  /* ------------------------- */
 
   const [fileList, setFileList] = useState(
     receta.urlFoto
@@ -69,7 +70,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
     patologiasxRecetasEdit,
     categoriasxRecetasEdit,
     handleChangeSelect,
-    handleChangeSelectCategorias
+    handleChangeSelectCategorias,
   } = useContext(RecetasContext);
   if (!receta) {
     return null;
@@ -83,10 +84,10 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
             <UnorderedList
               margin="0.2rem"
               styleType="'-'"
-
-              width="250px"
+              /* width="250px"
               height="200px"
-              overflowY="scroll"
+ */
+              overflowY={text.split("\n").length > 5 ? "scroll" : "hidden"}
               border="1px white black"
               paddingLeft="20px"
               paddingTop={"2rem"}
@@ -100,10 +101,9 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
           ) : (
             <OrderedList
               margin="0.2rem"
-              width="250px"
-              height="200px"
-              overflowY="scroll"
-              border="1px white black"
+              /* width="250px"
+              height="200px"*/
+              overflowY={text.split("\n").length > 5 ? "scroll" : "hidden"}
               paddingLeft="20px"
               paddingTop={"2rem"}
             >
@@ -150,7 +150,6 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
       </div>
     ),
   };
-
 
   const sharedPropsCategorias = {
     mode: "multiple",
@@ -203,7 +202,6 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
       );
     }
   }, [patologiasxRecetasEdit]);
-
 
   useEffect(() => {
     console.log(categoriasxRecetasEdit);
@@ -262,7 +260,6 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
       ]);
     }
   }, [categoriasAsociadas, categoriasNoAsociadas]);
-
 
   const handleFileUpload = async (file) => {
     const formData = new FormData();
@@ -331,90 +328,97 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
   }, [bandEdit]);
 
   return (
-    <div className="form_edit_receta">
-      {/* <h2>
-        {receta.nombre} {receta.apellido}{" "}
-      </h2>
- */}
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="nombre"
-          isRequired
-        >
-          <Input
-            className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-            label=""
-            name="nombre"
-            variant="outlined"
-            type="text"
-            disabled={!bandEdit}
-            value={receta.nombre ? receta.nombre : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
-          <FormLabel>Nombre</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="porciones"
-          isRequired
-        >
-          <Input
-            className={`input_edit ${!bandEdit ? "input_disabled" : ""}`}
-            label="Porciones"
-            name="porciones"
-            variant="outlined"
-            type="text"
-            disabled={!bandEdit}
-            value={receta.porciones ? receta.porciones : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
-          <FormLabel>Porciones</FormLabel>
-        </FormControl>
-      </div>
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="tiempo"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder="Calorias"
-            name="calorias"
-            disabled={!bandEdit}
-            variant="outlined"
-            type="text"
-            value={receta?.calorias ? receta.calorias : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
-          <FormLabel>Calorias</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="tiempo"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder="Tiempo"
-            name="tiempo"
-            disabled={!bandEdit}
-            variant="outlined"
-            type="text"
-            value={receta?.tiempo ? receta.tiempo : ""}
-            onChange={(e) => handleChangeInput(e)}
-          />
-          <FormLabel>Tiempo</FormLabel>
-        </FormControl>
-      </div>
-
-      <div className="cont_form_input">
-        {/* <Input
+    <div className="form">
+      <Grid
+        className="grid_chackra"
+        templateColumns={{
+          base: "1fr",
+          md: "repeat(auto-fit, minmax(300px, 1fr))",
+        }}
+        gap={10}
+      >
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="nombre"
+            isRequired
+          >
+            <Input
+              className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
+              label=""
+              name="nombre"
+              variant="outlined"
+              type="text"
+              disabled={!bandEdit}
+              value={receta.nombre ? receta.nombre : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+            <FormLabel className="label_floating">Nombre</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="porciones"
+            isRequired
+          >
+            <Input
+              className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
+              label="Porciones"
+              name="porciones"
+              variant="outlined"
+              type="text"
+              disabled={!bandEdit}
+              value={receta.porciones ? receta.porciones : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+            <FormLabel className="label_floating">Porciones</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="tiempo"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder="Calorias"
+              name="calorias"
+              disabled={!bandEdit}
+              variant="outlined"
+              type="text"
+              value={receta?.calorias ? receta.calorias : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+            <FormLabel className="label_floating">Calorias</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="tiempo"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder="Tiempo"
+              name="tiempo"
+              disabled={!bandEdit}
+              variant="outlined"
+              type="text"
+              value={receta?.tiempo ? receta.tiempo : ""}
+              onChange={(e) => handleChangeInput(e)}
+            />
+            <FormLabel className="label_floating">Tiempo</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          {/* <Input
           className={`input_edit`}
           placeholder="URL Foto"
           name="urlFoto"
@@ -433,140 +437,152 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
           >
             {/* fileList.length < 2 &&  */ "Imagen/Video"}
           </Upload>
-        {/* <ImgCrop rotationSlider>
+          {/* <ImgCrop rotationSlider>
         </ImgCrop> */}
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="tiempo"
-          isRequired
-        >
-          {bandEdit ? (
-            <Textarea
-              className={`input_edit`}
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="tiempo"
+            isRequired
+          >
+            {bandEdit ? (
+              <Textarea
+                className={`input_floating`}
+                disabled={!bandEdit}
+                placeholder="Ingredientes"
+                name="ingredientes"
+                variant="outlined"
+                type="text"
+                value={receta?.ingredientes ? receta.ingredientes : ""}
+                onChange={(e) => handleChangeInput(e)}
+              />
+            ) : (
+              renderOrderedList(receta.ingredientes)
+            )}
+            <FormLabel className="label_floating">Ingredientes</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="tipsSaludables"
+            isRequired
+          >
+            {bandEdit ? (
+              <Textarea
+                className={`input_floating`}
+                placeholder=""
+                name="tipsSaludables"
+                size="sm"
+                disabled={!bandEdit}
+                variant="outlined"
+                type="text"
+                value={receta?.tipsSaludables ? receta.tipsSaludables : ""}
+                onChange={(e) => handleChangeInput(e)}
+              />
+            ) : (
+              renderOrderedList(receta.tipsSaludables)
+            )}
+
+            <FormLabel className="label_floating">Tips Saludables</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="composicionNutricional"
+            isRequired
+          >
+            {bandEdit ? (
+              <Textarea
+                className={`input_floating`}
+                placeholder=""
+                name="composicionNutricional"
+                size="sm"
+                disabled={!bandEdit}
+                variant="outlined"
+                type="text"
+                value={
+                  receta?.composicionNutricional
+                    ? receta.composicionNutricional
+                    : ""
+                }
+                onChange={(e) => handleChangeInput(e)}
+              />
+            ) : (
+              renderOrderedList(receta.composicionNutricional, true)
+            )}
+
+            <FormLabel className="label_floating">
+              Composición Nutricional
+            </FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="preparacion"
+            isRequired
+          >
+            {bandEdit ? (
+              <Textarea
+                className={`input_floating`}
+                placeholder="Preparación"
+                disabled={!bandEdit}
+                name="preparacion"
+                variant="outlined"
+                type="text"
+                value={receta?.preparacion ? receta.preparacion : ""}
+                onChange={(e) => handleChangeInput(e)}
+              />
+            ) : (
+              renderOrderedList(receta.preparacion)
+            )}
+
+            <FormLabel className="label_floating">Preparacion</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl isRequired>
+            <FormLabel>Patologias</FormLabel>
+            {/* SELECT DE LAS PATOLOGIAS */}
+            <Select
               disabled={!bandEdit}
-              placeholder="Ingredientes"
-              name="ingredientes"
-              variant="outlined"
-              type="text"
-              value={receta?.ingredientes ? receta.ingredientes : ""}
-              onChange={(e) => handleChangeInput(e)}
+              name="idPatologias"
+              {...sharedProps}
+              /* value={alumnos} */
+              onChange={(e) => {
+                console.log(e);
+                handleChangeSelect(e);
+                setSelectedPatologias(e);
+              }}
             />
-          ) : (
-            renderOrderedList(receta.ingredientes)
-          )}
-          <FormLabel>Ingredientes</FormLabel>
-        </FormControl>
-      </div>
-
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="tipsSaludables"
-          isRequired
-        >
-          {bandEdit ? (
-            <Textarea
-              className={`input_edit`}
-              placeholder=""
-              name="tipsSaludables"
-              size="sm"
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl isRequired>
+            <FormLabel>Categorias</FormLabel>
+            {/* SELECT DE LAS CATEGORIAS */}
+            <Select
               disabled={!bandEdit}
-              variant="outlined"
-              type="text"
-              value={receta?.tipsSaludables ? receta.tipsSaludables : ""}
-              onChange={(e) => handleChangeInput(e)}
+              name="idCategorias"
+              {...sharedPropsCategorias}
+              /* value={alumnos} */
+              onChange={(e) => {
+                console.log(e);
+                handleChangeSelectCategorias(e);
+                setSelectedCategorias(e);
+              }}
             />
-          ) : (
-            renderOrderedList(receta.tipsSaludables)
-          )}
-
-          <FormLabel>Tips Saludables</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="composicionNutricional"
-          isRequired
-        >
-          {bandEdit ? (
-            <Textarea
-              className={`input_edit`}
-              placeholder=""
-              name="composicionNutricional"
-              size="sm"
-              disabled={!bandEdit}
-              variant="outlined"
-              type="text"
-              value={
-                receta?.composicionNutricional
-                  ? receta.composicionNutricional
-                  : ""
-              }
-              onChange={(e) => handleChangeInput(e)}
-            />
-          ) : (
-            renderOrderedList(receta.composicionNutricional,true)
-          )}
-
-          <FormLabel>Composición Nutricional</FormLabel>
-        </FormControl>
-      </div>
-
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="preparacion"
-          isRequired
-        >
-          {bandEdit ? (
-            <Textarea
-              className={`input_edit`}
-              placeholder="Preparación"
-              disabled={!bandEdit}
-              name="preparacion"
-              variant="outlined"
-              type="text"
-              value={receta?.preparacion ? receta.preparacion : ""}
-              onChange={(e) => handleChangeInput(e)}
-            />
-          ) : (
-            renderOrderedList(receta.preparacion)
-          )}
-
-          <FormLabel>Preparacion</FormLabel>
-        </FormControl>
-        {/* SELECT DE LAS PATOLOGIAS */}
-        <Select
-          disabled={!bandEdit}
-          name="idPatologias"
-          className="select_recetas input_edit"
-          {...sharedProps}
-          /* value={alumnos} */
-          onChange={(e) => {
-            console.log(e);
-            handleChangeSelect(e);
-            setSelectedPatologias(e);
-          }}
-        />
-
-         {/* SELECT DE LAS CATEGORIAS */}
-         <Select
-          disabled={!bandEdit}
-          name="idCategorias"
-          className="select_recetas input_edit"
-          {...sharedPropsCategorias}
-          /* value={alumnos} */
-          onChange={(e) => {
-            console.log(e);
-            handleChangeSelectCategorias(e);
-            setSelectedCategorias(e);
-          }}
-        />
-      </div>
-      <div className="cont_btns_acciones_receta">
+          </FormControl>
+        </GridItem>
+      </Grid>
+      <div className="cont_btns_acciones">
         {!bandEdit ? (
           <Button
             className="btn_accion_edit_receta"

@@ -1,34 +1,34 @@
 .popup-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
-    z-index: 999;
-  }
-  
-  .popup-content {
-    width: 80%; /* Anchura ajustable */
-    height: 70%;
-    /* max-width: 400px; */ /* Máximo ancho para evitar que se vea demasiado grande */
-    background-color: #ffffff; /* Color de fondo de la ventana emergente */
-    padding: 2px 5px;
-    border-radius: 5px;
-    text-align: center; /* Alineación centrada del contenido */
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.popup-content {
+  width: 75vw;
+  height: 80vh;
+  background-color: #ffffff;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+}
+
   .popup-content.x-small {
     width: 25%; /* Anchura para ventanas pequeñas */
     max-height: 25%; /* Altura para ventanas pequeñas */
-    
     align-items: center;
+
   }
   .popup-content.small {
     width: 40%; /* Anchura para ventanas pequeñas */
@@ -50,6 +50,16 @@
   }
 
   @media (max-width: 620px) {
+    .popup-content {
+      width: 80vw;
+      height: 70vh;
+    }
+  }
+
+  @media (max-width: 620px) {
+
+
+    
     .popup-content.medium {
       width: 80%; /* Anchura para ventanas medianas */
       max-height: 70%; /* Altura para ventanas medianas */

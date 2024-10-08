@@ -5,6 +5,8 @@ import {
   FormControl,
   FormLabel,
   Textarea,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import "../style.css";
 import { Select, Space, Tooltip, Upload } from "antd";
@@ -28,7 +30,7 @@ export const AddReceta = ({ onClosePadre }) => {
     handleInsert,
     handleCloseVentEmergConfirmacion,
     patologiasxRecetasAdd,
-    categoriasxRecetasAdd
+    categoriasxRecetasAdd,
   } = useContext(RecetasContext);
 
   const sharedProps = {
@@ -124,85 +126,94 @@ export const AddReceta = ({ onClosePadre }) => {
   };
 
   return (
-    <div className="form_edit_receta">
+    <div className="form">
       <Toaster position="top-center" reverseOrder={false} />
-
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="nombre"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="nombre"
-            variant="outlined"
-            type="text"
-            value={recetaToInsert?.nombre ? recetaToInsert.nombre : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Nombre</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="porciones"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="porciones"
-            variant="outlined"
-            type="text"
-            value={recetaToInsert?.porciones ? recetaToInsert.porciones : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Porciones</FormLabel>
-        </FormControl>
-      </div>
-
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="calorias"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="calorias"
-            variant="outlined"
-            type="text"
-            value={recetaToInsert?.calorias ? recetaToInsert.calorias : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Calorias</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="tiempo"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="tiempo"
-            variant="outlined"
-            type="text"
-            value={recetaToInsert?.tiempo ? recetaToInsert.tiempo : ""}
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Tiempo</FormLabel>
-        </FormControl>
-      </div>
-
-      <div className="cont_form_input">
-        {/*  <Input
+      <Grid
+        className="grid_chackra"
+        templateColumns={{
+          base: "1fr",
+          md: "repeat(auto-fit, minmax(300px, 1fr))",
+        }}
+        gap={10}
+      >
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="nombre"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder=""
+              name="nombre"
+              variant="outlined"
+              type="text"
+              value={recetaToInsert?.nombre ? recetaToInsert.nombre : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Nombre</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="porciones"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder=""
+              name="porciones"
+              variant="outlined"
+              type="text"
+              value={recetaToInsert?.porciones ? recetaToInsert.porciones : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Porciones</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="calorias"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder=""
+              name="calorias"
+              variant="outlined"
+              type="text"
+              value={recetaToInsert?.calorias ? recetaToInsert.calorias : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Calorias</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="tiempo"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder=""
+              name="tiempo"
+              variant="outlined"
+              type="text"
+              value={recetaToInsert?.tiempo ? recetaToInsert.tiempo : ""}
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Tiempo</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          {/*  <Input
           className={`input_edit`}
           placeholder="URL Foto"
           name="urlFoto"
@@ -212,121 +223,134 @@ export const AddReceta = ({ onClosePadre }) => {
           onChange={(e) => handleChangeInputInsert(e)}
         /> */}
 
-        <Upload
-          className="imgCrop"
-          listType="picture-card"
-          fileList={fileList}
-          beforeUpload={beforeUpload}
-          maxCount={1}
-          onChange={handleFileChange}
-        >
-          {fileList.length < 1 && "Imagen/Video"}
-        </Upload>
-        {/* <ImgCrop rotationSlider>
+          <Upload
+            className="imgCrop"
+            listType="picture-card"
+            fileList={fileList}
+            beforeUpload={beforeUpload}
+            maxCount={1}
+            onChange={handleFileChange}
+          >
+            {fileList.length < 1 && "Imagen/Video"}
+          </Upload>
+          {/* <ImgCrop rotationSlider>
         </ImgCrop> */}
-
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="ingredientes"
-          isRequired
-        >
-          <Textarea
-            className={`input_edit`}
-            placeholder=""
-            name="ingredientes"
-            size="sm"
-            variant="outlined"
-            type="text"
-            value={
-              recetaToInsert?.ingredientes ? recetaToInsert.ingredientes : ""
-            }
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Ingredientes</FormLabel>
-        </FormControl>
-      </div>
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="tipsSaludables"
-        >
-          <Textarea
-            className={`input_edit`}
-            placeholder=""
-            name="tipsSaludables"
-            size="sm"
-            variant="outlined"
-            type="text"
-            value={
-              recetaToInsert?.tipsSaludables
-                ? recetaToInsert.tipsSaludables
-                : ""
-            }
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Tips Saludables</FormLabel>
-        </FormControl>
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="composicionNutricional"
-        >
-          <Textarea
-            className={`input_edit`}
-            placeholder=""
-            name="composicionNutricional"
-            size="sm"
-            variant="outlined"
-            type="text"
-            value={
-              recetaToInsert?.composicionNutricional
-                ? recetaToInsert.composicionNutricional
-                : ""
-            }
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Composición Nutricional</FormLabel>
-        </FormControl>
-      </div>
-
-      <div className="cont_form_input">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="preparacion"
-          isRequired
-        >
-          <Textarea
-            className={`input_edit`}
-            placeholder=""
-            name="preparacion"
-            variant="outlined"
-            type="text"
-            value={
-              recetaToInsert?.preparacion ? recetaToInsert.preparacion : ""
-            }
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Preparacion</FormLabel>
-        </FormControl>
-        {/* SELECT DE LAS PATOLOGIAS */}
-        <Select
-          className="select_recetas input_edit"
-          name="idPatologias"
-          {...sharedProps}
-          /* value={alumnos} */
-          onChange={handleChangeSelectInsert}
-        />
-      </div>
-      <Select
-          className="select_recetas input_edit"
-          name="idCategorias"
-          {...sharedPropsCategorias}
-          /* value={alumnos} */
-          onChange={handleChangeSelectCategoriasInsert}
-        />
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="ingredientes"
+            isRequired
+          >
+            <Textarea
+              className={`input_floating`}
+              placeholder=""
+              name="ingredientes"
+              size="sm"
+              variant="outlined"
+              type="text"
+              value={
+                recetaToInsert?.ingredientes ? recetaToInsert.ingredientes : ""
+              }
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Ingredientes</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="tipsSaludables"
+          >
+            <Textarea
+              className={`input_floating`}
+              placeholder=""
+              name="tipsSaludables"
+              size="sm"
+              variant="outlined"
+              type="text"
+              value={
+                recetaToInsert?.tipsSaludables
+                  ? recetaToInsert.tipsSaludables
+                  : ""
+              }
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Tips Saludables</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="composicionNutricional"
+          >
+            <Textarea
+              className={`input_floating`}
+              placeholder=""
+              name="composicionNutricional"
+              size="sm"
+              variant="outlined"
+              type="text"
+              value={
+                recetaToInsert?.composicionNutricional
+                  ? recetaToInsert.composicionNutricional
+                  : ""
+              }
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">
+              Composición Nutricional
+            </FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="preparacion"
+            isRequired
+          >
+            <Textarea
+              className={`input_floating`}
+              placeholder=""
+              name="preparacion"
+              variant="outlined"
+              type="text"
+              value={
+                recetaToInsert?.preparacion ? recetaToInsert.preparacion : ""
+              }
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel className="label_floating">Preparacion</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          {/* SELECT DE LAS PATOLOGIAS */}
+          <FormControl isRequired>
+            <FormLabel>Patologias</FormLabel>
+            <Select
+              name="idPatologias"
+              {...sharedProps}
+              /* value={alumnos} */
+              onChange={handleChangeSelectInsert}
+            />
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl isRequired>
+            <FormLabel>Categorias</FormLabel>
+            <Select
+              name="idCategorias"
+              {...sharedPropsCategorias}
+              /* value={alumnos} */
+              onChange={handleChangeSelectCategoriasInsert}
+            />
+          </FormControl>
+        </GridItem>
+      </Grid>
       {bandInsert ? (
         <Button
           className="btn_accion_edit_receta"

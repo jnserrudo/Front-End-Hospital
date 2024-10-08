@@ -7,6 +7,8 @@ import {
   Textarea,
   FormControl,
   FormLabel,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import "../style.css";
 import InformacionsContext from "../Contexts/InformacionContext";
@@ -161,152 +163,179 @@ export const AddInformacion = ({ onClosePadre }) => {
   }, [ informacionToInsert]); */
 
   return (
-    <div className="">
+    <div className="form">
       <Toaster position="top-center" reverseOrder={false} />
-
-      <div className="form_edit_informacion">
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="nombre"
-          isRequired
-        >
-          <Input
-            className={`input_edit`}
-            placeholder=""
-            name="nombre"
-            variant="outlined"
-            type="text"
-            value={
-              informacionToInsert?.nombre ? informacionToInsert.nombre : ""
-            }
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Nombre</FormLabel>
-        </FormControl>
-
-        <Tabs>
-          <TabList>
-            <Tab>Cargar Video</Tab>
-            <Tab>Youtube</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel className="tab_video_iframe">
-              {previewUrl && (
-                <ReactPlayer
-                  width="60%"
-                  height="100%"
-                  controls
-                  url={previewUrl}
-                />
-              )}
-              <Upload
-                className="imgCrop"
-                listType="picture-card"
-                fileList={fileList}
-                beforeUpload={beforeUpload}
-                maxCount={1}
-                disabled={disableFileUpload} // Deshabilitar condicionalmente
-                progress={true}
-                showUploadList={false}
-                onPreview={async (file) => {
-                  // Si el archivo ya tiene una URL (por ejemplo, un archivo previamente subido)
-                  if (file.url) {
-                    // Abre la URL del archivo en una nueva ventana
-                    window.open(file.url);
-                  } else {
-                    // Si el archivo no tiene URL, genera una URL de previsualización usando FileReader
-                    const preview = await new Promise((resolve, reject) => {
-                      const reader = new FileReader();
-                      reader.readAsDataURL(file.originFileObj); // Lee el archivo como una URL de datos
-                      reader.onload = () => resolve(reader.result); // Resuelve la promesa con la URL de datos
-                      reader.onerror = (error) => reject(error); // Rechaza la promesa si hay un error
-                    });
-                    // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
-                    const imgWindow = window.open();
-                    imgWindow.document.write(
-                      `<img src="${preview}" alt="preview" />`
-                    );
-                  }
-                }}
-                customRequest={({ file, onSuccess }) => {
-                  setTimeout(() => {
-                    onSuccess("ok");
-                  }, 0);
-                }}
-                onChange={handleFileChange}
-              >
-                {/* fileList.length < 1 &&  */ "Subir Video"}
-              </Upload>
-            </TabPanel>
-            <TabPanel>
-              <FormControl
-                className="cont_input_edit"
-                variant="floating"
-                id="youtubeUrl"
-              >
-                <Textarea
-                  className={`input_edit `}
-                  placeholder=""
-                  name="youtubeUrl"
-                  variant="outlined"
-                  type="text"
-                  disabled={disableYoutubeInput} // Deshabilitar condicionalmente
-                  onChange={handleYoutubeUrlChange}
-                  value={youtubeUrl}
-                />
-                <FormLabel>Iframe YouTube</FormLabel>
-              </FormControl>
-              {iframeUrl && (
-                <div style={{ marginTop: "1rem" }}>
-                  <div dangerouslySetInnerHTML={{ __html: iframeUrl.replace("<iframe", "<iframe style='width: 100%; height: 100%; border: none;'") }} />
-                </div>
-              )}
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-
-        {/* SELECT DE LAS PATOLOGIAS */}
-        <Select
-          className="select_recetas input_edit"
-          name="idPatologias"
-          {...sharedProps}
-          /* value={alumnos} */
-          onChange={handleChangeSelectInsert}
-        />
-
-        {/* SELECT DE LAS CATEGORIAS */}
-        <Select
-          className="select_recetas input_edit"
-          name="idCategorias"
-          {...sharedPropsCategorias}
-          /* value={alumnos} */
-          onChange={handleChangeSelectCategoriasInsert}
-        />
-
-        <FormControl
-          className="cont_input_edit"
-          variant="floating"
-          id="descripcion"
-          isRequired
-        >
-          <Textarea
-            className={`input_edit`}
-            placeholder=""
-            name="descripcion"
-            size="sm"
-            variant="outlined"
-            type="text"
-            value={
-              informacionToInsert?.descripcion
-                ? informacionToInsert.descripcion
-                : ""
-            }
-            onChange={(e) => handleChangeInputInsert(e)}
-          />
-          <FormLabel>Descripción</FormLabel>
-        </FormControl>
-      </div>
+      <Grid
+        className="grid_chackra"
+        templateColumns={{
+          base: "1fr",
+          md: "repeat(auto-fit, minmax(350px, 1fr))",
+        }}
+        gap={10}
+      >
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="nombre"
+            isRequired
+          >
+            <Input
+              className={`input_floating`}
+              placeholder=""
+              name="nombre"
+              variant="outlined"
+              type="text"
+              value={
+                informacionToInsert?.nombre ? informacionToInsert.nombre : ""
+              }
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel>Nombre</FormLabel>
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <Tabs>
+            <TabList>
+              <Tab>Cargar Video</Tab>
+              <Tab>Youtube</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel className="tab_video_iframe">
+                {previewUrl && (
+                  <ReactPlayer
+                    width="60%"
+                    height="100%"
+                    controls
+                    url={previewUrl}
+                  />
+                )}
+                <Upload
+                  className="imgCrop"
+                  listType="picture-card"
+                  fileList={fileList}
+                  beforeUpload={beforeUpload}
+                  maxCount={1}
+                  disabled={disableFileUpload} // Deshabilitar condicionalmente
+                  progress={true}
+                  showUploadList={false}
+                  onPreview={async (file) => {
+                    // Si el archivo ya tiene una URL (por ejemplo, un archivo previamente subido)
+                    if (file.url) {
+                      // Abre la URL del archivo en una nueva ventana
+                      window.open(file.url);
+                    } else {
+                      // Si el archivo no tiene URL, genera una URL de previsualización usando FileReader
+                      const preview = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file.originFileObj); // Lee el archivo como una URL de datos
+                        reader.onload = () => resolve(reader.result); // Resuelve la promesa con la URL de datos
+                        reader.onerror = (error) => reject(error); // Rechaza la promesa si hay un error
+                      });
+                      // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
+                      const imgWindow = window.open();
+                      imgWindow.document.write(
+                        `<img src="${preview}" alt="preview" />`
+                      );
+                    }
+                  }}
+                  customRequest={({ file, onSuccess }) => {
+                    setTimeout(() => {
+                      onSuccess("ok");
+                    }, 0);
+                  }}
+                  onChange={handleFileChange}
+                >
+                  {/* fileList.length < 1 &&  */ "Subir Video"}
+                </Upload>
+              </TabPanel>
+              <TabPanel>
+                <GridItem colSpan={{ base: 1, md: 2 }}>
+                  <FormControl
+                    className="cont_input_edit"
+                    variant="floating"
+                    id="youtubeUrl"
+                  >
+                    <Textarea
+                      className={`input_floating `}
+                      placeholder=""
+                      name="youtubeUrl"
+                      variant="outlined"
+                      type="text"
+                      disabled={disableYoutubeInput} // Deshabilitar condicionalmente
+                      onChange={handleYoutubeUrlChange}
+                      value={youtubeUrl}
+                    />
+                    <FormLabel>Iframe YouTube</FormLabel>
+                  </FormControl>
+                </GridItem>
+                {iframeUrl && (
+                  <GridItem colSpan={{ base: 1, md: 2 }}>
+                    <div style={{ marginTop: "1rem" }}>
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: iframeUrl.replace(
+                            "<iframe",
+                            "<iframe style='width: 100%; height: 100%; border: none;'"
+                          ),
+                        }}
+                      />
+                    </div>
+                  </GridItem>
+                )}
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl isRequired>
+            <FormLabel>Patologias</FormLabel>
+            {/* SELECT DE LAS PATOLOGIAS */}
+            <Select
+              name="idPatologias"
+              {...sharedProps}
+              /* value={alumnos} */
+              onChange={handleChangeSelectInsert}
+            />
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          <FormControl isRequired>
+            <FormLabel>Categorias</FormLabel>
+            {/* SELECT DE LAS CATEGORIAS */}
+            <Select
+              name="idCategorias"
+              {...sharedPropsCategorias}
+              /* value={alumnos} */
+              onChange={handleChangeSelectCategoriasInsert}
+            />
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl
+            className="cont_input_edit"
+            variant="floating"
+            id="descripcion"
+            isRequired
+          >
+            <Textarea
+              className={`input_floating`}
+              placeholder=""
+              name="descripcion"
+              size="sm"
+              variant="outlined"
+              type="text"
+              value={
+                informacionToInsert?.descripcion
+                  ? informacionToInsert.descripcion
+                  : ""
+              }
+              onChange={(e) => handleChangeInputInsert(e)}
+            />
+            <FormLabel>Descripción</FormLabel>
+          </FormControl>
+        </GridItem>
+      </Grid>
 
       {bandInsert ? (
         <Button
