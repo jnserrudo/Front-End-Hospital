@@ -1,7 +1,15 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Table } from "antd";
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import { Button, ButtonGroup } from '@chakra-ui/react'
+import {
+  Button,
+  ButtonGroup,
+  Input,
+  FormControl,
+  FormLabel,
+  InputGroup,
+  InputRightElement,
+} from "@chakra-ui/react";
 import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
 
 import InformacionContext from "../Contexts/InformacionContext";
@@ -11,7 +19,8 @@ import { inhabilitarInformacion } from "../services/informacion-services";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 export const AdminInformacion = () => {
   const {
-    db=[],
+    db = [],
+    dbSearch,
     columns,
     informacionSelected,
     showVentEmergenteEditInformacion,
@@ -24,26 +33,50 @@ export const AdminInformacion = () => {
     showVentEmergenteDelete,
     setShowVentEmergenteDelete,
   } = useContext(InformacionContext);
-console.log(db,columns)
+  console.log(db, columns);
 
-const inhabilitarRegistro=async(id)=>{
-  console.log("inhabilitarRegistro: ",id)
-  const result=await inhabilitarInformacion(id)
-  console.log("resultado de inhabilitar: ",result)
+  const inhabilitarRegistro = async (id) => {
+    console.log("inhabilitarRegistro: ", id);
+    const result = await inhabilitarInformacion(id);
+    console.log("resultado de inhabilitar: ", result);
+  };
 
-}
+  const [informacionSearch, setInformacionSearch] = useState("");
+
 
   return (
-    <div>
-            <p className='titulo_administracion'>Información</p>
+    <div  className="form form_admin">
+      <p className="titulo_administracion">Información</p>
 
       <Button
         className="btn_agregar"
-        colorScheme='green'
+        colorScheme="green"
         onClick={() => setShowVentEmergenteAddInformacion(true)}
       >
         Agregar Informacion <UserAddOutlined className="icons" />
       </Button>
+      <FormControl className="buscador" variant="floating" id="recetaSearch">
+        <InputGroup>
+          <Input
+            placeholder=""
+            name="informacionSearch"
+            type="text"
+            value={informacionSearch}
+            onChange={(e) => {
+              setInformacionSearch(e.target.value);
+              handleSearch(e.target.value,db);
+            }}
+          />
+          <InputRightElement
+            width="4.5rem"
+            style={{ color: "#046ba3", fontSize: "20px" }}
+          >
+            <SearchOutlined />
+          </InputRightElement>
+        </InputGroup>
+
+        <FormLabel></FormLabel>
+      </FormControl>
       <Table
         className="tabla"
         columns={columns}
@@ -53,7 +86,7 @@ const inhabilitarRegistro=async(id)=>{
         pagination={{ position: ["none", "bottomRight"], pageSize: 5 }}
         /* el pageSize determina la cantidad filas por tabla */
 
-        dataSource={db}
+        dataSource={ dbSearch.length > 0 ? dbSearch : db}
       />
 
       <VentEmergenteAddInformacion
@@ -66,12 +99,12 @@ const inhabilitarRegistro=async(id)=>{
         informacionSelected={informacionSelected}
         onClose={handleCloseVentEmergenteEditInformacion}
       />
-      
+
       <VentEmergConfirmacion
         mje={"Esta seguro de eliminar este registro?"}
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
-        handleSi={()=>inhabilitarRegistro(idInformacion)}
+        handleSi={() => inhabilitarRegistro(idInformacion)}
       />
     </div>
   );

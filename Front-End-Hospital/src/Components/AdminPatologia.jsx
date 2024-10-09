@@ -1,7 +1,15 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Table } from "antd";
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import { Button, ButtonGroup } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Input,
+  FormControl,
+  FormLabel,
+  InputGroup,
+  InputRightElement,
+} from "@chakra-ui/react";
 import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
 
 import PatologiaContext from "../Contexts/PatologiaContext";
@@ -23,6 +31,7 @@ export const AdminPatologia = () => {
     idPatologia,
     showVentEmergenteDelete,
     setShowVentEmergenteDelete,
+    dbSearch
   } = useContext(PatologiaContext);
   console.log(columns);
 
@@ -32,18 +41,40 @@ export const AdminPatologia = () => {
     console.log("resultado de inhabilitar: ", result);
   };
 
+  const [patologiaSearch, setPatologiaSearch] = useState("");
+
   return (
-    <div>
+    <div className="form form_admin">
       <p className="titulo_administracion">Patologias</p>
-      <div className="cont_btn_agregar">
-        <Button
-          className="btn_agregar"
-          colorScheme="green"
-          onClick={() => setShowVentEmergenteAddPatologia(true)}
-        >
-          Agregar Patologia <UserAddOutlined className="icons" />
-        </Button>
-      </div>
+      <Button
+        className="btn_agregar"
+        colorScheme="green"
+        onClick={() => setShowVentEmergenteAddPatologia(true)}
+      >
+        Agregar Patologia <UserAddOutlined className="icons" />
+      </Button>
+      <FormControl className="buscador" variant="floating" id="recetaSearch">
+        <InputGroup>
+          <Input
+            placeholder=""
+            name="patologiaSearch"
+            type="text"
+            value={patologiaSearch}
+            onChange={(e) => {
+              setPatologiaSearch(e.target.value);
+              handleSearch(e.target.value);
+            }}
+          />
+          <InputRightElement
+            width="4.5rem"
+            style={{ color: "#046ba3", fontSize: "20px" }}
+          >
+            <SearchOutlined />
+          </InputRightElement>
+        </InputGroup>
+
+        <FormLabel></FormLabel>
+      </FormControl>
       <Table
         className="tabla"
         columns={columns}
@@ -53,7 +84,7 @@ export const AdminPatologia = () => {
         pagination={{ position: ["none", "bottomRight"], pageSize: 5 }}
         /* el pageSize determina la cantidad filas por tabla */
 
-        dataSource={db}
+        dataSource={ dbSearch.length > 0 ? dbSearch : db}
       />
 
       <VentEmergenteAddPatologia

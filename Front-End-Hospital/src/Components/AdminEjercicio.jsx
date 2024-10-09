@@ -1,7 +1,15 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Table } from "antd";
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import { Button, ButtonGroup } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Input,
+  FormControl,
+  FormLabel,
+  InputGroup,
+  InputRightElement,
+} from "@chakra-ui/react";
 import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
 
 import EjercicioContext from "../Contexts/EjercicioContext";
@@ -12,6 +20,7 @@ import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 export const AdminEjercicio = () => {
   const {
     db = [],
+    dbSearch,
     columns,
     ejercicioSelected,
     showVentEmergenteEditEjercicio,
@@ -30,11 +39,12 @@ export const AdminEjercicio = () => {
     const result = await inhabilitarEjercicio(id);
     console.log("resultado de inhabilitar: ", result);
   };
+  const [ejercicioSearch, setEjercicioSearch] = useState("");
 
   console.log(db, columns);
   return (
-    <div>
-            <p className='titulo_administracion'>Ejercicio</p>
+    <div className="form form_admin" >
+      <p className="titulo_administracion">Ejercicio</p>
 
       <Button
         className="btn_agregar"
@@ -43,6 +53,28 @@ export const AdminEjercicio = () => {
       >
         Agregar Ejercicio <UserAddOutlined className="icons" />
       </Button>
+      <FormControl className="buscador" variant="floating" id="recetaSearch">
+        <InputGroup>
+          <Input
+            placeholder=""
+            name="ejercicioSearch"
+            type="text"
+            value={ejercicioSearch}
+            onChange={(e) => {
+              setEjercicioSearch(e.target.value);
+              handleSearch(e.target.value,db);
+            }}
+          />
+          <InputRightElement
+            width="4.5rem"
+            style={{ color: "#046ba3", fontSize: "20px" }}
+          >
+            <SearchOutlined />
+          </InputRightElement>
+        </InputGroup>
+
+        <FormLabel></FormLabel>
+      </FormControl>
       <Table
         className="tabla"
         columns={columns}
@@ -52,7 +84,7 @@ export const AdminEjercicio = () => {
         pagination={{ position: ["none", "bottomRight"], pageSize: 5 }}
         /* el pageSize determina la cantidad filas por tabla */
 
-        dataSource={db}
+        dataSource={ dbSearch.length > 0 ? dbSearch : db}
       />
 
       <VentEmergenteAddEjercicio

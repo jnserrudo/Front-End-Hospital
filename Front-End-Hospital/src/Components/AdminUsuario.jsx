@@ -1,7 +1,15 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Table } from "antd";
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import { Button, ButtonGroup } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Input,
+  FormControl,
+  FormLabel,
+  InputGroup,
+  InputRightElement,
+} from "@chakra-ui/react";
 import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
 
 import UsuarioContext from "../Contexts/UsuarioContext";
@@ -12,6 +20,7 @@ import { inhabilitarUsuario } from "../services/usuario-services";
 export const AdminUsuario = () => {
   const {
     db,
+    dbSearch,
     columns,
     usuarioSelected,
     showVentEmergenteEditUsuario,
@@ -31,9 +40,10 @@ export const AdminUsuario = () => {
     const result = await inhabilitarUsuario(id);
     console.log("resultado de inhabilitar: ", result);
   };
+  const [usuarioSearch, setUsuarioSearch] = useState("");
 
   return (
-    <div>
+    <div className="form form_admin" >
       <p className="titulo_administracion">Usuarios</p>
 
       <Button
@@ -43,6 +53,29 @@ export const AdminUsuario = () => {
       >
         Agregar Usuario <UserAddOutlined className="icons" />
       </Button>
+      
+      <FormControl className="buscador" variant="floating" id="recetaSearch">
+        <InputGroup>
+          <Input
+            placeholder=""
+            name="usuarioSearch"
+            type="text"
+            value={usuarioSearch}
+            onChange={(e) => {
+              setUsuarioSearch(e.target.value);
+              handleSearch(e.target.value);
+            }}
+          />
+          <InputRightElement
+            width="4.5rem"
+            style={{ color: "#046ba3", fontSize: "20px" }}
+          >
+            <SearchOutlined />
+          </InputRightElement>
+        </InputGroup>
+
+        <FormLabel></FormLabel>
+      </FormControl>
       <Table
         className="tabla"
         columns={columns}
@@ -52,7 +85,7 @@ export const AdminUsuario = () => {
         pagination={{ position: ["none", "bottomRight"], pageSize: 5 }}
         /* el pageSize determina la cantidad filas por tabla */
 
-        dataSource={db}
+        dataSource={dbSearch.length > 0 ? dbSearch : db}
       />
 
       <VentEmergenteAddUsuario

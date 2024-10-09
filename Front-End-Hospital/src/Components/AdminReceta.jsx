@@ -1,7 +1,16 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Table } from "antd";
 import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import { Button, ButtonGroup } from "@chakra-ui/react";
+import {
+  Button,
+  ButtonGroup,
+  Input,
+  FormControl,
+  FormLabel,
+  InputGroup,
+  InputRightElement,
+  
+} from "@chakra-ui/react";
 import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
 
 import RecetaContext from "../Contexts/RecetaContext";
@@ -12,6 +21,7 @@ import { inhabilitarRecetas } from "../services/recetas-services";
 export const AdminReceta = () => {
   const {
     db,
+    dbSearch,
     columns,
     recetaSelected,
     showVentEmergenteEditReceta,
@@ -31,6 +41,8 @@ export const AdminReceta = () => {
     const result = await inhabilitarRecetas(id);
     console.log("resultado de inhabilitar: ", result);
   };
+  const [recetaSearch, setRecetaSearch] = useState("");
+
 
   useEffect(() => {
     //necesito saber el rol del usuario, si es 3 es paciente
@@ -41,7 +53,7 @@ export const AdminReceta = () => {
   }, []);
 
   return (
-    <div>
+    <div className="form form_admin">
       <p className="titulo_administracion">Recetas</p>
 
       <Button
@@ -51,6 +63,32 @@ export const AdminReceta = () => {
       >
         Agregar Receta <UserAddOutlined className="icons" />
       </Button>
+
+      <FormControl className="buscador" variant="floating" id="recetaSearch">
+        <InputGroup>
+          <Input
+            placeholder=""
+            name="recetaSearch"
+            type="text"
+            value={recetaSearch}
+            onChange={(e) => {
+              setRecetaSearch(e.target.value);
+              handleSearch(
+                e.target.value,
+                db
+              );
+            }}
+          />
+          <InputRightElement
+            width="4.5rem"
+            style={{ color: "#046ba3", fontSize: "20px" }}
+          >
+            <SearchOutlined />
+          </InputRightElement>
+        </InputGroup>
+
+        <FormLabel></FormLabel>
+      </FormControl>
       <Table
         className="tabla"
         columns={columns}
@@ -60,7 +98,7 @@ export const AdminReceta = () => {
         pagination={{ position: ["none", "bottomRight"], pageSize: 5 }}
         /* el pageSize determina la cantidad filas por tabla */
 
-        dataSource={db}
+        dataSource={ dbSearch.length>0 ? dbSearch : db}
       />
 
       <VentEmergenteAddReceta
