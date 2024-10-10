@@ -132,7 +132,7 @@ export const AddReceta = ({ onClosePadre }) => {
         className="grid_chackra"
         templateColumns={{
           base: "1fr",
-          md: "repeat(auto-fit, minmax(300px, 1fr))",
+          md: "repeat(auto-fit, minmax(400px, 1fr))",
         }}
         gap={10}
       >
