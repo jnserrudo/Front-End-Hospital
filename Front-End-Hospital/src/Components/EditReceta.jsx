@@ -434,6 +434,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
             fileList={fileList}
             onChange={handleFileChange}
             disabled={!bandEdit}
+            
           >
             {/* fileList.length < 2 &&  */ "Imagen/Video"}
           </Upload>

@@ -7,9 +7,10 @@ import {
   Textarea,
   Grid,
   GridItem,
+  Tooltip 
 } from "@chakra-ui/react";
 import "../style.css";
-import { Select, Space, Tooltip, Upload } from "antd";
+import { Select, Space,/*  Tooltip, */ Upload } from "antd";
 import ImgCrop from "antd-img-crop";
 
 import RecetasContext from "../Contexts/RecetaContext";
@@ -75,7 +76,13 @@ export const AddReceta = ({ onClosePadre }) => {
     setShowVentEmergenteConfirmacion(false);
   };
 
-  const handleFileChange = ({ fileList: newFileList }) => {
+  const handleFileChange = ({ file, fileList: newFileList }) => {
+    // Si el archivo pasa la validación, ajustamos manualmente su estado a 'done'
+    //ESTO SE HACE PARA EVITAR EL BORDE ROJO, PORQUE EL COMPONENTE UPLOAD INTENTA SUBIR EL ARCHIVO, CUANDO
+    //POR AHORA SOLO VAMOS CARGANDOLO EN EL FORMULARIO.
+    if (file.status === "error") {
+      file.status = "done";
+    }
     setFileList(newFileList);
   };
 
@@ -230,6 +237,10 @@ export const AddReceta = ({ onClosePadre }) => {
             beforeUpload={beforeUpload}
             maxCount={1}
             onChange={handleFileChange}
+            showUploadList={{
+              showPreviewIcon: false, // Oculta el ícono de ojito
+              showRemoveIcon: true, // Mantén el ícono de eliminación si es necesario
+            }}
           >
             {fileList.length < 1 && "Imagen/Video"}
           </Upload>
@@ -351,16 +362,22 @@ export const AddReceta = ({ onClosePadre }) => {
           </FormControl>
         </GridItem>
       </Grid>
-      {bandInsert ? (
+      <Tooltip
+        label={!bandInsert ? "Faltan valores a cargar en el formulario" : ""}
+        hasArrow
+        shouldWrapChildren
+        placement="top"
+      >
         <Button
           className="btn_accion_edit_receta"
           colorScheme="green"
           style={{ margin: "1rem auto 0" }}
           onClick={() => setShowVentEmergenteConfirmacion(true)}
+          isDisabled={!bandInsert} // El botón se deshabilita si `bandInsert` es false.
         >
           Agregar Receta
         </Button>
-      ) : null}
+      </Tooltip>
 
       <VentEmergConfirmacion
         onClosePadre={onClosePadre}
@@ -368,11 +385,7 @@ export const AddReceta = ({ onClosePadre }) => {
         mje={"Esta seguro de agregar a la receta? "}
         /* handleSi={handleInsert} */
         handleSi={() => {
-          toast.promise(handleInsertWithImage, {
-            loading: "Cargando",
-            success: <b>Se agrego el usuario!</b>,
-            error: <b>No se pudo agregar al Usuario.</b>,
-          });
+          handleInsertWithImage()
 
           //toast.success("Se agrego el usuario!")
         }}
