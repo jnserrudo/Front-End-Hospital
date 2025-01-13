@@ -167,7 +167,16 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
 
   const handleFileChange = ({ fileList: newFileList }) => {
     console.log("handleFileChange");
-    setFileList(newFileList);
+    //ESTO SE HACE PARA EVITAR EL BORDE ROJO, PORQUE EL COMPONENTE UPLOAD INTENTA SUBIR EL ARCHIVO, CUANDO
+    //POR AHORA SOLO VAMOS CARGANDOLO EN EL FORMULARIO.
+    // Asegurar que todos los archivos tienen el estado "done"
+  const updatedFileList = newFileList.map((f) => {
+    if (f.status === "error") {
+      return { ...f, status: "done" }; // Forzar "done"
+    }
+    return f;
+  });
+    setFileList(updatedFileList);
   };
 
   useEffect(() => {

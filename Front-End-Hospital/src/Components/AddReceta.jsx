@@ -340,7 +340,7 @@ export const AddReceta = ({ onClosePadre }) => {
         </GridItem>
         <GridItem colSpan={{ base: 1, md: 1 }}>
           {/* SELECT DE LAS PATOLOGIAS */}
-          <FormControl isRequired>
+          <FormControl /* isRequired */>
             <FormLabel>Patologias</FormLabel>
             <Select
               name="idPatologias"
@@ -351,7 +351,7 @@ export const AddReceta = ({ onClosePadre }) => {
           </FormControl>
         </GridItem>
         <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl isRequired>
+          <FormControl /* isRequired */>
             <FormLabel>Categorias</FormLabel>
             <Select
               name="idCategorias"
