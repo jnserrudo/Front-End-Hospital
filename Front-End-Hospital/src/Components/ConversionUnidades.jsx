@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Input,
   Select,
@@ -8,125 +8,287 @@ import {
   Row,
   Col,
   Divider,
+  Segmented,
+  Alert,
 } from "antd";
-import { SwapOutlined } from "@ant-design/icons";
+import {
+  SwapOutlined,
+  CalculatorOutlined,
+  InfoCircleOutlined,
+  TableOutlined,
+} from "@ant-design/icons";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
 
 export const ConversionUnidades = () => {
-  const [valor, setValor] = useState();
+  const [categoria, setCategoria] = useState("masa");
+  const [valor, setValor] = useState("");
   const [unidadOrigen, setUnidadOrigen] = useState("g");
   const [unidadDestino, setUnidadDestino] = useState("mg");
-  const [resultado, setResultado] = useState(null);
 
   const conversiones = {
-    g: { mg: 1000, kg: 0.001, lb: 0.00220462, g: 1 },
-    mg: { g: 0.001, kg: 0.000001, lb: 0.00000220462, mg: 1 },
-    kg: { g: 1000, mg: 1000000, lb: 2.20462, kg: 1 },
-    lb: { g: 453.592, mg: 453592, kg: 0.453592, lb: 1 },
+    masa: {
+      g: { mg: 1000, kg: 0.001, lb: 0.00220462, g: 1 },
+      mg: { g: 0.001, kg: 0.000001, lb: 0.00000220462, mg: 1 },
+      kg: { g: 1000, mg: 1000000, lb: 2.20462, kg: 1 },
+      lb: { g: 453.592, mg: 453592, kg: 0.453592, lb: 1 },
+    },
+    volumen: {
+      ml: { L: 0.001, cdta: 0.2, cda: 0.0666667, tza: 0.004, ml: 1 },
+      L: { ml: 1000, cdta: 200, cda: 66.6667, tza: 4, L: 1 },
+      cdta: { ml: 5, L: 0.005, cda: 0.333333, tza: 0.02, cdta: 1 },
+      cda: { ml: 15, L: 0.015, cdta: 3, tza: 0.06, cda: 1 },
+      tza: { ml: 250, L: 0.25, cdta: 50, cda: 16.6667, tza: 1 },
+    },
+  };
+
+  const nombresUnidades = {
+    masa: {
+      g: "Gramos (g)",
+      mg: "Miligramos (mg)",
+      kg: "Kilogramos (kg)",
+      lb: "Libras (lb)",
+    },
+    volumen: {
+      ml: "Mililitros (ml)",
+      L: "Litros (L)",
+      cdta: "Cucharadita (cdta)",
+      cda: "Cucharada (cda)",
+      tza: "Taza (tza)",
+    },
+  };
+
+  const medidasDomesticas = [
+    { medida: "1 Vaso de agua", equiv: "200 ml" },
+    { medida: "1 Taza de té", equiv: "150 ml" },
+    { medida: "1 Pocillo de café", equiv: "60 ml" },
+    { medida: "1 Vaso de vidrio común", equiv: "250 ml" },
+    { medida: "1 Cucharada sopera (rasa)", equiv: "15 ml / 15 g" },
+    { medida: "1 Cucharadita de té (rasa)", equiv: "5 ml / 5 g" },
+    { medida: "1 Cucharada sopera colmada", equiv: "25 - 30 g" },
+    { medida: "1 Puñado (frutos secos)", equiv: "30 - 40 g" },
+  ];
+
+  const handleCategoriaChange = (newCat) => {
+    setCategoria(newCat);
+    if (newCat === "masa") {
+      setUnidadOrigen("g");
+      setUnidadDestino("mg");
+    } else {
+      setUnidadOrigen("ml");
+      setUnidadDestino("L");
+    }
+  };
+
+  const swapUnidades = () => {
+    const temp = unidadOrigen;
+    setUnidadOrigen(unidadDestino);
+    setUnidadDestino(temp);
   };
 
   const formatearNumero = (numero) => {
-    // Formatea el número con separadores de miles y hasta 4 decimales, sin ceros innecesarios
+    if (numero === null || numero === undefined || isNaN(numero) || numero === "") return "";
     return new Intl.NumberFormat("es-ES", {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 4,
+      maximumFractionDigits: 6,
     }).format(numero);
   };
 
-  const realizarConversion = () => {
-    const factorConversion = conversiones[unidadOrigen][unidadDestino];
-    const resultadoConversion = valor * factorConversion;
-    setResultado(resultadoConversion);
-  };
+  const resultado = useMemo(() => {
+    if (valor === "" || valor === null || valor === undefined || isNaN(valor)) {
+      return null;
+    }
+    const factor = conversiones[categoria][unidadOrigen][unidadDestino];
+    return valor * factor;
+  }, [valor, unidadOrigen, unidadDestino, categoria]);
 
   return (
-    <Card style={{ maxWidth: 600, margin: "0 auto", padding: 20 }}>
-      <Title level={3}>Conversión de Unidades de Medida</Title>
-      <Row gutter={[16, 16]} align="middle">
-        <Col xs={24} sm={8}>
-          <Input
-            type="number"
-            value={valor}
-            onChange={(e) => setValor(e.target.value)}
-            placeholder="Ingrese el valor"
-            style={{ width: "100%" }}
-          />
-        </Col>
-        <Col xs={24} sm={7}>
-          <Select
-            value={unidadOrigen}
-            onChange={setUnidadOrigen}
-            style={{ width: "100%" }}
-          >
-            <Option value="g">Gramos (g)</Option>
-            <Option value="mg">Miligramos (mg)</Option>
-            <Option value="kg">Kilogramos (kg)</Option>
-            <Option value="lb">Libras (lb)</Option>
-          </Select>
-        </Col>
-        <Col xs={24} sm={2} style={{ textAlign: "center" }}>
-          <SwapOutlined style={{ fontSize: 24 }} />
-        </Col>
-        <Col xs={24} sm={7}>
-          <Select
-            value={unidadDestino}
-            onChange={setUnidadDestino}
-            style={{ width: "100%" }}
-          >
-            <Option value="g">Gramos (g)</Option>
-            <Option value="mg">Miligramos (mg)</Option>
-            <Option value="kg">Kilogramos (kg)</Option>
-            <Option value="lb">Libras (lb)</Option>
-          </Select>
-        </Col>
-      </Row>
-
-      <Divider />
-
-      <Row
-        gutter={[16, 16]}
-        align={"middle"}
-        justify="center"
-        style={{ marginTop: 20 }}
-      >
-        <Col>
-          <Button type="primary" onClick={realizarConversion}>
-            Convertir
-          </Button>
-        </Col>
-        <Col>
-          <Button
-            type="primary"
-            onClick={() => {
-              setValor("");
-              setResultado(null);
-            }}
-          >
-            Resetear
-          </Button>
-        </Col>
-      </Row>
-
-      {resultado !== null && (
-        <Card
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px" }}>
+      <nav className="nav_recetas">
+        <div
           style={{
-            marginTop: 30,
-            background: "#f0f2f5",
-            textAlign: "center",
-            padding: 20,
+            width: 56,
+            height: 56,
+            borderRadius: "var(--radius-md)",
+            background: "var(--primary-100)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--primary)",
+            fontSize: 26,
+            flexShrink: 0,
           }}
         >
-          <Text style={{ fontSize: 20 }}>
-            <b>{formatearNumero(valor)}</b> {unidadOrigen.toUpperCase()} es
-            equivalente a:
-          </Text>
-          <Title level={2} style={{ marginTop: 10 }}>
-            {formatearNumero(resultado)} {unidadDestino.toUpperCase()}
-          </Title>
-        </Card>
-      )}
-    </Card>
+          <CalculatorOutlined />
+        </div>
+        <div className="cont_sel_recetas">
+          <p className="titulo_see">Conversor de Unidades</p>
+        </div>
+      </nav>
+
+      <Alert
+        message="¿Cómo usar esta sección?"
+        description="Convierte unidades de medida para cocina y nutrición. Selecciona la categoría (masa o volumen), ingresa el valor y elige las unidades de origen y destino. El resultado se calcula automáticamente."
+        type="info"
+        icon={<InfoCircleOutlined />}
+        showIcon
+        closable
+        style={{ margin: "24px 0", borderRadius: "var(--radius-md)" }}
+      />
+
+      <Row gutter={[24, 24]} style={{ marginTop: 24, marginBottom: 48 }}>
+        {/* Columna Izquierda: Calculadora */}
+        <Col xs={24} lg={12}>
+          <div className="converter-card">
+            <div className="segmented-control-container">
+              <Segmented
+                size="large"
+                options={[
+                  { label: "Masa / Peso", value: "masa" },
+                  { label: "Volumen / Líquidos", value: "volumen" },
+                ]}
+                value={categoria}
+                onChange={handleCategoriaChange}
+                block
+              />
+            </div>
+
+            <div className="converter-input-wrapper">
+              <span className="converter-input-label">Valor a Convertir</span>
+              <Input
+                type="number"
+                size="large"
+                className="converter-input"
+                value={valor}
+                onChange={(e) => setValor(e.target.value)}
+                placeholder="Ingrese el valor (ej. 100)"
+              />
+            </div>
+
+            <div className="unit-selectors-row">
+              <div className="unit-selector">
+                <span className="converter-input-label">De</span>
+                <Select
+                  size="large"
+                  value={unidadOrigen}
+                  onChange={setUnidadOrigen}
+                  style={{ width: "100%" }}
+                >
+                  {Object.entries(nombresUnidades[categoria]).map(([key, name]) => (
+                    <Option key={key} value={key}>
+                      {name}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+
+              <div className="swap-button-container" style={{ marginTop: 24 }}>
+                <button
+                  className="swap-btn-circular"
+                  onClick={swapUnidades}
+                  title="Intercambiar unidades"
+                >
+                  <SwapOutlined />
+                </button>
+              </div>
+
+              <div className="unit-selector">
+                <span className="converter-input-label">A</span>
+                <Select
+                  size="large"
+                  value={unidadDestino}
+                  onChange={setUnidadDestino}
+                  style={{ width: "100%" }}
+                >
+                  {Object.entries(nombresUnidades[categoria]).map(([key, name]) => (
+                    <Option key={key} value={key}>
+                      {name}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+
+            <Row justify="end" gutter={12}>
+              <Col>
+                <Button
+                  size="large"
+                  style={{ borderRadius: "var(--radius-md)" }}
+                  onClick={() => {
+                    setValor("");
+                  }}
+                >
+                  Resetear
+                </Button>
+              </Col>
+            </Row>
+
+            {resultado !== null && valor !== "" && (
+              <div className="result-card-premium">
+                <div className="result-text-label">Resultado obtenido</div>
+                <div className="result-value-main">
+                  {formatearNumero(valor)} {unidadOrigen} = {formatearNumero(resultado)} {unidadDestino}
+                </div>
+                <div className="result-equation">
+                  Fórmula: Multiplicar por {formatearNumero(conversiones[categoria][unidadOrigen][unidadDestino])}
+                </div>
+              </div>
+            )}
+          </div>
+        </Col>
+
+        {/* Columna Derecha: Guías y Equivalencias */}
+        <Col xs={24} lg={12}>
+          <div className="reference-card-premium">
+            <div className="reference-card-title">
+              <InfoCircleOutlined style={{ color: "var(--primary)" }} />
+              Equivalencias Rápidas (1 {unidadOrigen.toUpperCase()})
+            </div>
+
+            <div className="equivalence-grid">
+              {Object.entries(conversiones[categoria][unidadOrigen])
+                .filter(([unit]) => unit !== unidadOrigen)
+                .map(([unit, factor]) => (
+                  <div className="equivalence-item" key={unit}>
+                    <span className="equivalence-item-val">
+                      {formatearNumero(factor)} {unit.toUpperCase()}
+                    </span>
+                    <span className="equivalence-item-label">
+                      {nombresUnidades[categoria][unit]}
+                    </span>
+                  </div>
+                ))}
+            </div>
+
+            <Divider style={{ margin: "24px 0" }} />
+
+            <div className="reference-card-title">
+              <TableOutlined style={{ color: "var(--primary)" }} />
+              Medidas Domésticas Comunes (Nutrición)
+            </div>
+
+            <table className="domestic-table">
+              <thead>
+                <tr>
+                  <th>Medida Casera</th>
+                  <th>Equivalencia Sugerida</th>
+                </tr>
+              </thead>
+              <tbody>
+                {medidasDomesticas.map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.medida}</td>
+                    <td>
+                      <strong>{item.equiv}</strong>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Col>
+      </Row>
+    </div>
   );
 };

@@ -136,7 +136,10 @@ export const EditPatologia = ({ patologia, onCloseEdit }) => {
           patologia?.apellido?.toUpperCase() + */
           " ?"
         }
-        handleSi={() => handleUpdate(patologia)}
+        handleSi={async () => {
+          await handleUpdate(patologia);
+          setShowVentEmergenteConfirmacion(false);
+        }}
         isOpen={showVentEmergenteConfirmacion}
       />
     </div>

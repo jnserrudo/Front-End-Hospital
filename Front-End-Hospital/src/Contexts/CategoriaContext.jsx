@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   getAllCategorias,
   getCategoriaById,
@@ -24,6 +25,10 @@ export const CategoriaProvider = ({ children }) => {
     useState(false);
 
   const [bandLoader, setBandLoader] = useState(false);
+
+  // Estados de loading
+  const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(false);
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -156,19 +161,20 @@ export const CategoriaProvider = ({ children }) => {
   };
 
   const handleUpdate = async (categoria) => {
-    const actualizarCategoria = async (categoria) => {
+    setLoadingAction(true);
+    try {
       console.log("se esta por actualizar este categoria: ", categoria);
       const update = await updateCategoria(categoria);
       console.log("update: ", update);
-    };
-
-    //activar loader
-    setBandLoader(true);
-    let resupdate = await actualizarCategoria(categoria);
-    getallCategorias();
-
-    console.log(resupdate);
-    setBandLoader(false);
+      toast.success("Categoría actualizada exitosamente");
+      await getallCategorias();
+      handleCloseVentEmergenteEditCategoria();
+    } catch (error) {
+      console.error("Error al actualizar categoría:", error);
+      toast.error("Error al actualizar categoría");
+    } finally {
+      setLoadingAction(false);
+    }
   };
 
   const handleSeePacient = (categoria) => {
@@ -237,11 +243,20 @@ export const CategoriaProvider = ({ children }) => {
 
   const handleInsert = async () => {
     if (bandInsert) {
-      //validar para insert
-      console.log(" se esta por insertar el categoria: ", categoriaToInsert);
-      await addCategoria(categoriaToInsert);
-      handleCloseVentEmergenteConfCategoria();
-      handleCloseVentEmergenteAddCategoria();
+      setLoadingAction(true);
+      try {
+        console.log(" se esta por insertar el categoria: ", categoriaToInsert);
+        await addCategoria(categoriaToInsert);
+        toast.success("Categoría creada exitosamente");
+        await getallCategorias();
+        handleCloseVentEmergenteConfCategoria();
+        handleCloseVentEmergenteAddCategoria();
+      } catch (error) {
+        console.error("Error al crear categoría:", error);
+        toast.error("Error al crear categoría");
+      } finally {
+        setLoadingAction(false);
+      }
     }
   };
   const addCategoria = async (categoria) => {
@@ -254,9 +269,17 @@ export const CategoriaProvider = ({ children }) => {
   };
 
   let getallCategorias = async () => {
-    let categorias = await getAllCategorias();
-    console.log(categorias);
-    setDb(categorias);
+    setLoading(true);
+    try {
+      let categorias = await getAllCategorias();
+      console.log(categorias);
+      setDb(categorias);
+    } catch (error) {
+      console.error("Error al cargar categorías:", error);
+      toast.error("Error al cargar categorías");
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => {
     getallCategorias();
@@ -289,6 +312,8 @@ export const CategoriaProvider = ({ children }) => {
     dbSearch,
     showVentEmergenteDelete,
     idCategoria,
+    loading,
+    loadingAction,
     handleChangeSelectTiposInsert,
     handleChangeSelectTipos,
     setIdCategoria,

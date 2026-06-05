@@ -1,37 +1,27 @@
-import React, { useEffect } from "react";
-
-import { CloseOutlined } from "@ant-design/icons";
+import React from "react";
+import { Modal } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
 import { RecetaSee } from "./RecetaSee";
-import { Row, Col } from "antd";
 
 export const VentEmergenteRecetaSee = ({ isOpen, onClose, recetaSelected }) => {
-  if (!isOpen) {
-    return null;
-  }
-
   return (
-    <div
-      className="popup-container"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
+    <Modal
+      title={
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <EyeOutlined style={{ color: "var(--primary)" }} />
+          <span>Ver Receta</span>
+        </div>
+      }
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}
+      width={800}
+      styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
+      destroyOnClose
     >
-      <div className="popup-content">
-      <Row
-          justify="space-between"
-          align="middle"
-          className="header_vent_emergente"
-        >
-          <Col>
-            <CloseOutlined className="icon_accion icons" onClick={onClose} />
-          </Col>
-        </Row>
-
+      <div style={{ paddingTop: 16 }}>
         <RecetaSee receta={recetaSelected} />
-
       </div>
-    </div>
+    </Modal>
   );
 };

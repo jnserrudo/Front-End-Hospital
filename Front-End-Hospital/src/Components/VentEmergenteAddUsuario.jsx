@@ -1,36 +1,27 @@
-import React, { useEffect } from "react";
-import { EditUsuario } from "./EditUsuario";
-
-import { CloseOutlined } from "@ant-design/icons";
+import React from "react";
+import { Modal } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { AddUsuario } from "./AddUsuario";
-import { Row, Col } from "antd";
 
 export const VentEmergenteAddUsuario = ({ isOpen, onClose }) => {
-  if (!isOpen) {
-    return null;
-  }
-
   return (
-    <div
-      className="popup-container"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
+    <Modal
+      title={
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <PlusOutlined style={{ color: "var(--primary)" }} />
+          <span>Agregar Usuario</span>
+        </div>
+      }
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}
+      width={600}
+      styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
+      destroyOnClose
     >
-      <div className="popup-content ">
-        <Row
-          justify="space-between"
-          align="middle"
-          className="header_vent_emergente"
-        >
-          <Col>
-            <CloseOutlined className="icon_accion icons" onClick={onClose} />
-          </Col>
-        </Row>
+      <div style={{ paddingTop: 16 }}>
         <AddUsuario />
       </div>
-    </div>
+    </Modal>
   );
 };

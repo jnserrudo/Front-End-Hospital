@@ -19,7 +19,7 @@ import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import InformacionsContext from "../Contexts/InformacionContext";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@chakra-ui/react";
-import { entorno } from "../services/config";
+import { entorno, getMediaUrl } from "../services/config";
 
 export const EditInformacion = ({ informacion, onCloseEdit }) => {
   /* console.log(
@@ -49,7 +49,7 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
             uid: "-1",
             name: "image.png",
             status: "done",
-            url: entorno.slice(0, -4) + informacion.urlVideo,
+            url: getMediaUrl(informacion.urlVideo),
           },
         ]
       : []
@@ -75,6 +75,7 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
     patologiasxInformacionEdit,
     categoriasxInformacionEdit,
     handleChangeSelectCategorias,
+    loadingAction,
   } = useContext(InformacionsContext);
 
   const sharedProps = {
@@ -117,7 +118,7 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
               uid: "-1",
               name: "image.png",
               status: "done",
-              url: entorno.slice(0, -4) + informacion.urlVideo,
+              url: getMediaUrl(informacion.urlVideo),
             },
           ]
         : []
@@ -127,8 +128,8 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
     }
     /* console.log("el valor de previewurl es: ",previewUrl)
     if (!previewUrl && informacion?.urlVideo?.length>0) {
-      console.log("SE VA A PONER EN EL PREVIEWURL LO SGTE: ",entorno.slice(0, -4) + informacion.urlVideo)
-      setPreviewUrl(entorno.slice(0, -4) + informacion.urlVideo);
+      console.log("SE VA A PONER EN EL PREVIEWURL LO SGTE: ", getMediaUrl(informacion.urlVideo))
+      setPreviewUrl(getMediaUrl(informacion.urlVideo));
     } */
   }, [informacion]);
 
@@ -141,7 +142,7 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
       if (urlVideo.includes("blob")) {
         setPreviewUrl(urlVideo);
       } else {
-        setPreviewUrl(entorno.slice(0, -4) + urlVideo);
+        setPreviewUrl(getMediaUrl(urlVideo));
       }
     }
   }, [urlVideo]);
@@ -259,25 +260,34 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
     }
   };
 
+  // Función para limpiar líneas vacías
+  const cleanTextFields = (text) => {
+    if (!text) return text;
+    return text
+      .split("\n")
+      .map(line => line.trim())
+      .filter(line => line !== "")
+      .join("\n");
+  };
+
   const handleUpdateWithImage = async () => {
     try {
       let urlVideo;
       if (fileList.length > 0 && fileList[fileList.length - 1].originFileObj) {
         urlVideo = await handleFileUpload(
           fileList[fileList.length - 1].originFileObj
-        ); // Usa la última imagen cargada
+        );
         console.log(urlVideo);
-
         handleChangeInput({ target: { name: "urlVideo", value: urlVideo } });
       }
-      handleUpdate(
-        urlVideo
-          ? {
-              ...informacion,
-              urlVideo: urlVideo,
-            }
-          : informacion
-      );
+      
+      const informacionToUpdate = urlVideo ? { ...informacion, urlVideo } : informacion;
+      const informacionLimpia = {
+        ...informacionToUpdate,
+        descripcion: cleanTextFields(informacionToUpdate.descripcion),
+      };
+      
+      handleUpdate(informacionLimpia);
     } catch (error) {
       console.error("Error updating recipe:", error);
     }
@@ -369,7 +379,7 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
                       });
                       const imgWindow = window.open();
                       imgWindow.document.write(
-                        `<img src="${preview}" alt="preview" />`
+                        `<img src="${preview}" alt="preview" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:red;text-align:center;padding:20px;\'>Error al cargar la imagen</p>'" />`
                       );
                     }
                   }}
@@ -436,6 +446,47 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
             }}
           />
         </GridItem>
+
+        <GridItem colSpan={{ base: 1, md: 2 }}>
+          <FormControl isRequired>
+            <FormLabel>Tipo de Contenido</FormLabel>
+            <Select
+              disabled={!bandEdit}
+              style={{ width: "100%" }}
+              value={informacion?.tipoContenido || "video"}
+              onChange={(value) => handleChangeInput({ target: { name: "tipoContenido", value } })}
+              options={[
+                { label: "Video", value: "video" },
+                { label: "Infografia", value: "infografia" },
+                { label: "Ambos", value: "ambos" },
+              ]}
+            />
+          </FormControl>
+        </GridItem>
+
+        {(informacion?.tipoContenido === "infografia" || informacion?.tipoContenido === "ambos") && (
+          <GridItem colSpan={{ base: 1, md: 2 }}>
+            <FormControl
+              className="cont_input_edit"
+              variant="floating"
+              id="urlInfografia"
+              isRequired
+            >
+              <Input
+                className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
+                placeholder=""
+                name="urlInfografia"
+                variant="outlined"
+                type="text"
+                disabled={!bandEdit}
+                value={informacion?.urlInfografia ? informacion.urlInfografia : ""}
+                onChange={(e) => handleChangeInput(e)}
+              />
+              <FormLabel>URL de la Infografia</FormLabel>
+            </FormControl>
+          </GridItem>
+        )}
+
         <GridItem colSpan={{ base: 1, md: 2 }}>
           <FormControl
             className="cont_input_edit"
@@ -454,7 +505,7 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
               value={informacion.descripcion ? informacion.descripcion : ""}
               onChange={(e) => handleChangeInput(e)}
             />
-            <FormLabel>Descripción</FormLabel>
+            <FormLabel>Descripcion</FormLabel>
           </FormControl>
         </GridItem>
       </Grid>
@@ -484,9 +535,8 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
           <Button
             className="btn_accion_edit_informacion"
             colorScheme="green"
-            /* variant="contained"
-            style={{ margin: "1rem auto 0" }} */
             onClick={() => setShowVentEmergenteConfirmacion(true)}
+            isLoading={loadingAction}
           >
             Actualizar
           </Button>
@@ -496,14 +546,10 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
       <VentEmergConfirmacion
         onClosePadre={onCloseEdit}
         onClose={() => setShowVentEmergenteConfirmacion(false)}
-        mje={
-          "Esta seguro de actualizar los datos del informacion " +
-          /*  informacion?.nombre?.toUpperCase() +
-            ", " +
-            informacion?.apellido?.toUpperCase() + */
-          " ?"
-        }
-        handleSi={() => handleUpdate(informacion)}
+        mje={"¿Está seguro de actualizar los datos de la información?"}
+        handleSi={async () => {
+          await handleUpdateWithImage();
+        }}
         isOpen={showVentEmergenteConfirmacion}
       />
     </div>

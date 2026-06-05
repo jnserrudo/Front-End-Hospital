@@ -16,7 +16,7 @@ import UsuariosContext from "../Contexts/UsuarioContext";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { Input } from "@chakra-ui/react";
 import { getPatologiaToRecetaAdd } from "../services/recetas-services";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 export const AddUsuario = ({ onClosePadre }) => {
   const {
     usuarioToInsert,
@@ -67,7 +67,7 @@ export const AddUsuario = ({ onClosePadre }) => {
         }}
         gap={10}
       >
-        <Toaster position="top-center" reverseOrder={false} />
+
         <GridItem colSpan={{ base: 1, md: 2 }}>
           <FormControl
             className="cont_input_edit_large"
@@ -245,15 +245,13 @@ export const AddUsuario = ({ onClosePadre }) => {
         onClosePadre={onClosePadre}
         onClose={handleCloseVentEmergente}
         mje={"Esta seguro de agregar al usuario? "}
-        /* handleSi={handleInsert} */
-        handleSi={() => {
-          toast.promise(handleInsert(), {
+        handleSi={async () => {
+          await toast.promise(handleInsert(), {
             loading: "Cargando",
             success: <b>Se agrego el usuario!</b>,
             error: <b>No se pudo agregar al Usuario.</b>,
           });
-
-          //toast.success("Se agrego el usuario!")
+          handleCloseVentEmergente();
         }}
         isOpen={showVentEmergenteConfirmacion}
       />

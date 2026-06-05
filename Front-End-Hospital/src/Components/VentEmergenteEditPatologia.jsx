@@ -1,40 +1,31 @@
-import React, { useEffect } from "react";
+import React from "react";
+import { Modal } from "antd";
+import { EditOutlined } from "@ant-design/icons";
 import { EditPatologia } from "./EditPatologia";
-
-import { CloseOutlined } from "@ant-design/icons";
-import { Row, Col } from "antd";
 
 export const VentEmergenteEditPatologia = ({
   isOpen,
   onClose,
   patologiaSelected,
 }) => {
-  if (!isOpen) {
-    return null;
-  }
-
   return (
-    <div
-      className="popup-container"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
+    <Modal
+      title={
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <EditOutlined style={{ color: "var(--primary)" }} />
+          <span>Editar Patología</span>
+        </div>
+      }
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}
+      width={600}
+      styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
+      destroyOnClose
     >
-      <div className="popup-content ">
-        <Row
-          justify="space-between"
-          align="middle"
-          className="header_vent_emergente"
-        >
-          <Col>
-            <CloseOutlined className="icon_accion icons" onClick={onClose} />
-          </Col>
-        </Row>
+      <div style={{ paddingTop: 16 }}>
         <EditPatologia onCloseEdit={onClose} patologia={patologiaSelected} />
-        
       </div>
-    </div>
+    </Modal>
   );
 };

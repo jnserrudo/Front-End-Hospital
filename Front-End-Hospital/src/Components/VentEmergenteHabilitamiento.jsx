@@ -1,14 +1,11 @@
-import React, { useEffect } from "react";
-import { EditPaciente } from "./EditPaciente";
+import React, { useState } from "react";
+import { Modal, Button } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import {
-  Button,
-  ButtonGroup,
   FormControl,
   FormLabel,
   Textarea,
 } from "@chakra-ui/react";
-import { CloseOutlined } from "@ant-design/icons";
-import { useState } from "react";
 
 export const VentEmergenteHabilitamiento = ({
   isOpen,
@@ -18,72 +15,77 @@ export const VentEmergenteHabilitamiento = ({
   handleSi,
   pacienteSelected,
 }) => {
-  if (!isOpen) {
-    return null;
-  }
-
   const [motivo, setMotivo] = useState("");
+  const [confirmLoading, setConfirmLoading] = useState(false);
+
+  const handleConfirmar = async () => {
+    setConfirmLoading(true);
+    try {
+      await handleSi(motivo);
+    } finally {
+      setConfirmLoading(false);
+    }
+    onClose();
+    if (onClosePadre) {
+      onClosePadre();
+    }
+  };
 
   return (
-    <div
-      className="popup-container"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
-    >
-      <div className="popup-content mini">
-        <div className="header_vent_emergente">
-          <CloseOutlined className="icon_accion icons" onClick={onClose} />
+    <Modal
+      title={
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <ExclamationCircleOutlined style={{ color: "var(--warning)" }} />
+          <span>Habilitar Paciente</span>
         </div>
-        <p> {mje} </p>
-        <div className="cont_habilitamiento">
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="detalle"
-            isRequired
+      }
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}
+      width={500}
+      centered
+      destroyOnClose
+      styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
+    >
+      <div style={{ padding: "16px 0" }}>
+        <p style={{ fontSize: "1rem", color: "var(--gray-700)", marginBottom: 16 }}>
+          {mje}
+        </p>
+
+        <FormControl
+          className="cont_input_edit"
+          variant="floating"
+          id="detalle"
+          isRequired
+        >
+          <Textarea
+            className="input_edit"
+            placeholder=""
+            name="motivo"
+            size="sm"
+            variant="outlined"
+            type="text"
+            value={motivo}
+            onChange={(e) => setMotivo(e.target.value)}
+          />
+          <FormLabel>Motivo</FormLabel>
+        </FormControl>
+
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 24 }}>
+          <Button onClick={onClose} size="large">
+            Cancelar
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleConfirmar}
+            loading={confirmLoading}
+            disabled={motivo.length === 0}
+            size="large"
           >
-            <Textarea
-              className={`input_edit`}
-              placeholder=""
-              name="motivo"
-              size="sm"
-              variant="outlined"
-              type="text"
-              value={motivo}
-              onChange={(e) => setMotivo(e.target.value)}
-            />
-            <FormLabel>Motivo</FormLabel>
-          </FormControl>
-          <div className="cont_btns_habilitamiento">
-            <Button
-              className="btn_accion_edit_receta"
-              colorScheme={"blue"}
-              onClick={onClose}
-            >
-              Cancelar
-            </Button>
-            <Button
-              className="btn_accion_edit_receta"
-              colorScheme={"blue"}
-              isDisabled={motivo.length > 0 ? false : true}
-              onClick={async () => {
-                //aca definimos lo que pasara cuando se confirme la operacion
-                //como asi tambien cerramos las ventanas emergente, de esta manera podemos reusar este componente en varios casos
-                await handleSi(motivo);
-                onClose();
-                if (onClosePadre) {
-                  onClosePadre();
-                }
-              }}
-            >
-              Confirmar
-            </Button>
-          </div>
+            Confirmar
+          </Button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };

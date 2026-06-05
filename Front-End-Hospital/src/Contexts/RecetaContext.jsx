@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
-
+import toast from "react-hot-toast";
 import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
   getAllRecetas,
@@ -43,6 +43,10 @@ export const RecetaProvider = ({ children }) => {
   const [idsPatologiasFiltro, setIdsPatologiasFiltro] = useState([]);
 
   const [idsCategoriasFiltro, setIdsCategoriasFiltro] = useState([]);
+
+  // Estados de loading
+  const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(false);
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -143,9 +147,10 @@ export const RecetaProvider = ({ children }) => {
   };
 
   const handleChangeSelectInsert = (e) => {
+    const { name, value } = e.target;
     let newValue = {
       ...recetaToInsert,
-      idsPatologias: e,
+      [name]: value,
     };
     console.log(newValue);
     setRecetaToInsert(newValue);
@@ -159,9 +164,10 @@ export const RecetaProvider = ({ children }) => {
   };
 
   const handleChangeSelect = (e) => {
+    const { name, value } = e.target;
     let newValue = {
       ...recetaSelected,
-      idsPatologias: e,
+      [name]: value,
     };
 
     console.log(newValue);
@@ -176,18 +182,20 @@ export const RecetaProvider = ({ children }) => {
   };
 
   const handleChangeSelectCategoriasInsert = (e) => {
+    const { name, value } = e.target;
     let newValue = {
       ...recetaToInsert,
-      idsCategorias: e,
+      [name]: value,
     };
     console.log(newValue);
     setRecetaToInsert(newValue);
   };
 
   const handleChangeSelectCategorias = (e) => {
+    const { name, value } = e.target;
     let newValue = {
       ...recetaSelected,
-      idsCategorias: e,
+      [name]: value,
     };
 
     console.log(newValue);
@@ -225,19 +233,20 @@ export const RecetaProvider = ({ children }) => {
   };
 
   const handleUpdate = async (receta) => {
-    const actualizarReceta = async (receta) => {
+    setLoadingAction(true);
+    try {
       console.log("se esta por actualizar este receta: ", receta);
       const update = await updateReceta(receta);
       console.log("update: ", update);
-    };
-
-    //activar loader
-    setBandLoader(true);
-    let resupdate = await actualizarReceta(receta);
-    getallRecetas();
-
-    console.log(resupdate);
-    setBandLoader(false);
+      toast.success("Receta actualizada exitosamente");
+      await getallRecetas();
+      handleCloseVentEmergenteEditReceta();
+    } catch (error) {
+      console.error("Error al actualizar receta:", error);
+      toast.error("Error al actualizar la receta");
+    } finally {
+      setLoadingAction(false);
+    }
   };
 
   const handleSeePacient = (receta) => {
@@ -339,8 +348,10 @@ export const RecetaProvider = ({ children }) => {
       }
     };
 
-    getpatologiatorecetaedit();
-    getcategoriatorecetaedit();
+    if (idReceta > 0) {
+      getpatologiatorecetaedit();
+      getcategoriatorecetaedit();
+    }
   }, [idReceta]);
 
   const columns = [
@@ -394,16 +405,28 @@ export const RecetaProvider = ({ children }) => {
     },
   ];
 
-  const handleInsert = async () => {
-    if (bandInsert) {
-      //validar para insert
-      console.log(" se esta por insertar el receta: ", recetaToInsert);
-      const resultInsert = await addReceta(recetaToInsert);
-      if (resultInsert.err) {
-        throw new Error(resultInsert.err.message);
+  const handleInsert = async (recetaParam = null) => {
+    // Si se pasa recetaParam, no validar bandInsert
+    if (recetaParam || bandInsert) {
+      setLoadingAction(true);
+      try {
+        const recetaToSave = recetaParam || recetaToInsert;
+        console.log(" se esta por insertar el receta: ", recetaToSave);
+        const resultInsert = await addReceta(recetaToSave);
+        if (resultInsert.err) {
+          throw new Error(resultInsert.err.message || "Error al crear la receta");
+        }
+        // Toast se maneja en el componente con toast.promise
+        await getallRecetas();
+        handleCloseVentEmergenteConfReceta();
+        handleCloseVentEmergenteAddReceta();
+      } catch (error) {
+        console.error("Error al crear receta:", error);
+        // Toast se maneja en el componente con toast.promise
+        throw error; // Propagar el error
+      } finally {
+        setLoadingAction(false);
       }
-      handleCloseVentEmergenteConfReceta();
-      handleCloseVentEmergenteAddReceta();
     }
   };
   const addReceta = async (receta) => {
@@ -416,9 +439,17 @@ export const RecetaProvider = ({ children }) => {
   };
 
   let getallRecetas = async () => {
-    let recetas = await getAllRecetas();
-    console.log(recetas);
-    setDb(recetas);
+    setLoading(true);
+    try {
+      let recetas = await getAllRecetas();
+      console.log(recetas);
+      setDb(recetas);
+    } catch (error) {
+      console.error("Error al cargar recetas:", error);
+      toast.error("Error al cargar las recetas");
+    } finally {
+      setLoading(false);
+    }
   };
 
   let getallRecetasbypaciente = async () => {
@@ -467,6 +498,8 @@ export const RecetaProvider = ({ children }) => {
     showVentEmergenteDelete,
     categoriasxRecetasAdd,
     categoriasxRecetasEdit,
+    loading,
+    loadingAction,
     handleChangeSelectRecetasFiltrar,
     handleChangeSelectCategoriasFiltrar,
     handleChangeSelectCategoriasInsert,
@@ -494,6 +527,7 @@ export const RecetaProvider = ({ children }) => {
     addReceta,
     handleInsert,
     handleUpdate,
+    setNdocuPaciente,
   };
   return (
     <RecetaContext.Provider value={data}> {children} </RecetaContext.Provider>

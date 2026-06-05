@@ -1,10 +1,6 @@
-import React from "react";
-import { CloseOutlined } from "@ant-design/icons";
-import { Button, ButtonGroup } from "@chakra-ui/react";
-import { Space } from "antd";
-import { useContext } from "react";
-import { LoaderEmergente } from "./LoaderEmergente";
-import PatologiasContext from "../Contexts/PatologiaContext";
+import React, { useState } from "react";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { Modal, Button } from "antd";
 
 export const VentEmergConfirmacion = ({
   onClosePadre = null,
@@ -13,44 +9,58 @@ export const VentEmergConfirmacion = ({
   onClose,
   handleSi,
 }) => {
-  //const {bandLoader:bandLoaderConsulta} = useContext(ConsultaContext)
-  const { bandLoader: bandLoaderPatologia } = useContext(PatologiasContext);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
-  if (!isOpen) {
-    return null;
-  }
+  const handleOk = async () => {
+    setConfirmLoading(true);
+    try {
+      await handleSi();
+    } finally {
+      setConfirmLoading(false);
+    }
+    onClose();
+    if (onClosePadre) {
+      onClosePadre();
+    }
+  };
+
   return (
-    <div className="popup-container">
-      <div className="popup-content x-small">
-        <div className="header_vent_emergente">
-          <CloseOutlined className="icon_accion icons" onClick={onClose} />
+    <Modal
+      title={
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <ExclamationCircleOutlined style={{ color: "var(--warning)", fontSize: 20 }} />
+          <span style={{ fontWeight: 600 }}>Confirmar acción</span>
         </div>
-
-        <p> {mje} </p>
-        <div className="cont_btns_confirmacion" >
-          <Button width={'80px'} colorScheme="blue" onClick={onClose}>
-            No
-          </Button>
-          <Button
-            colorScheme="green"
-            width={'80px'}
-            onClick={async () => {
-              //aca definimos lo que pasara cuando se confirme la operacion
-              //como asi tambien cerramos las ventanas emergente, de esta manera podemos reusar este componente en varios casos
-              await handleSi();
-              onClose();
-              if (onClosePadre) {
-                onClosePadre();
-              }
-            }}
-          >
-            Si
-          </Button>
-        </div>
-        {bandLoaderPatologia /* || bandLoaderConsulta */ ? (
-          <LoaderEmergente />
-        ) : null}
+      }
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}
+      width={420}
+      centered
+      destroyOnClose
+      styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
+    >
+      <div style={{ padding: "24px 0", textAlign: "center" }}>
+        <p style={{ fontSize: "1rem", color: "var(--gray-700)", margin: 0 }}>
+          {mje}
+        </p>
       </div>
-    </div>
+
+      <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
+        <Button onClick={onClose} size="large" style={{ minWidth: 100 }}>
+          No
+        </Button>
+        <Button
+          type="primary"
+          danger
+          onClick={handleOk}
+          loading={confirmLoading}
+          size="large"
+          style={{ minWidth: 100 }}
+        >
+          Sí
+        </Button>
+      </div>
+    </Modal>
   );
 };

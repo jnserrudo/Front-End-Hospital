@@ -6,50 +6,46 @@ import {
   InstagramOutlined,
   FacebookOutlined,
 } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
 
 export const FooterHospital = ({ setSelectedKey }) => {
-  const navigate = useNavigate();
-
   return (
-    <>
-      <div className="footer">
+    <div className="footer">
+      <div className="footer-brand">
         <img
           className="logo_hospital_footer"
           onClick={() => setSelectedKey("1")}
           src="/logoOñativia.png"
-          alt=""
+          alt="Logo Hospital Oñativia"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.style.display = 'flex';
+            e.target.parentElement.innerHTML = '<span class="logo-placeholder">Hospital Oñativia</span>';
+          }}
         />
-        {/*         <p className="titulo">HOSPITAL OÑATIVIA</p>
-         */}
-        <img src="" alt="" />
-        <p className="txt">
-          <EnvironmentOutlined /> Paz Chaín 30 4400 Salta Salta · 03 km
-        </p>
-        <div className="cont_red_social">
-          <InstagramOutlined /> HospitalOñativia
-        </div>
-        <div className="cont_red_social">
-          <FacebookOutlined /> Hospital Oñativia
-        </div>
-        <h3 className="txt">
-          <PhoneOutlined style={{ transform: 'rotate(90deg)' }} /> 0387 422-1605
-        </h3>
+        <p className="footer-name">Hospital Oñativia</p>
       </div>
-      {/* <div className="cont_opciones_footer">
-        <p className="titulo titulo_footer" onClick={() => setSelectedKey("2")}>
-          Recetas
-        </p>
-        <p className="titulo titulo_footer" onClick={() => setSelectedKey("3")}>
-          Información
-        </p>
-        <p className="titulo titulo_footer" onClick={() => setSelectedKey("4")}>
-          Ejercicio
-        </p>
-      </div> */}
-      <p style={{textAlign:'center'}} >      Hospital Oñativia ©{new Date().getFullYear()} Created by JNSIX
-      </p>
 
-    </>
+      <div className="footer-section">
+        <span className="txt">
+          <EnvironmentOutlined /> Paz Chaín 30, 4400 Salta
+        </span>
+        <span className="txt">
+          <PhoneOutlined style={{ transform: "rotate(90deg)" }} /> 0387 422-1605
+        </span>
+      </div>
+
+      <div className="footer-section">
+        <span className="footer-social">
+          <InstagramOutlined /> HospitalOñativia
+        </span>
+        <span className="footer-social">
+          <FacebookOutlined /> Hospital Oñativia
+        </span>
+      </div>
+
+      <div className="footer-copy">
+        Hospital Oñativia © {new Date().getFullYear()} · Desarrollado por JNSIX
+      </div>
+    </div>
   );
 };

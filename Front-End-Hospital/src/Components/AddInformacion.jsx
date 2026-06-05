@@ -18,7 +18,7 @@ import ReactPlayer from "react-player";
 
 import { Upload, Select } from "antd";
 import { entorno } from "../services/config";
-import { Toaster } from "react-hot-toast";
+
 
 export const AddInformacion = ({ onClosePadre }) => {
   const {
@@ -32,6 +32,7 @@ export const AddInformacion = ({ onClosePadre }) => {
     patologiasxInformacionAdd,
     categoriasxInformacionAdd,
     handleChangeSelectCategoriasInsert,
+    loadingAction,
   } = useContext(InformacionsContext);
 
   const sharedProps = {
@@ -129,25 +130,42 @@ export const AddInformacion = ({ onClosePadre }) => {
     }
     return true;
   };
+  // Función para limpiar líneas vacías
+  const cleanTextFields = (text) => {
+    if (!text) return text;
+    return text
+      .split("\n")
+      .map(line => line.trim())
+      .filter(line => line !== "")
+      .join("\n");
+  };
+
   const handleInsertWithVideo = async () => {
     try {
       let urlVideo = "";
-      // Indicar que se debe insertar la información después de cargar la URL del video
       if (useYoutube && youtubeUrl) {
-        // Si se está utilizando la URL de YouTube
         urlVideo = youtubeUrl;
       } else if (fileList.length > 0) {
         const uploadedVideoUrls = await Promise.all(
           fileList.map((file) => handleFileUpload(file.originFileObj))
         );
-        urlVideo = uploadedVideoUrls[0]; // Usar la primera URL si solo se permite un video
+        urlVideo = uploadedVideoUrls[0];
       }
 
-      handleChangeInputInsert({
-        target: { name: "urlVideo", value: urlVideo },
+      const fullInformacion = {
+        ...informacionToInsert,
+        urlVideo: urlVideo,
+        descripcion: cleanTextFields(informacionToInsert.descripcion),
+      };
+
+      await toast.promise(handleInsert(fullInformacion), {
+        loading: "Cargando Información...",
+        success: <b>Se agregó la Información!</b>,
+        error: <b>No se pudo agregar la información.</b>,
       });
     } catch (error) {
       console.error("Error inserting informacion:", error);
+      throw error;
     }
   };
   /* 
@@ -164,7 +182,7 @@ export const AddInformacion = ({ onClosePadre }) => {
 
   return (
     <div className="form">
-      <Toaster position="top-center" reverseOrder={false} />
+
       <Grid
         className="grid_chackra"
         templateColumns={{
@@ -235,7 +253,7 @@ export const AddInformacion = ({ onClosePadre }) => {
                       // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
                       const imgWindow = window.open();
                       imgWindow.document.write(
-                        `<img src="${preview}" alt="preview" />`
+                        `<img src="${preview}" alt="preview" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:red;text-align:center;padding:20px;\'>Error al cargar la imagen</p>'" />`
                       );
                     }
                   }}
@@ -311,6 +329,46 @@ export const AddInformacion = ({ onClosePadre }) => {
             />
           </FormControl>
         </GridItem>
+
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          {/* TIPO DE CONTENIDO */}
+          <FormControl isRequired>
+            <FormLabel>Tipo de Contenido</FormLabel>
+            <Select
+              style={{ width: "100%" }}
+              value={informacionToInsert?.tipoContenido || "video"}
+              onChange={(value) => handleChangeInputInsert({ target: { name: "tipoContenido", value } })}
+              options={[
+                { label: "Video", value: "video" },
+                { label: "Infografia", value: "infografia" },
+                { label: "Ambos", value: "ambos" },
+              ]}
+            />
+          </FormControl>
+        </GridItem>
+
+        {(informacionToInsert?.tipoContenido === "infografia" || informacionToInsert?.tipoContenido === "ambos") && (
+          <GridItem colSpan={{ base: 1, md: 1 }}>
+            <FormControl
+              className="cont_input_edit"
+              variant="floating"
+              id="urlInfografia"
+              isRequired
+            >
+              <Input
+                className="input_floating"
+                placeholder=""
+                name="urlInfografia"
+                variant="outlined"
+                type="text"
+                value={informacionToInsert?.urlInfografia ? informacionToInsert.urlInfografia : ""}
+                onChange={(e) => handleChangeInputInsert(e)}
+              />
+              <FormLabel>URL de la Infografia</FormLabel>
+            </FormControl>
+          </GridItem>
+        )}
+
         <GridItem colSpan={{ base: 1, md: 2 }}>
           <FormControl
             className="cont_input_edit"
@@ -332,7 +390,7 @@ export const AddInformacion = ({ onClosePadre }) => {
               }
               onChange={(e) => handleChangeInputInsert(e)}
             />
-            <FormLabel>Descripción</FormLabel>
+            <FormLabel>Descripcion</FormLabel>
           </FormControl>
         </GridItem>
       </Grid>
@@ -343,6 +401,7 @@ export const AddInformacion = ({ onClosePadre }) => {
           colorScheme="green"
           style={{ margin: "1rem auto 0" }}
           onClick={() => setShowVentEmergenteConfirmacion(true)}
+          isLoading={loadingAction}
         >
           Agregar Informacion
         </Button>

@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   blanquearUsuario,
   getAllRoles,
@@ -43,6 +44,10 @@ export const UsuarioProvider = ({ children }) => {
   );
 
   const [bandLoader, setBandLoader] = useState(false);
+
+  // Estados de loading
+  const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(false);
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -204,19 +209,20 @@ export const UsuarioProvider = ({ children }) => {
   };
 
   const handleUpdate = async (usuario) => {
-    const actualizarUsuario = async (usuario) => {
+    setLoadingAction(true);
+    try {
       console.log("se esta por actualizar este usuario: ", usuario);
       const update = await updateUsuario(usuario);
       console.log("update: ", update);
-    };
-
-    //activar loader
-    setBandLoader(true);
-    let resupdate = await actualizarUsuario(usuario);
-    getallUsuarios();
-
-    console.log(resupdate);
-    setBandLoader(false);
+      toast.success("Usuario actualizado exitosamente");
+      await getallUsuarios();
+      handleCloseVentEmergenteEditUsuario();
+    } catch (error) {
+      console.error("Error al actualizar usuario:", error);
+      toast.error("Error al actualizar usuario");
+    } finally {
+      setLoadingAction(false);
+    }
   };
 
   const handleSeeUsuario = (usuario) => {
@@ -253,7 +259,9 @@ export const UsuarioProvider = ({ children }) => {
       }
     };
 
-    getpatologiatopatologiaedit();
+    if (idUsuario > 0) {
+      getpatologiatopatologiaedit();
+    }
   }, [idUsuario]);
 
   const columns = [
@@ -314,19 +322,27 @@ export const UsuarioProvider = ({ children }) => {
 
   const handleInsert = async () => {
     if (bandInsert) {
-      //validar para insert
-      console.log(" se esta por insertar el usuario: ", usuarioToInsert);
-
-      let usuarioToInsertBlanqueado = {
-        ...usuarioToInsert,
-        blanqueado: 0,
-      };
-      const resultInsert=await addUsuario(usuarioToInsertBlanqueado);
-      if (resultInsert.err) {
-        throw new Error(resultInsert.err.message);
+      setLoadingAction(true);
+      try {
+        console.log(" se esta por insertar el usuario: ", usuarioToInsert);
+        let usuarioToInsertBlanqueado = {
+          ...usuarioToInsert,
+          blanqueado: 0,
+        };
+        const resultInsert=await addUsuario(usuarioToInsertBlanqueado);
+        if (resultInsert.err) {
+          throw new Error(resultInsert.err.message);
+        }
+        toast.success("Usuario creado exitosamente");
+        await getallUsuarios();
+        handleCloseVentEmergenteConfUsuario();
+        handleCloseVentEmergenteAddUsuario();
+      } catch (error) {
+        console.error("Error al crear usuario:", error);
+        toast.error("Error al crear usuario");
+      } finally {
+        setLoadingAction(false);
       }
-      handleCloseVentEmergenteConfUsuario();
-      handleCloseVentEmergenteAddUsuario();
     }
   };
   const addUsuario = async (usuario) => {
@@ -345,9 +361,16 @@ export const UsuarioProvider = ({ children }) => {
   };
 
   let getallUsuarios = async () => {
-    let usuarios = await getAllUsuarios();
-
-    setDb(usuarios);
+    setLoading(true);
+    try {
+      let usuarios = await getAllUsuarios();
+      setDb(usuarios);
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
+      toast.error("Error al cargar usuarios");
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => {
     getallUsuarios();
@@ -439,7 +462,9 @@ export const UsuarioProvider = ({ children }) => {
     allRolesEdit,
     dniUsuario,
     showVentEmergenteDelete,
-    patologiasToUsuarioEdit, 
+    patologiasToUsuarioEdit,
+    loading,
+    loadingAction, 
     setPatologiasToUsuarioEdit,
     setShowVentEmergenteDelete,
     handleChangeSelectRolEdit,

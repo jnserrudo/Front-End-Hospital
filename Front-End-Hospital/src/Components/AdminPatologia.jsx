@@ -1,16 +1,6 @@
 import React, { useContext, useState } from "react";
-import { Table } from "antd";
-import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import {
-  Button,
-  ButtonGroup,
-  Input,
-  FormControl,
-  FormLabel,
-  InputGroup,
-  InputRightElement,
-} from "@chakra-ui/react";
-import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
+import { Table, Button, Input } from "antd";
+import { PlusOutlined, SearchOutlined, MedicineBoxOutlined } from "@ant-design/icons";
 
 import PatologiaContext from "../Contexts/PatologiaContext";
 import { VentEmergenteAddPatologia } from "./VentEmergenteAddPatologia";
@@ -31,61 +21,59 @@ export const AdminPatologia = () => {
     idPatologia,
     showVentEmergenteDelete,
     setShowVentEmergenteDelete,
-    dbSearch
+    dbSearch,
+    loading = false,
+    loadingAction = false,
   } = useContext(PatologiaContext);
-  console.log(columns);
 
   const inhabilitarRegistro = async (id) => {
-    console.log("inhabilitarRegistro: ", id);
     const result = await inhabilitarPatologia(id);
-    console.log("resultado de inhabilitar: ", result);
   };
 
   const [patologiaSearch, setPatologiaSearch] = useState("");
 
   return (
-    <div className="form form_admin">
-      <p className="titulo_administracion">Patologias</p>
-      <Button
-        className="btn_agregar"
-        colorScheme="green"
-        onClick={() => setShowVentEmergenteAddPatologia(true)}
-      >
-        Agregar Patologia <UserAddOutlined className="icons" />
-      </Button>
-      <FormControl className="buscador" variant="floating" id="recetaSearch">
-        <InputGroup>
-          <Input
-            placeholder=""
-            name="patologiaSearch"
-            type="text"
-            value={patologiaSearch}
-            onChange={(e) => {
-              setPatologiaSearch(e.target.value);
-              handleSearch(e.target.value);
-            }}
-          />
-          <InputRightElement
-            width="4.5rem"
-            style={{ color: "#046ba3", fontSize: "20px" }}
-          >
-            <SearchOutlined />
-          </InputRightElement>
-        </InputGroup>
+    <div className="admin-page-wrapper">
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <div className="admin-card-title">
+            <h3>Listado de Patologías</h3>
+            <span className="admin-badge">{db.length} en total</span>
+          </div>
+          <div className="admin-card-actions">
+            <Input
+              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
+              placeholder="Buscar patología..."
+              value={patologiaSearch}
+              onChange={(e) => {
+                setPatologiaSearch(e.target.value);
+                handleSearch(e.target.value);
+              }}
+              allowClear
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setShowVentEmergenteAddPatologia(true)}
+              loading={loadingAction}
+              disabled={loadingAction}
+            >
+              Agregar Patología
+            </Button>
+          </div>
+        </div>
 
-        <FormLabel></FormLabel>
-      </FormControl>
-      <Table
-        className="tabla"
-        columns={columns}
-        /* pagination={{
-      position: [top, bottom],
-    }} */
-        pagination={{ position: ["none", "bottomRight"], pageSize: 5 }}
-        /* el pageSize determina la cantidad filas por tabla */
-
-        dataSource={ dbSearch.length > 0 ? dbSearch : db}
-      />
+        <Table
+          className="admin-table"
+          columns={columns}
+          pagination={{ position: ["bottomRight"], pageSize: 8 }}
+          dataSource={dbSearch.length > 0 ? dbSearch : db}
+          loading={loading}
+          rowKey="id"
+          size="middle"
+          locale={{ emptyText: "Sin registros" }}
+        />
+      </div>
 
       <VentEmergenteAddPatologia
         isOpen={showVentEmergenteAddPatologia}
@@ -99,7 +87,7 @@ export const AdminPatologia = () => {
       />
 
       <VentEmergConfirmacion
-        mje={"Esta seguro de eliminar este registro?"}
+        mje={"¿Está seguro de eliminar este registro?"}
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
         handleSi={() => inhabilitarRegistro(idPatologia)}

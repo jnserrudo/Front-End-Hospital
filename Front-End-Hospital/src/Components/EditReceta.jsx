@@ -1,69 +1,18 @@
-import {
-  Button,
-  ButtonGroup,
-  FormControl,
-  FormLabel,
-  Textarea,
-  Grid,
-  GridItem,
-} from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
-import "../style.css";
-import { Select, Space, Tooltip, Upload } from "antd";
-import ImgCrop from "antd-img-crop";
-import {
-  List,
-  ListItem,
-  ListIcon,
-  OrderedList,
-  UnorderedList,
-} from "@chakra-ui/react";
+import { Tabs, Input, Button, Space, Upload, Select, Row, Col, Divider } from "antd";
+import { UploadOutlined, ArrowRightOutlined, DeleteOutlined, PictureOutlined, WarningOutlined, InboxOutlined } from "@ant-design/icons";
+import { SmartTextArea } from "./SmartTextArea";
 import RecetasContext from "../Contexts/RecetaContext";
-import { useNavigate } from "react-router-dom";
-import { Input } from "@chakra-ui/react";
-import { getPatologiaToRecetaEdit } from "../services/recetas-services";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
-import { entorno } from "../services/config";
+import { entorno, getMediaUrl } from "../services/config";
+import toast from "react-hot-toast";
+import "../style.css";
+
+const { TabPane } = Tabs;
+
+
 
 export const EditReceta = ({ receta, onCloseEdit }) => {
-  console.log("edit receta: ", receta, entorno.slice(0, -4) + receta.urlFoto);
-
-  const navigate = useNavigate();
-  const handleShowConsulta = (ndocu) => {
-    navigate("/receta/" + ndocu);
-  };
-
-  const [bandEdit, setBandEdit] = useState(false);
-  const [bandUpdated, setBandUpdated] = useState(false);
-  const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
-    useState(false);
-  /* ------------------------- */
-  const [patologiasAsociadas, setPatologiasAsociadas] = useState([]);
-  const [patologiasNoAsociadas, setPatologiasNoAsociadas] = useState([]);
-  const [selectedPatologias, setSelectedPatologias] = useState([]);
-  const [opcionesPatologias, setOpcionesPatologias] = useState([]);
-  /* ------------------------- */
-
-  const [categoriasAsociadas, setCategoriasAsociadas] = useState([]);
-  const [categoriasNoAsociadas, setCategoriasNoAsociadas] = useState([]);
-  const [selectedCategorias, setSelectedCategorias] = useState([]);
-  const [opcionesCategorias, setOpcionesCategorias] = useState([]);
-
-  /* ------------------------- */
-
-  const [fileList, setFileList] = useState(
-    receta.urlFoto
-      ? [
-          {
-            uid: "-1",
-            name: "image.png",
-            status: "done",
-            url: entorno.slice(0, -4) + receta.urlFoto,
-          },
-        ]
-      : []
-  );
-
   const {
     handleChangeInput,
     handleUpdate,
@@ -72,203 +21,132 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
     handleChangeSelect,
     handleChangeSelectCategorias,
   } = useContext(RecetasContext);
-  if (!receta) {
-    return null;
-  }
 
-  const renderOrderedList = (text, desordenada = false) => {
-    if (text) {
-      return (
-        <>
-          {desordenada ? (
-            <UnorderedList
-              margin="0.2rem"
-              styleType="'-'"
-              /* width="250px"
-              height="200px"
- */
-              overflowY={text.split("\n").length > 5 ? "scroll" : "hidden"}
-              border="1px white black"
-              paddingLeft="20px"
-              paddingTop={"2rem"}
-            >
-              {text.split("\n").map((line, index) => (
-                <ListItem style={{ textAlign: "justify" }} key={index}>
-                  {line}
-                </ListItem>
-              ))}
-            </UnorderedList>
-          ) : (
-            <OrderedList
-              margin="0.2rem"
-              /* width="250px"
-              height="200px"*/
-              overflowY={text.split("\n").length > 5 ? "scroll" : "hidden"}
-              paddingLeft="20px"
-              paddingTop={"2rem"}
-            >
-              {text.split("\n").map((line, index) => (
-                <ListItem style={{ textAlign: "justify" }} key={index}>
-                  {line}
-                </ListItem>
-              ))}
-            </OrderedList>
-          )}
-        </>
-      );
-    }
-    return null;
-  };
-
-  const handleCloseVentEmergente = async () => {
-    setShowVentEmergenteConfirmacion(false);
-  };
-  /* 
-  const opcionesPatologias = [
-    ...patologiasAsociadas.map((p) => ({
-      label: p.nombre,
-      value: p.id,
-      type: "asociada",
-    })),
-    ...patologiasNoAsociadas.map((p) => ({
-      label: p.nombre,
-      value: p.id,
-      type: "no-asociada",
-    })),
-  ];
- */
-  const sharedProps = {
-    mode: "multiple",
-    style: { width: "100%" },
-    options: opcionesPatologias,
-    placeholder: "Seleccione una Patología",
-    maxTagCount: "responsive",
-    value: selectedPatologias,
-    renderOptionLabel: (option) => (
-      <div>
-        {option.label} {option.type === "asociada" ? "(Asociada)" : ""}
-      </div>
-    ),
-  };
-
-  const sharedPropsCategorias = {
-    mode: "multiple",
-    style: { width: "100%" },
-    options: opcionesCategorias,
-    placeholder: "Seleccione una Categoria",
-    maxTagCount: "responsive",
-    value: selectedCategorias,
-    renderOptionLabel: (option) => (
-      <div>
-        {option.label} {option.type === "asociada" ? "(Asociada)" : ""}
-      </div>
-    ),
-  };
-
-  const handleFileChange = ({ fileList: newFileList }) => {
-    console.log("handleFileChange");
-    //ESTO SE HACE PARA EVITAR EL BORDE ROJO, PORQUE EL COMPONENTE UPLOAD INTENTA SUBIR EL ARCHIVO, CUANDO
-    //POR AHORA SOLO VAMOS CARGANDOLO EN EL FORMULARIO.
-    // Asegurar que todos los archivos tienen el estado "done"
-  const updatedFileList = newFileList.map((f) => {
-    if (f.status === "error") {
-      return { ...f, status: "done" }; // Forzar "done"
-    }
-    return f;
-  });
-    setFileList(updatedFileList);
-  };
+  const [activeTab, setActiveTab] = useState("1");
+  const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] = useState(false);
+  const [fileList, setFileList] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [selectedPatologias, setSelectedPatologias] = useState([]);
+  const [selectedCategorias, setSelectedCategorias] = useState([]);
+  const [localPreview, setLocalPreview] = useState(null);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
-    setFileList(
-      receta.urlFoto
-        ? [
-            {
-              uid: "-1",
-              name: "image.png",
-              status: "done",
-              url: entorno.slice(0, -4) + receta.urlFoto,
-            },
-          ]
-        : []
-    );
+    if (receta?.urlFoto) {
+      const fullUrl = getMediaUrl(receta.urlFoto);
+      setFileList([
+        {
+          uid: "-1",
+          name: receta.nombre || "Foto de receta",
+          status: "done",
+          url: fullUrl,
+        },
+      ]);
+      setLocalPreview(fullUrl);
+      setImageError(false);
+    } else {
+      setFileList([]);
+      setLocalPreview(null);
+      setImageError(false);
+    }
   }, [receta]);
 
   useEffect(() => {
-    console.log("fileList", fileList);
-  }, [fileList]);
-
-  useEffect(() => {
-    console.log(patologiasxRecetasEdit);
-    if (
-      patologiasxRecetasEdit &&
-      Object.values(patologiasxRecetasEdit).length > 0
-    ) {
-      setPatologiasAsociadas(patologiasxRecetasEdit.patologiasAsociadas);
-      setPatologiasNoAsociadas(patologiasxRecetasEdit.patologiasNoAsociadas);
-      setSelectedPatologias(
-        patologiasxRecetasEdit.patologiasAsociadas.map((p) => p.id)
-      );
+    if (patologiasxRecetasEdit?.patologiasAsociadas) {
+      setSelectedPatologias(patologiasxRecetasEdit.patologiasAsociadas.map((p) => p.id));
     }
   }, [patologiasxRecetasEdit]);
 
   useEffect(() => {
-    console.log(categoriasxRecetasEdit);
-    if (
-      categoriasxRecetasEdit &&
-      Object.values(categoriasxRecetasEdit).length > 0
-    ) {
-      setCategoriasAsociadas(categoriasxRecetasEdit.categoriasAsociadas);
-      setCategoriasNoAsociadas(categoriasxRecetasEdit.categoriasNoAsociadas);
-      setSelectedCategorias(
-        categoriasxRecetasEdit.categoriasAsociadas.map((p) => p.id)
-      );
+    if (categoriasxRecetasEdit?.categoriasAsociadas) {
+      setSelectedCategorias(categoriasxRecetasEdit.categoriasAsociadas.map((c) => c.id));
     }
   }, [categoriasxRecetasEdit]);
 
-  useEffect(() => {
-    if (patologiasAsociadas.length > 0 || patologiasNoAsociadas.length > 0) {
-      console.log(
-        "patologiasAsociadas,patologiasNoAsociadas: ",
-        patologiasAsociadas,
-        patologiasNoAsociadas
-      );
-      setOpcionesPatologias([
-        ...patologiasAsociadas.map((p) => ({
-          label: p.nombre,
-          value: p.id,
-          type: "asociada",
-        })),
-        ...patologiasNoAsociadas.map((p) => ({
-          label: p.nombre,
-          value: p.id,
-          type: "no-asociada",
-        })),
-      ]);
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!receta?.nombre || receta.nombre.length < 3) {
+      newErrors.nombre = "Nombre requerido (mínimo 3 caracteres)";
     }
-  }, [patologiasAsociadas, patologiasNoAsociadas]);
+    
+    if (!receta?.porciones) {
+      newErrors.porciones = "Porciones requeridas";
+    } else {
+      const porciones = parseInt(receta.porciones);
+      if (isNaN(porciones) || porciones < 1 || porciones > 20) {
+        newErrors.porciones = "Porciones deben ser entre 1 y 20";
+      }
+    }
+    
+    if (!receta?.calorias) {
+      newErrors.calorias = "Calorías requeridas";
+    } else {
+      const calorias = parseInt(receta.calorias);
+      if (isNaN(calorias) || calorias < 1 || calorias > 9999) {
+        newErrors.calorias = "Calorías deben ser entre 1 y 9999";
+      }
+    }
+    
+    if (!receta?.tiempo) {
+      newErrors.tiempo = "Tiempo requerido";
+    }
+    
+    if (!receta?.ingredientes) {
+      newErrors.ingredientes = "Ingredientes requeridos";
+    } else {
+      const lines = receta.ingredientes.split("\n").filter(l => l.trim() !== "");
+      if (lines.length < 3) {
+        // Validacion removida - no hay minimo de ingredientes
+      }
+    }
+    
+    if (!receta?.preparacion) {
+      newErrors.preparacion = "Preparación requerida";
+    } else {
+      const lines = receta.preparacion.split("\n").filter(l => l.trim() !== "");
+      if (lines.length < 3) {
+        // Validacion removida - no hay minimo de pasos
+      }
+    }
+    
+    if (selectedPatologias.length === 0) {
+      newErrors.idPatologias = "Seleccione al menos una patología";
+    }
+    
+    if (selectedCategorias.length === 0) {
+      newErrors.idCategorias = "Seleccione al menos una categoría";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-  useEffect(() => {
-    if (categoriasAsociadas.length > 0 || categoriasNoAsociadas.length > 0) {
-      console.log(
-        "categoriasAsociadas,categoriasNoAsociadas: ",
-        categoriasAsociadas,
-        categoriasNoAsociadas
-      );
-      setOpcionesCategorias([
-        ...categoriasAsociadas.map((p) => ({
-          label: p.nombre,
-          value: p.id,
-          type: "asociada",
-        })),
-        ...categoriasNoAsociadas.map((p) => ({
-          label: p.nombre,
-          value: p.id,
-          type: "no-asociada",
-        })),
-      ]);
+  const handleFileChange = ({ fileList: newFileList }) => {
+    const updatedFileList = newFileList.map((f) => {
+      if (f.status === "error") {
+        return { ...f, status: "done" };
+      }
+      return f;
+    });
+    setFileList(updatedFileList);
+
+    if (updatedFileList.length > 0) {
+      const file = updatedFileList[0];
+      if (file.originFileObj) {
+        const url = URL.createObjectURL(file.originFileObj);
+        setLocalPreview(url);
+        setImageError(false);
+      } else if (file.url) {
+        setLocalPreview(file.url);
+        setImageError(false);
+      }
+    } else {
+      setLocalPreview(null);
+      setImageError(false);
+      handleChangeInput({ target: { name: "urlFoto", value: "" } });
     }
-  }, [categoriasAsociadas, categoriasNoAsociadas]);
+  };
 
   const handleFileUpload = async (file) => {
     const formData = new FormData();
@@ -280,385 +158,443 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
         body: formData,
       });
       const data = await response.json();
-      return data.url; // Suponiendo que el backend devuelve la URL de la imagen
+      return data.url;
     } catch (error) {
       console.error("Error uploading file:", error);
       throw error;
     }
   };
 
-  const handleUpdateWithImage = async () => {
-    try {
-      let urlFoto;
-      if (fileList.length > 0 && fileList[fileList.length - 1].originFileObj) {
-        urlFoto = await handleFileUpload(
-          fileList[fileList.length - 1].originFileObj
-        ); // Usa la última imagen cargada
-        console.log(urlFoto);
+  const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/jpg" || file.type === "image/webp";
+    if (!isJpgOrPng) {
+      toast.error("Solo se permiten archivos de imagen (jpeg, jpg, png, webp)");
+      return Upload.LIST_IGNORE;
+    }
+    const isLt5M = file.size / 1024 / 1024 < 5;
+    if (!isLt5M) {
+      toast.error("La imagen debe ser menor a 5MB");
+      return Upload.LIST_IGNORE;
+    }
+    return true;
+  };
 
+  // Función para limpiar líneas vacías de campos de texto
+  const cleanTextFields = (text) => {
+    if (!text) return text;
+    return text
+      .split("\n")
+      .map(line => line.trim())
+      .filter(line => line !== "")
+      .join("\n");
+  };
+
+  const handleUpdateWithImage = async () => {
+    if (!validateForm()) {
+      toast.error("Por favor, corrija los errores en el formulario");
+      return;
+    }
+
+    try {
+      let urlFoto = receta.urlFoto || "";
+      if (fileList.length > 0 && fileList[fileList.length - 1].originFileObj) {
+        urlFoto = await handleFileUpload(fileList[fileList.length - 1].originFileObj);
         handleChangeInput({ target: { name: "urlFoto", value: urlFoto } });
       }
-      handleUpdate(
-        urlFoto
-          ? {
-              ...receta,
-              urlFoto: urlFoto,
-            }
-          : receta
-      );
+      
+      // Transformar nombres para el backend
+      const recetaToUpdate = urlFoto ? { ...receta, urlFoto } : receta;
+      const { idPatologias, idCategorias, ...restReceta } = recetaToUpdate;
+      
+      // Limpiar campos de texto (eliminar líneas vacías)
+      const recetaTransformed = {
+        ...restReceta,
+        ingredientes: cleanTextFields(restReceta.ingredientes),
+        preparacion: cleanTextFields(restReceta.preparacion),
+        tipsSaludables: cleanTextFields(restReceta.tipsSaludables),
+        composicionNutricional: cleanTextFields(restReceta.composicionNutricional),
+        idsPatologias: selectedPatologias, // Backend espera "idsPatologias"
+        idsCategorias: selectedCategorias  // Backend espera "idsCategorias"
+      };
+      
+      handleUpdate(recetaTransformed);
     } catch (error) {
       console.error("Error updating recipe:", error);
+      toast.error("Error al subir la imagen");
     }
   };
 
-  useEffect(() => {
-    if (patologiasxRecetasEdit && patologiasxRecetasEdit.length > 0) {
-      setPatologiasAsociadas(patologiasxRecetasEdit.patologiasAsociadas);
-      setPatologiasNoAsociadas(patologiasxRecetasEdit.patologiasNoAsociadas);
-      setSelectedPatologias(
-        patologiasxRecetasEdit.patologiasAsociadas.map((p) => p.id)
-      );
-    }
-  }, [patologiasxRecetasEdit]); // Dependencia cambiada a patologiasxRecetasEdit
+  const handleCloseVentEmergente = async () => {
+    setShowVentEmergenteConfirmacion(false);
+  };
 
-  useEffect(() => {
-    if (categoriasxRecetasEdit && categoriasxRecetasEdit.length > 0) {
-      setCategoriasAsociadas(categoriasxRecetasEdit.categoriasAsociadas);
-      setCategoriasNoAsociadas(categoriasxRecetasEdit.categoriasNoAsociadas);
-      setSelectedPatologias(
-        categoriasxRecetasEdit.categoriasAsociadas.map((p) => p.id)
-      );
-    }
-  }, [categoriasxRecetasEdit]);
-
-  console.log("viendo al receta: ", receta);
-  useEffect(() => {
-    setBandUpdated(bandEdit);
-  }, [bandEdit]);
+  if (!receta) {
+    return null;
+  }
 
   return (
-    <div className="form">
-      <Grid
-        className="grid_chackra"
-        templateColumns={{
-          base: "1fr",
-          md: "repeat(auto-fit, minmax(400px, 1fr))",
-        }}
-        gap={10}
+    <div className="form-container-receta">
+
+      <Tabs 
+        activeKey={activeTab} 
+        onChange={setActiveTab}
+        className="form-tabs"
       >
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="nombre"
-            isRequired
-          >
-            <Input
-              className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
-              label=""
-              name="nombre"
-              variant="outlined"
-              type="text"
-              disabled={!bandEdit}
-              value={receta.nombre ? receta.nombre : ""}
-              onChange={(e) => handleChangeInput(e)}
-            />
-            <FormLabel className="label_floating">Nombre</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="porciones"
-            isRequired
-          >
-            <Input
-              className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
-              label="Porciones"
-              name="porciones"
-              variant="outlined"
-              type="text"
-              disabled={!bandEdit}
-              value={receta.porciones ? receta.porciones : ""}
-              onChange={(e) => handleChangeInput(e)}
-            />
-            <FormLabel className="label_floating">Porciones</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="tiempo"
-            isRequired
-          >
-            <Input
-              className={`input_floating`}
-              placeholder="Calorias"
-              name="calorias"
-              disabled={!bandEdit}
-              variant="outlined"
-              type="text"
-              value={receta?.calorias ? receta.calorias : ""}
-              onChange={(e) => handleChangeInput(e)}
-            />
-            <FormLabel className="label_floating">Calorias</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="tiempo"
-            isRequired
-          >
-            <Input
-              className={`input_floating`}
-              placeholder="Tiempo"
-              name="tiempo"
-              disabled={!bandEdit}
-              variant="outlined"
-              type="text"
-              value={receta?.tiempo ? receta.tiempo : ""}
-              onChange={(e) => handleChangeInput(e)}
-            />
-            <FormLabel className="label_floating">Tiempo</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          {/* <Input
-          className={`input_edit`}
-          placeholder="URL Foto"
-          name="urlFoto"
-          disabled={!bandEdit}
-          variant="outlined"
-          type="text"
-          value={receta?.urlFoto ? receta.urlFoto : ""}
-          onChange={(e) => handleChangeInput(e)}
-        /> */}
-          <Upload
-            className="imgCrop"
-            listType="picture-card"
-            fileList={fileList}
-            onChange={handleFileChange}
-            disabled={!bandEdit}
+        {/* TAB 1: BÁSICO */}
+        <TabPane tab="Básico" key="1">
+          <div className="section-guide">
+             Complete la información básica de la receta
+          </div>
+
+          <div className="form-section">
+            <div className="form-section-title">Información General</div>
             
-          >
-            {/* fileList.length < 2 &&  */ "Imagen/Video"}
-          </Upload>
-          {/* <ImgCrop rotationSlider>
-        </ImgCrop> */}
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="tiempo"
-            isRequired
-          >
-            {bandEdit ? (
-              <Textarea
-                className={`input_floating`}
-                disabled={!bandEdit}
-                placeholder="Ingredientes"
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Nombre <span className="required">*</span>
+                  </label>
+                  <Input
+                    placeholder="Ej: Humitas Saludables"
+                    value={receta?.nombre || ""}
+                    onChange={(e) => handleChangeInput(e)}
+                    name="nombre"
+                    className={errors.nombre ? "input-error" : ""}
+                  />
+                  {errors.nombre && <div className="error-message"> {errors.nombre}</div>}
+                  <div className="field-help">3-100 caracteres</div>
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Porciones <span className="required">*</span>
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="Ej: 4"
+                    value={receta?.porciones || ""}
+                    onChange={(e) => handleChangeInput(e)}
+                    name="porciones"
+                    min={1}
+                    max={20}
+                    className={errors.porciones ? "input-error" : ""}
+                  />
+                  {errors.porciones && <div className="error-message"> {errors.porciones}</div>}
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Calorías <span className="required">*</span>
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="Ej: 130"
+                    value={receta?.calorias || ""}
+                    onChange={(e) => handleChangeInput(e)}
+                    name="calorias"
+                    min={1}
+                    max={9999}
+                    className={errors.calorias ? "input-error" : ""}
+                  />
+                  {errors.calorias && <div className="error-message"> {errors.calorias}</div>}
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Tiempo <span className="required">*</span>
+                  </label>
+                  <Input
+                    placeholder="Ej: 30 min"
+                    value={receta?.tiempo || ""}
+                    onChange={(e) => handleChangeInput(e)}
+                    name="tiempo"
+                    className={errors.tiempo ? "input-error" : ""}
+                  />
+                  {errors.tiempo && <div className="error-message"> {errors.tiempo}</div>}
+                </div>
+              </Col>
+            </Row>
+          </div>
+
+          <Divider />
+
+          <div className="form-section">
+            <div className="form-section-title">Imagen</div>
+            
+            <div className="form-field">
+              <label className="form-label">
+                Foto de la receta
+              </label>
+              
+              {localPreview && !imageError ? (
+                <div className="custom-image-preview-container">
+                  <img 
+                    src={localPreview} 
+                    alt={receta?.nombre || "Foto de la receta"} 
+                    className="custom-image-preview"
+                    onError={() => setImageError(true)}
+                  />
+                  <div className="custom-image-overlay">
+                    <div className="custom-image-actions">
+                      <Upload
+                        accept="image/*"
+                        beforeUpload={beforeUpload}
+                        showUploadList={false}
+                        onChange={handleFileChange}
+                        fileList={fileList}
+                        maxCount={1}
+                      >
+                        <Button type="primary" icon={<UploadOutlined />}>Cambiar Imagen</Button>
+                      </Upload>
+                      <Button 
+                        danger 
+                        type="primary" 
+                        icon={<DeleteOutlined />} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFileList([]);
+                          setLocalPreview(null);
+                          setImageError(false);
+                          handleChangeInput({ target: { name: "urlFoto", value: "" } });
+                        }}
+                      >
+                        Eliminar Imagen
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Upload
+                  accept="image/*"
+                  beforeUpload={beforeUpload}
+                  showUploadList={false}
+                  onChange={handleFileChange}
+                  fileList={fileList}
+                  maxCount={1}
+                >
+                  <div className="custom-image-upload-dropzone">
+                    {imageError ? (
+                      <div className="custom-image-placeholder-error">
+                        <span className="placeholder-icon">
+                          <WarningOutlined style={{ color: 'var(--danger)' }} />
+                        </span>
+                        <span className="placeholder-title">{receta?.nombre || "Sin imagen"}</span>
+                        <span className="placeholder-subtitle">Imagen no disponible localmente</span>
+                        <Button type="dashed" size="small" style={{ marginTop: 12 }}>Subir otra imagen</Button>
+                      </div>
+                    ) : (
+                      <div className="custom-image-placeholder-empty">
+                        <span className="placeholder-icon">
+                          <InboxOutlined style={{ color: 'var(--primary)' }} />
+                        </span>
+                        <span className="placeholder-title font-semibold">Subir foto de la receta</span>
+                        <span className="placeholder-subtitle">Formatos: JPG, PNG, WEBP. Máx 5MB</span>
+                      </div>
+                    )}
+                  </div>
+                </Upload>
+              )}
+              <div className="field-help">Formatos: JPG, PNG, WEBP. Max 5MB</div>
+            </div>
+          </div>
+
+          <Divider />
+
+          <div className="form-section">
+            <div className="form-section-title">Clasificación</div>
+            
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Patologías <span className="required">*</span>
+                  </label>
+                  <Select
+                    mode="multiple"
+                    placeholder="Seleccione patologías"
+                    value={selectedPatologias}
+                    onChange={(value) => {
+                      handleChangeSelect({ target: { name: "idPatologias", value } });
+                      setSelectedPatologias(value);
+                    }}
+                    options={[
+                      ...(patologiasxRecetasEdit?.patologiasAsociadas || []).map((p) => ({
+                        label: p.nombre,
+                        value: p.id,
+                      })),
+                      ...(patologiasxRecetasEdit?.patologiasNoAsociadas || []).map((p) => ({
+                        label: p.nombre,
+                        value: p.id,
+                      })),
+                    ]}
+                    maxTagCount="responsive"
+                    className={errors.idPatologias ? "input-error" : ""}
+                  />
+                  {errors.idPatologias && <div className="error-message"> {errors.idPatologias}</div>}
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Categorías <span className="required">*</span>
+                  </label>
+                  <Select
+                    mode="multiple"
+                    placeholder="Seleccione categorías"
+                    value={selectedCategorias}
+                    onChange={(value) => {
+                      handleChangeSelectCategorias({ target: { name: "idCategorias", value } });
+                      setSelectedCategorias(value);
+                    }}
+                    options={[
+                      ...(categoriasxRecetasEdit?.categoriasAsociadas || []).map((c) => ({
+                        label: c.nombre,
+                        value: c.id,
+                      })),
+                      ...(categoriasxRecetasEdit?.categoriasNoAsociadas || []).map((c) => ({
+                        label: c.nombre,
+                        value: c.id,
+                      })),
+                    ]}
+                    maxTagCount="responsive"
+                    className={errors.idCategorias ? "input-error" : ""}
+                  />
+                  {errors.idCategorias && <div className="error-message"> {errors.idCategorias}</div>}
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </TabPane>
+
+        {/* TAB 2: INGREDIENTES & PREPARACIÓN */}
+        <TabPane tab="Ingredientes & Preparación" key="2">
+          <div className="section-guide">
+             Presiona Enter para numerar automáticamente los pasos.
+          </div>
+
+          <div className="form-section">
+            <div className="form-section-title">Ingredientes</div>
+            
+            <div className="form-field">
+              <SmartTextArea
+                value={receta?.ingredientes || ""}
+                onChange={handleChangeInput}
                 name="ingredientes"
-                variant="outlined"
-                type="text"
-                value={receta?.ingredientes ? receta.ingredientes : ""}
-                onChange={(e) => handleChangeInput(e)}
+                placeholder="Ejemplo: 1 taza de harina&#10;65 gr de zapallo&#10;50 gr de pimiento"
+                helpText="Presiona Enter para numerar automáticamente"
+                required={true}
               />
-            ) : (
-              renderOrderedList(receta.ingredientes)
-            )}
-            <FormLabel className="label_floating">Ingredientes</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="tipsSaludables"
-            isRequired
-          >
-            {bandEdit ? (
-              <Textarea
-                className={`input_floating`}
-                placeholder=""
-                name="tipsSaludables"
-                size="sm"
-                disabled={!bandEdit}
-                variant="outlined"
-                type="text"
-                value={receta?.tipsSaludables ? receta.tipsSaludables : ""}
-                onChange={(e) => handleChangeInput(e)}
-              />
-            ) : (
-              renderOrderedList(receta.tipsSaludables)
-            )}
+              {errors.ingredientes && <div className="error-message"> {errors.ingredientes}</div>}
+            </div>
+          </div>
 
-            <FormLabel className="label_floating">Tips Saludables</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="composicionNutricional"
-            isRequired
-          >
-            {bandEdit ? (
-              <Textarea
-                className={`input_floating`}
-                placeholder=""
-                name="composicionNutricional"
-                size="sm"
-                disabled={!bandEdit}
-                variant="outlined"
-                type="text"
-                value={
-                  receta?.composicionNutricional
-                    ? receta.composicionNutricional
-                    : ""
-                }
-                onChange={(e) => handleChangeInput(e)}
-              />
-            ) : (
-              renderOrderedList(receta.composicionNutricional, true)
-            )}
+          <Divider />
 
-            <FormLabel className="label_floating">
-              Composición Nutricional
-            </FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 2 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="preparacion"
-            isRequired
-          >
-            {bandEdit ? (
-              <Textarea
-                className={`input_floating`}
-                placeholder="Preparación"
-                disabled={!bandEdit}
+          <div className="form-section">
+            <div className="form-section-title">Preparación</div>
+            
+            <div className="form-field">
+              <SmartTextArea
+                value={receta?.preparacion || ""}
+                onChange={handleChangeInput}
                 name="preparacion"
-                variant="outlined"
-                type="text"
-                value={receta?.preparacion ? receta.preparacion : ""}
-                onChange={(e) => handleChangeInput(e)}
+                placeholder="Ejemplo: Cortar el choclo en trozos&#10;Cocinar el zapallo&#10;Mezclar todos los ingredientes"
+                helpText="Describe paso a paso. Presiona Enter para numerar."
+                required={true}
               />
-            ) : (
-              renderOrderedList(receta.preparacion)
-            )}
+              {errors.preparacion && <div className="error-message"> {errors.preparacion}</div>}
+            </div>
+          </div>
+        </TabPane>
 
-            <FormLabel className="label_floating">Preparacion</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 2 }}>
-          <FormControl isRequired>
-            <FormLabel>Patologias</FormLabel>
-            {/* SELECT DE LAS PATOLOGIAS */}
-            <Select
-              disabled={!bandEdit}
-              name="idPatologias"
-              {...sharedProps}
-              /* value={alumnos} */
-              onChange={(e) => {
-                console.log(e);
-                handleChangeSelect(e);
-                setSelectedPatologias(e);
-              }}
-            />
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 2 }}>
-          <FormControl isRequired>
-            <FormLabel>Categorias</FormLabel>
-            {/* SELECT DE LAS CATEGORIAS */}
-            <Select
-              disabled={!bandEdit}
-              name="idCategorias"
-              {...sharedPropsCategorias}
-              /* value={alumnos} */
-              onChange={(e) => {
-                console.log(e);
-                handleChangeSelectCategorias(e);
-                setSelectedCategorias(e);
-              }}
-            />
-          </FormControl>
-        </GridItem>
-      </Grid>
-      <div className="cont_btns_acciones">
-        {!bandEdit ? (
-          <Button
-            className="btn_accion_edit_receta"
-            variant="outlined"
-            onClick={() => setBandEdit(true)}
-          >
-            Editar
-          </Button>
-        ) : (
-          <Button
-            className="btn_accion_edit_receta"
-            variant="contained"
-            color="info"
-            onClick={() => setBandEdit(false)}
-          >
+        {/* TAB 3: NUTRICIÓN & TIPS */}
+        <TabPane tab="Nutrición & Tips" key="3">
+          <div className="section-guide">
+             Información nutricional opcional para enriquecer la receta
+          </div>
+
+          <div className="form-section">
+            <div className="form-section-title">Tips Saludables (Opcional)</div>
+            
+            <div className="form-field">
+              <label className="form-label">
+                Tips
+              </label>
+              <SmartTextArea
+                value={receta?.tipsSaludables || ""}
+                onChange={handleChangeInput}
+                name="tipsSaludables"
+                placeholder="Ejemplo: Rico en fibra&#10;Bajo en sodio&#10;Sin gluten"
+                helpText="Consejos nutricionales"
+                minItems={0}
+                maxItems={10}
+                required={false}
+              />
+            </div>
+          </div>
+
+          <Divider />
+
+          <div className="form-section">
+            <div className="form-section-title">Composición Nutricional (Opcional)</div>
+            
+            <div className="form-field">
+              <label className="form-label">
+                Composición
+              </label>
+              <SmartTextArea
+                value={receta?.composicionNutricional || ""}
+                onChange={handleChangeInput}
+                name="composicionNutricional"
+                placeholder="Ejemplo: Proteínas: 5g&#10;Carbohidratos: 20g&#10;Grasas: 3g"
+                helpText="Detalla valores nutricionales"
+                minItems={0}
+                maxItems={15}
+                required={false}
+              />
+            </div>
+          </div>
+        </TabPane>
+      </Tabs>
+
+      <div className="form-actions">
+        <Space>
+          <Button onClick={onCloseEdit}>
             Cancelar
           </Button>
-        )}
-
-        {bandUpdated ? (
-          <Button
-            className="btn_accion_edit_receta"
-            colorScheme="green"
-            /*            variant="contained"
-            style={{ margin: "1rem auto 0" }}
- */ onClick={() => setShowVentEmergenteConfirmacion(true)}
+          <Button 
+            type="primary" 
+            icon={<ArrowRightOutlined />}
+            onClick={() => {
+              if (activeTab === "1") {
+                setActiveTab("2");
+              } else if (activeTab === "2") {
+                setActiveTab("3");
+              } else {
+                setShowVentEmergenteConfirmacion(true);
+              }
+            }}
           >
-            Actualizar
+            {activeTab === "3" ? "Guardar Cambios" : "Siguiente"}
           </Button>
-        ) : null}
+        </Space>
       </div>
 
       <VentEmergConfirmacion
         onClosePadre={onCloseEdit}
         onClose={handleCloseVentEmergente}
-        mje={
-          "Esta seguro de actualizar los datos del receta " +
-          /*  receta?.nombre?.toUpperCase() +
-          ", " +
-          receta?.apellido?.toUpperCase() + */
-          " ?"
-        }
-        /* handleSi={() => handleUpdate(receta)} */
+        mje="¿Está seguro de actualizar esta receta?"
         handleSi={handleUpdateWithImage}
         isOpen={showVentEmergenteConfirmacion}
       />
     </div>
   );
 };
-
-/* 
-<TextField
-                className="input_carga plan_anioc_edicion_input"
-                id="outlined-basic"
-                label="Año de Cursado"
-                variant="outlined"
-                name="añoc"
-                type="number"
-                onChange={(e) => {
-                  handleChange(e);
-                  setCurso({
-                    ...curso,
-                    añoc: e.target.value,
-                  });
-                }}
-                onBlur={() => handleBlurElementosForm("añoc")}
-                value={curso.añoc ? curso.añoc : ""}
-              />
-*/

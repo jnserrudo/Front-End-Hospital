@@ -2,15 +2,20 @@ import React, { useEffect, useState } from "react";
 import { Header as CustomHeader } from "../Components/Header"; // Renombramos el componente Header para evitar conflictos
 import { Breadcrumb, Layout, Menu, theme } from "antd"; // Importamos los componentes necesarios de Ant Design
 import {
-  DesktopOutlined,
-  FileOutlined,
-  PieChartOutlined,
-  TeamOutlined,
-  UserOutlined,
-} from "@ant-design/icons"; // Importamos los iconos de Ant Design
-import toast, { Toaster } from "react-hot-toast";
+  HomeOutlined,
+  CoffeeOutlined,
+  ReadOutlined,
+  ThunderboltOutlined,
+  PictureOutlined,
+  CalendarOutlined,
+  QuestionCircleOutlined,
+  MessageOutlined,
+  SettingOutlined,
+  BarChartOutlined,
+  SwapOutlined,
+} from "@ant-design/icons";
+import toast from "react-hot-toast";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react"; // Importamos ChakraProvider para mantener los estilos de Chakra UI
-import { Nav } from "../Components/Nav";
 import { ListCard } from "../Components/ListCard";
 import { Ejercicio } from "./Ejercicio";
 import { Info } from "./Info";
@@ -21,6 +26,12 @@ import "../style.css"; // Importamos el archivo de estilos correcto
 import { FooterHospital } from "../Components/FooterHospital";
 import { TablasInformativas } from "../Components/TablasInformativas";
 import { ConversionUnidades } from "../Components/ConversionUnidades";
+import { FAQ } from "./FAQ";
+import { Infografias } from "./Infografias";
+import { Calendario } from "./Calendario";
+import { FormularioFeedback } from "./FormularioFeedback";
+import { FAQProvider } from "../Contexts/FAQContext";
+import { CalendarioProvider } from "../Contexts/CalendarioContext";
 
 const { Header, Content, Footer, Sider } = Layout; // Desestructuramos los componentes de Layout de Ant Design
 
@@ -36,12 +47,15 @@ function getItem(label, key, icon, children) {
 
 // Definimos los elementos del menú de Ant Design
 const items = [
-  getItem("Inicio", "1", <PieChartOutlined />),
-  getItem("Recetas", "2", <DesktopOutlined />),
-  getItem("Informarse", "3", <UserOutlined />),
-  getItem("Ejercitarse", "4", <TeamOutlined />),
-  /* getItem("Administración", "5", <FileOutlined />), */
-  getItem("Administración", "5", <FileOutlined />, [
+  getItem("Inicio", "1", <HomeOutlined />),
+  getItem("Recetas", "2", <CoffeeOutlined />),
+  getItem("Informarse", "3", <ReadOutlined />),
+  getItem("Ejercitarse", "4", <ThunderboltOutlined />),
+  getItem("Infografías", "15", <PictureOutlined />),
+  getItem("Calendario", "16", <CalendarOutlined />),
+  getItem("FAQ", "17", <QuestionCircleOutlined />),
+  getItem("Feedback", "18", <MessageOutlined />),
+  getItem("Administración", "5", <SettingOutlined />, [
     getItem("Patologia", "6"),
     getItem("Recetas", "7"),
     getItem("Informacion", "8"),
@@ -49,9 +63,13 @@ const items = [
     getItem("Usuario", "10"),
     getItem("Paciente", "11"),
     getItem("Categorias", "12"),
+    getItem("Infografías", "19"),
+    getItem("FAQ", "20"),
+    getItem("Calendario", "21"),
+    getItem("Autoevaluaciones", "22"),
   ]),
-  getItem("Tablas", "13", <FileOutlined />),
-  getItem("Conversor Un.Med.", "14", <FileOutlined />),
+  getItem("Tablas", "13", <BarChartOutlined />),
+  getItem("Conversor Un.Med.", "14", <SwapOutlined />),
 ];
 
 // Estilos activos personalizados para Chakra UI
@@ -100,6 +118,15 @@ export const MainApp = () => {
   const [token, setToken] = useState(null); // Estado para almacenar el token JWT
   const [validatedToken, setValidatedToken] = useState(false); // Estado para manejar la validación del token
   const navigate = useNavigate(); // Hook para la navegación
+
+  // Agregar clase al body cuando el sidebar está abierto
+  useEffect(() => {
+    if (!collapsed) {
+      document.body.classList.add('sidebar-open');
+    } else {
+      document.body.classList.remove('sidebar-open');
+    }
+  }, [collapsed]);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -158,11 +185,10 @@ export const MainApp = () => {
     };
   }, [navigate]);
   
-  // Efecto para validar el token y mostrar un toast de éxito
+  // Efecto para validar el token
   useEffect(() => {
     if (token) {
       setValidatedToken(token.exp * 1000 > Date.now());
-      toast.success("Logeado con éxito!", { duration: 3000 });
     }
   }, [token]);
 
@@ -191,35 +217,56 @@ export const MainApp = () => {
   },[selectedKey])
 
   return (
-    <ChakraProvider theme={customTheme}>
-      <Layout style={{ minHeight: "100vh" }}>
-        <Toaster position="top-center" reverseOrder={false} />
-        {/* Componente para mostrar notificaciones */}
-        <Sider
+    <FAQProvider>
+      <CalendarioProvider>
+        <ChakraProvider theme={customTheme}>
+          <Layout style={{ minHeight: "100vh" }}>
+            {/* Componente para mostrar notificaciones */}
+            <Sider
           collapsible
           collapsed={collapsed}
           onCollapse={setCollapsed}
-          /*breakpoint="lg" */
           collapsedWidth="0"
           style={{
-            backgroundColor: "#046ba3",
-            position: "fixed", // Fija el sider para que no afecte el flujo del documento
-            zIndex: 110, // Asegúrate de que el sider esté por encima del contenido
-            height: "100vh", // Asegura que el sider cubra toda la altura de la ventana
+            background: "linear-gradient(180deg, #075985 0%, #0369a1 50%, #0284c7 100%)",
+            position: "fixed",
+            zIndex: 110,
+            height: "100vh",
+            boxShadow: "4px 0 20px rgba(0,0,0,0.15)",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
           }}
         >
-          <div className="logo_sidebar" /> {/* Elemento visual para el logo */}
+          <div style={{
+            padding: "16px 20px",
+            borderBottom: "1px solid rgba(255,255,255,0.1)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexShrink: 0,
+          }}>
+            <img src="/logoOñativia.png" alt="" style={{ width: 32, height: 32, objectFit: "contain" }} onError={(e) => e.target.style.display = 'none'} />
+            <span style={{ color: "white", fontWeight: 700, fontSize: 14, letterSpacing: "0.02em" }}>
+              Oñativia
+            </span>
+          </div>
           <Menu
             theme="dark"
             defaultSelectedKeys={["1"]}
             mode="inline"
             style={{
-              backgroundColor: "#046ba3",
+              background: "transparent",
+              border: "none",
+              marginTop: 8,
+              flex: 1,
+              overflowY: "auto",
+              overflowX: "hidden",
+              maxHeight: "calc(100vh - 80px)",
             }}
             items={items}
             onClick={handleMenuClick}
-          />{" "}
-          {/* Menú de navegación */}
+          />
         </Sider>
         <Layout>
           {/* <Header style={{ margin:'1rem', padding: 0, background: colorBgContainer }}>
@@ -227,7 +274,6 @@ export const MainApp = () => {
           <CustomHeader setSelectedKey={setSelectedKey} />{" "}
           {/* Componente de cabecera personalizado */}
           <Content
-            style={{ margin: "0 16px", paddingTop: "0rem" }}
             className="content-main"
           >
             {/* <Breadcrumb style={{ margin: '16px 0' }}>
@@ -237,36 +283,27 @@ export const MainApp = () => {
             {/* Muestra la sección actual */}
             <div
               style={{
-                padding: "0 2px",
-
-                background: colorBgContainer,
-                borderRadius: borderRadiusLG,
+                background: selectedKey === "1" ? "transparent" : colorBgContainer,
                 color: "black",
               }}
-              className="content-container"
+              className={`content-container ${selectedKey !== "1" ? "content-page-padding" : ""}`}
             >
-              {/*  <Breadcrumb style={{ margin: "16px 0",color:'black' }}>
-                <Breadcrumb.Item>App</Breadcrumb.Item>
-                <Breadcrumb.Item>
-                  {items.find((item) => item.key === selectedKey)?.label}
-                </Breadcrumb.Item>
-              </Breadcrumb> */}
-              <Nav bandLogin={false} bandHospital={true} />
-              {/* Componente Nav para manejo de sesión */}
-              
-              {selectedKey === "1" && (
+              {selectedKey === "1" ? (
                 <main className="main_home">
-                  <img src="/fondo.jpg" className="img_fondo" alt="" />
-                  
+                  <img src="/fondo.jpg" className="img_fondo" alt="" onError={(e) => e.target.style.display = 'none'} />
                   <ListCard
                     setTabIndex={(index) => setSelectedKey(index.toString())}
                   />
                 </main>
-              )}
+              ) : null}
               {selectedKey === "2" && <Recetas />}
               {selectedKey === "3" && <Info />}
               {selectedKey === "4" && <Ejercicio />}
-              {+selectedKey > 5 && +selectedKey < 13 && localStorage.getItem("rol") != 3 && (
+              {selectedKey === "15" && <Infografias />}
+              {selectedKey === "16" && <Calendario />}
+              {selectedKey === "17" && <FAQ />}
+              {selectedKey === "18" && <FormularioFeedback />}
+              {+selectedKey >= 6 && +selectedKey <= 22 && selectedKey !== "13" && selectedKey !== "14" && selectedKey !== "15" && selectedKey !== "16" && selectedKey !== "17" && selectedKey !== "18" && localStorage.getItem("rol") != 3 && (
                 <PanelAdministracion key={selectedKey} selectedKey={selectedKey} />
               )}
               {selectedKey === "13"   && <TablasInformativas />}
@@ -281,6 +318,8 @@ export const MainApp = () => {
         </Layout>
       </Layout>
     </ChakraProvider>
+      </CalendarioProvider>
+    </FAQProvider>
   );
 };
 
@@ -444,7 +483,7 @@ export const MainApp = () => {
           <TabPanels>
             <TabPanel>
               <main className="main_home">
-                <img src="/fondo.jpg" className="img_fondo" alt="" />
+                <img src="/fondo.jpg" className="img_fondo" alt="" onError={(e) => e.target.style.display = 'none'} />
 
                 <ListCard setTabIndex={setTabIndex} />
               </main>

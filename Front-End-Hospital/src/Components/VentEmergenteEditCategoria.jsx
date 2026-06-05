@@ -1,28 +1,27 @@
-import React from 'react';
-import { EditCategoria } from './EditCategoria';
-import { CloseOutlined } from '@ant-design/icons';
-import { Row, Col } from 'antd';
+import React from "react";
+import { Modal } from "antd";
+import { EditOutlined } from "@ant-design/icons";
+import { EditCategoria } from "./EditCategoria";
 
 export const VentEmergenteEditCategoria = ({ isOpen, onClose, categoriaSelected }) => {
-  if (!isOpen) {
-    return null;
-  }
-
   return (
-    <div className="popup-container" onClick={(e) => {
-      if (e.target === e.currentTarget) {
-        onClose();
+    <Modal
+      title={
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <EditOutlined style={{ color: "var(--primary)" }} />
+          <span>Editar Categoría</span>
+        </div>
       }
-    }}>
-      <div className="popup-content">
-        <Row justify="space-between" align="middle" className="header_vent_emergente">
-        
-          <Col>
-            <CloseOutlined className='icon_accion icons' onClick={onClose} />
-          </Col>
-        </Row>
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}
+      width={600}
+      styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
+      destroyOnClose
+    >
+      <div style={{ paddingTop: 16 }}>
         <EditCategoria onCloseEdit={onClose} categoria={categoriaSelected} />
       </div>
-    </div>
+    </Modal>
   );
 };

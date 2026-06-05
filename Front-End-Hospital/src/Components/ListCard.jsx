@@ -1,40 +1,54 @@
 import React from "react";
 import { Card } from "./Card";
 import {
-  FileDoneOutlined,
+  CoffeeOutlined,
   ReadOutlined,
-  ScheduleOutlined,
+  ThunderboltOutlined,
+  BarChartOutlined,
+  PictureOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
+
+const ICON_STYLE = { fontSize: "42px" };
+
 export const ListCard = ({ setTabIndex }) => {
   return (
     <div className="list_card">
-      {/* recetas */}
-      {/* videos/informes */}
-      {/* para ejercicio */}
-
       <Card
         onClick={() => setTabIndex(2)}
-        mje={`Recetas que te ayudan a 
-sentirte mejor`}
-        logo={<FileDoneOutlined style={{ fontSize: "80px" }} />}
+        mje="Recetas Saludables"
+        desc="Recetas que te ayudan a sentirte mejor"
+        logo={<CoffeeOutlined style={ICON_STYLE} />}
       />
       <Card
         onClick={() => setTabIndex(3)}
-        mje={`Videos y podcast para que 
-aprendas sobre las diferentes 
-patología y tips para cuidarte`}
-        logo={<ReadOutlined style={{ fontSize: "80px" }} />}
+        mje="Información y Salud"
+        desc="Videos y podcasts sobre patologías y tips para cuidarte"
+        logo={<ReadOutlined style={ICON_STYLE} />}
       />
       <Card
         onClick={() => setTabIndex(4)}
-        mje={`Videos para que puedas 
-ejercitarte`}
-        logo={<ScheduleOutlined style={{ fontSize: "80px" }} />}
+        mje="Ejercitate con Nosotros"
+        desc="Videos para que puedas ejercitarte desde casa"
+        logo={<ThunderboltOutlined style={ICON_STYLE} />}
       />
       <Card
-        onClick={() => setTabIndex(11)}
-        mje={`Tablas informativas`}
-        logo={<ReadOutlined style={{ fontSize: "80px" }} />}
+        onClick={() => setTabIndex(13)}
+        mje="Tablas Nutricionales"
+        desc="Información nutricional de alimentos"
+        logo={<BarChartOutlined style={ICON_STYLE} />}
+      />
+      <Card
+        onClick={() => setTabIndex(15)}
+        mje="Infografías de Dietas"
+        desc="Material visual sobre nutrición y planes alimentarios"
+        logo={<PictureOutlined style={ICON_STYLE} />}
+      />
+      <Card
+        onClick={() => setTabIndex(17)}
+        mje="Preguntas Frecuentes"
+        desc="Encontrá respuestas a las dudas más comunes"
+        logo={<QuestionCircleOutlined style={ICON_STYLE} />}
       />
     </div>
   );

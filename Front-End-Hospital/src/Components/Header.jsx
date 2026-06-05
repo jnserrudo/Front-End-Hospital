@@ -1,34 +1,97 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../style.css";
-import {
-  EnvironmentOutlined,
-  PhoneOutlined,
-  InstagramOutlined,
-  FacebookOutlined,
-} from "@ant-design/icons";
+import { EnvironmentOutlined, PhoneOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { Dropdown } from "antd";
 import { useNavigate } from "react-router-dom";
-export const Header = ({setSelectedKey}) => {
+import toast from "react-hot-toast";
+
+const ROLES = {
+  1: "Administrador",
+  2: "Profesional",
+  3: "Paciente"
+};
+
+export const Header = ({ setSelectedKey }) => {
   const navigate = useNavigate();
+  const [usuario, setUsuario] = useState("");
+  const [rol, setRol] = useState("");
+
+  useEffect(() => {
+    const usuarioFromStorage = localStorage.getItem("usuario");
+    const rolFromStorage = localStorage.getItem("rol");
+    setUsuario(usuarioFromStorage || "");
+    setRol(rolFromStorage ? ROLES[rolFromStorage] || "Usuario" : "");
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    toast.dismiss();
+    navigate("/");
+  };
+
+  const getInitial = (name) => {
+    return name ? name.charAt(0).toUpperCase() : "U";
+  };
+
+  const menuItems = [
+    {
+      key: 'user-info',
+      label: (
+        <div style={{ padding: '4px 0' }}>
+          <div style={{ fontWeight: 600, fontSize: '14px' }}>{usuario || "Usuario"}</div>
+          <div style={{ fontSize: '12px', color: '#64748b' }}>{rol}</div>
+        </div>
+      ),
+      disabled: true
+    },
+    { type: 'divider' },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Cerrar Sesión',
+      onClick: handleLogout
+    }
+  ];
+
   return (
-    <>
-      <div className="header">
+    <div className="header">
+      <div className="header-brand">
         <img
           className="logo_hospital"
           onClick={() => setSelectedKey("1")}
           src="/logoOñativia.png"
-          alt=""
+          alt="Logo Hospital Oñativia"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.style.display = 'flex';
+            e.target.parentElement.innerHTML = '<span class="logo-placeholder">HOSPITAL OÑATIVIA</span>';
+          }}
         />
         <p className="titulo">HOSPITAL OÑATIVIA</p>
-
-        <img src="" alt="" />
-
-        <p className="txt">
-          <EnvironmentOutlined /> Paz Chaín 30 4400 Salta Salta · 03 km
-        </p>
-        <h3 className="txt">
-          <PhoneOutlined  style={{ transform: 'rotate(90deg)' }} /> 0387 422-1605
-        </h3>
       </div>
-    </>
+      <div className="header-info">
+        <span className="header-info-item">
+          <EnvironmentOutlined />
+          Paz Chaín 30 · Salta
+        </span>
+        <span className="header-info-item">
+          <PhoneOutlined style={{ transform: "rotate(90deg)" }} />
+          0387 422-1605
+        </span>
+      </div>
+      {usuario && (
+        <Dropdown
+          menu={{ items: menuItems }}
+          placement="bottomRight"
+          trigger={['click']}
+        >
+          <div className="user-dropdown-trigger">
+            <div className="user-avatar">
+              {getInitial(usuario)}
+            </div>
+          </div>
+        </Dropdown>
+      )}
+    </div>
   );
 };

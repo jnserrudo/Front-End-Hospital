@@ -123,7 +123,10 @@ export const EditCategoria = ({ categoria, onCloseEdit }) => {
         onClosePadre={onCloseEdit}
         onClose={() => setShowVentEmergenteConfirmacion(false)}
         mje={`¿Está seguro de actualizar los datos de la categoría?`}
-        handleSi={() => handleUpdate(categoria)}
+        handleSi={async () => {
+          await handleUpdate(categoria);
+          setShowVentEmergenteConfirmacion(false);
+        }}
         isOpen={showVentEmergenteConfirmacion}
       />
     </div>

@@ -1,39 +1,27 @@
-import React, { useEffect } from "react";
-import { EditInformacion } from "./EditInformacion";
-import { Button, ButtonGroup } from '@chakra-ui/react'
-
-import { CloseOutlined } from "@ant-design/icons";
+import React from "react";
+import { Modal } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { AddInformacion } from "./AddInformacion";
-import { Row, Col } from "antd";
 
 export const VentEmergenteAddInformacion = ({ isOpen, onClose }) => {
-  if (!isOpen) {
-    return null;
-  }
-
   return (
-    <div className="popup-container" onClick={(e) => {
-      if (e.target === e.currentTarget) {
-        onClose();
+    <Modal
+      title={
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <PlusOutlined style={{ color: "var(--primary)" }} />
+          <span>Agregar Información</span>
+        </div>
       }
-    }}>
-      <div className="popup-content">
-      <Row
-          justify="space-between"
-          align="middle"
-          className="header_vent_emergente"
-        >
-          <Col>
-            <CloseOutlined className="icon_accion icons" onClick={onClose} />
-          </Col>
-        </Row>
-
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}
+      width={600}
+      styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
+      destroyOnClose
+    >
+      <div style={{ paddingTop: 16 }}>
         <AddInformacion onClosePadre={onClose} />
-
-       {/*  <Button className={`popup-close-btn`} onClick={onClose} colorScheme='blue' >
-          Aceptar
-        </Button> */}
       </div>
-    </div>
+    </Modal>
   );
 };

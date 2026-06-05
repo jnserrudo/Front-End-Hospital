@@ -22,6 +22,9 @@
     "front-end-hospital": "file:",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.6.0",
+    "react-player": "^3.4.0",
+    "react-router-dom": "^7.16.0",
     "styled-components": "^6.1.11",
     "vite-plugin-pwa": "^0.20.1",
     "xlsx": "^0.18.5"

@@ -19,7 +19,7 @@ import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import EjerciciosContext from "../Contexts/EjercicioContext";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@chakra-ui/react";
-import { entorno } from "../services/config";
+import { entorno, getMediaUrl } from "../services/config";
 
 export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
   /* console.log(
@@ -38,7 +38,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
   const [previewUrl, setPreviewUrl] = useState(
-    ejercicio?.urlVideo ? entorno.slice(0, -4) + ejercicio.urlVideo : null
+    ejercicio?.urlVideo ? getMediaUrl(ejercicio.urlVideo) : null
   );
   const [urlVideo, setUrlVideo] = useState("");
 
@@ -49,7 +49,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
             uid: "-1",
             name: "image.png",
             status: "done",
-            url: entorno.slice(0, -4) + ejercicio.urlVideo,
+            url: getMediaUrl(ejercicio.urlVideo),
           },
         ]
       : []
@@ -75,6 +75,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
     patologiasxEjercicioEdit,
     categoriasxEjercicioEdit,
     handleChangeSelectCategorias,
+    loadingAction,
   } = useContext(EjerciciosContext);
   if (!ejercicio) {
     return null;
@@ -122,7 +123,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
               uid: "-1",
               name: "image.png",
               status: "done",
-              url: entorno.slice(0, -4) + ejercicio.urlVideo,
+              url: getMediaUrl(ejercicio.urlVideo),
             },
           ]
         : []
@@ -132,7 +133,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
     }
 
     /* if (!previewUrl) {
-      setPreviewUrl(entorno.slice(0, -4) + ejercicio.urlVideo);
+      setPreviewUrl(getMediaUrl(ejercicio.urlVideo));
     } */
   }, [ejercicio]);
 
@@ -145,7 +146,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
       if (urlVideo.includes("blob")) {
         setPreviewUrl(urlVideo);
       } else {
-        setPreviewUrl(entorno.slice(0, -4) + urlVideo);
+        setPreviewUrl(getMediaUrl(urlVideo));
       }
     }
   }, [urlVideo]);
@@ -259,25 +260,34 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
     }
   };
 
+  // Función para limpiar líneas vacías
+  const cleanTextFields = (text) => {
+    if (!text) return text;
+    return text
+      .split("\n")
+      .map(line => line.trim())
+      .filter(line => line !== "")
+      .join("\n");
+  };
+
   const handleUpdateWithImage = async () => {
     try {
       let urlVideo;
       if (fileList.length > 0 && fileList[fileList.length - 1].originFileObj) {
         urlVideo = await handleFileUpload(
           fileList[fileList.length - 1].originFileObj
-        ); // Usa la última imagen cargada
+        );
         console.log(urlVideo);
-
         handleChangeInput({ target: { name: "urlVideo", value: urlVideo } });
       }
-      handleUpdate(
-        urlVideo
-          ? {
-              ...ejercicio,
-              urlVideo: urlVideo,
-            }
-          : ejercicio
-      );
+      
+      const ejercicioToUpdate = urlVideo ? { ...ejercicio, urlVideo } : ejercicio;
+      const ejercicioLimpio = {
+        ...ejercicioToUpdate,
+        descripcion: cleanTextFields(ejercicioToUpdate.descripcion),
+      };
+      
+      handleUpdate(ejercicioLimpio);
     } catch (error) {
       console.error("Error updating recipe:", error);
     }
@@ -368,7 +378,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
                       // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
                       const imgWindow = window.open();
                       imgWindow.document.write(
-                        `<img src="${preview}" alt="preview" />`
+                        `<img src="${preview}" alt="preview" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:red;text-align:center;padding:20px;\'>Error al cargar la imagen</p>'" />`
                       );
                     }
                   }}
@@ -433,6 +443,48 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
             />
           </FormControl>
         </GridItem>
+
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          {/* TIPO DE CONTENIDO */}
+          <FormControl isRequired>
+            <FormLabel>Tipo de Contenido</FormLabel>
+            <Select
+              disabled={!bandEdit}
+              style={{ width: "100%" }}
+              value={ejercicio?.tipoContenido || "video"}
+              onChange={(value) => handleChangeInput({ target: { name: "tipoContenido", value } })}
+              options={[
+                { label: "Video", value: "video" },
+                { label: "Infografia", value: "infografia" },
+                { label: "Ambos", value: "ambos" },
+              ]}
+            />
+          </FormControl>
+        </GridItem>
+
+        {(ejercicio?.tipoContenido === "infografia" || ejercicio?.tipoContenido === "ambos") && (
+          <GridItem colSpan={{ base: 1, md: 1 }}>
+            <FormControl
+              className="cont_input_edit"
+              variant="floating"
+              id="urlInfografia"
+              isRequired
+            >
+              <Input
+                className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
+                placeholder=""
+                name="urlInfografia"
+                variant="outlined"
+                type="text"
+                disabled={!bandEdit}
+                value={ejercicio?.urlInfografia ? ejercicio.urlInfografia : ""}
+                onChange={(e) => handleChangeInput(e)}
+              />
+              <FormLabel>URL de la Infografia</FormLabel>
+            </FormControl>
+          </GridItem>
+        )}
+
         <GridItem colSpan={{ base: 1, md: 2 }}>
           <FormControl
             className="cont_input_edit"
@@ -451,7 +503,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
               value={ejercicio.descripcion ? ejercicio.descripcion : ""}
               onChange={(e) => handleChangeInput(e)}
             />
-            <FormLabel>Descripción</FormLabel>
+            <FormLabel>Descripcion</FormLabel>
           </FormControl>
         </GridItem>
       </Grid>
@@ -481,9 +533,8 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
           <Button
             className="btn_accion_edit_ejercicio"
             colorScheme="green"
-            /* variant="contained"
-            style={{ margin: "1rem auto 0" }} */
             onClick={() => setShowVentEmergenteConfirmacion(true)}
+            isLoading={loadingAction}
           >
             Actualizar
           </Button>
@@ -493,14 +544,10 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
       <VentEmergConfirmacion
         onClosePadre={onCloseEdit}
         onClose={() => setShowVentEmergenteConfirmacion(false)}
-        mje={
-          "Esta seguro de actualizar los datos del ejercicio " +
-          /*  ejercicio?.nombre?.toUpperCase() +
-            ", " +
-            ejercicio?.apellido?.toUpperCase() + */
-          " ?"
-        }
-        handleSi={() => handleUpdate(ejercicio)}
+        mje={"¿Está seguro de actualizar los datos del ejercicio?"}
+        handleSi={async () => {
+          await handleUpdateWithImage();
+        }}
         isOpen={showVentEmergenteConfirmacion}
       />
     </div>

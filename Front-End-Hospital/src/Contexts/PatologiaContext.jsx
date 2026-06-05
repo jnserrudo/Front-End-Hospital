@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   getAllPatologias,
   getPatologiaById,
@@ -24,6 +25,10 @@ export const PatologiaProvider = ({ children }) => {
   const [showVentEmergenteConfPatologia, setShowVentEmergenteConfPatologia] = useState(false);
 
   const [bandLoader, setBandLoader] = useState(false)
+
+  // Estados de loading
+  const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(false);
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -138,22 +143,20 @@ export const PatologiaProvider = ({ children }) => {
   }
 
   const handleUpdate=async(patologia)=>{
-      
-    const actualizarPatologia=async(patologia)=>{
+    setLoadingAction(true);
+    try {
       console.log("se esta por actualizar este patologia: ",patologia)
       const update=await updatePatologia(patologia)
       console.log("update: ",update)
+      toast.success("Patología actualizada exitosamente");
+      await getallPatologias();
+      handleCloseVentEmergenteEditPatologia();
+    } catch (error) {
+      console.error("Error al actualizar patología:", error);
+      toast.error("Error al actualizar patología");
+    } finally {
+      setLoadingAction(false);
     }
-    
-      //activar loader
-      setBandLoader(true);
-      let resupdate=await  actualizarPatologia(patologia)
-      getallPatologias();
-
-      console.log(resupdate)
-      setBandLoader(false);
-    
-
   }
 
   const handleSeePacient = (patologia) => {
@@ -223,11 +226,20 @@ export const PatologiaProvider = ({ children }) => {
 
   const handleInsert = async() => {
     if (bandInsert) {
-      //validar para insert
-      console.log(" se esta por insertar el patologia: ", patologiaToInsert)
-      await addPatologia(patologiaToInsert);
-      handleCloseVentEmergenteConfPatologia()
-      handleCloseVentEmergenteAddPatologia()
+      setLoadingAction(true);
+      try {
+        console.log(" se esta por insertar el patologia: ", patologiaToInsert)
+        await addPatologia(patologiaToInsert);
+        toast.success("Patología creada exitosamente");
+        await getallPatologias();
+        handleCloseVentEmergenteConfPatologia()
+        handleCloseVentEmergenteAddPatologia()
+      } catch (error) {
+        console.error("Error al crear patología:", error);
+        toast.error("Error al crear patología");
+      } finally {
+        setLoadingAction(false);
+      }
     }
   };
   const addPatologia = async (patologia) => {
@@ -240,9 +252,17 @@ export const PatologiaProvider = ({ children }) => {
   };
 
   let getallPatologias = async () => {
-    let patologias = await getAllPatologias();
-    console.log(patologias);
-    setDb(patologias);
+    setLoading(true);
+    try {
+      let patologias = await getAllPatologias();
+      console.log(patologias);
+      setDb(patologias);
+    } catch (error) {
+      console.error("Error al cargar patologías:", error);
+      toast.error("Error al cargar las patologías");
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => {
     
@@ -279,6 +299,8 @@ export const PatologiaProvider = ({ children }) => {
     idPatologia, 
     setIdPatologia,
     setShowVentEmergenteDelete,
+    loading,
+    loadingAction,
     handleSearch,
     handleCloseConfInsert,
     setShowVentEmergenteConfPatologia,

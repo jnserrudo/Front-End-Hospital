@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@chakra-ui/react";
 import { getPatologiaToUsuarioEdit } from "../services/usuario-services";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 export const EditUsuario = ({ usuario, onCloseEdit }) => {
   console.log("edit usuario: ", usuario);
@@ -161,7 +161,7 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
         }}
         gap={10}
       >
-        <Toaster position="top-center" reverseOrder={false} />
+
         <GridItem colSpan={{ base: 1, md: 2 }}>
           <FormControl
             className="cont_input_edit_large"
@@ -399,8 +399,10 @@ export const EditUsuario = ({ usuario, onCloseEdit }) => {
           receta?.apellido?.toUpperCase() + */
           " ?"
         }
-        handleSi={() => handleUpdate(usuario)}
-        /*  handleSi={handleUpdateWithImage} */
+        handleSi={async () => {
+          await handleUpdate(usuario);
+          handleCloseVentEmergente();
+        }}
         isOpen={showVentEmergenteConfirmacion}
       />
     </div>

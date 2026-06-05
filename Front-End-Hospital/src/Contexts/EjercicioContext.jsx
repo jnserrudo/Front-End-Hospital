@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   getAllEjercicios,
   getAllEjerciciosFiltro,
@@ -10,9 +11,6 @@ import {
   insertEjercicio,
   updateEjercicio,
 } from "../services/ejercicio-services";
-
-import toast from "react-hot-toast";
-
 import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
 const EjercicioContext = createContext();
 export const EjercicioProvider = ({ children }) => {
@@ -33,6 +31,10 @@ export const EjercicioProvider = ({ children }) => {
     useState(false);
 
   const [bandLoader, setBandLoader] = useState(false);
+
+  // Estados de loading
+  const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(false);
 
   const [patologiasxEjercicioAdd, setPatologiasxEjercicioAdd] = useState([]);
   const [patologiasxEjercicioEdit, setPatologiasxEjercicioEdit] = useState([]);
@@ -210,19 +212,21 @@ export const EjercicioProvider = ({ children }) => {
   };
 
   const handleUpdate = async (ejercicio) => {
-    const actualizarEjercicio = async (ejercicio) => {
+    setLoadingAction(true);
+    try {
       console.log("se esta por actualizar este ejercicio: ", ejercicio);
       const update = await updateEjercicio(ejercicio);
       console.log("update: ", update);
-    };
-
-    //activar loader
-    setBandLoader(true);
-    let resupdate = await actualizarEjercicio(ejercicio);
-    getallEjercicios();
-
-    console.log(resupdate);
-    setBandLoader(false);
+      toast.success("Ejercicio actualizado exitosamente");
+      await getallEjercicios();
+      handleCloseVentEmergenteEditEjercicio();
+    } catch (error) {
+      console.error("Error al actualizar ejercicio:", error);
+      toast.error("Error al actualizar ejercicio");
+      throw error;
+    } finally {
+      setLoadingAction(false);
+    }
   };
 
   const handleSeePacient = (ejercicio) => {
@@ -348,8 +352,10 @@ export const EjercicioProvider = ({ children }) => {
       }
     };
 
-    getpatologiatoejercicioedit();
-    getcategoriatoejercicioedit();
+    if (idEjercicio > 0) {
+      getpatologiatoejercicioedit();
+      getcategoriatoejercicioedit();
+    }
   }, [idEjercicio]);
 
   const columns = [
@@ -394,13 +400,24 @@ export const EjercicioProvider = ({ children }) => {
     },
   ];
 
-  const handleInsert = async () => {
-    if (bandInsert) {
-      //validar para insert
-      console.log(" se esta por insertar el ejercicio: ", ejercicioToInsert);
-      await addEjercicio(ejercicioToInsert);
-      handleCloseVentEmergenteConfEjercicio();
-      handleCloseVentEmergenteAddEjercicio();
+  const handleInsert = async (customEjercicio = null) => {
+    const dataToInsert = customEjercicio || ejercicioToInsert;
+    if (bandInsert || customEjercicio) {
+      setLoadingAction(true);
+      try {
+        console.log(" se esta por insertar el ejercicio: ", dataToInsert);
+        await addEjercicio(dataToInsert);
+        toast.success("Ejercicio creado exitosamente");
+        await getallEjercicios();
+        handleCloseVentEmergenteConfEjercicio();
+        handleCloseVentEmergenteAddEjercicio();
+      } catch (error) {
+        console.error("Error al crear ejercicio:", error);
+        toast.error("Error al crear ejercicio");
+        throw error;
+      } finally {
+        setLoadingAction(false);
+      }
     }
   };
   const addEjercicio = async (ejercicio) => {
@@ -416,10 +433,18 @@ export const EjercicioProvider = ({ children }) => {
   };
 
   let getallEjercicios = async () => {
-    console.log("getallEjercicios");
-    let ejercicios = await getAllEjercicios();
-    console.log(ejercicios);
-    setDb(ejercicios);
+    setLoading(true);
+    try {
+      console.log("getallEjercicios");
+      let ejercicios = await getAllEjercicios();
+      console.log(ejercicios);
+      setDb(ejercicios);
+    } catch (error) {
+      console.error("Error al cargar ejercicios:", error);
+      toast.error("Error al cargar ejercicios");
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => {
     console.log("getallEjercicios");
@@ -437,15 +462,6 @@ export const EjercicioProvider = ({ children }) => {
     } else {
       setBandInsert(false);
     }
-    //setBandInsert()
-    if (ejercicioToInsert?.urlVideo?.length > 0) {
-      console.log("Ejecutando handleInsert");
-      toast.promise(handleInsert(), {
-        loading: "Cargando",
-        success: <b>Se agrego el Ejercicio!</b>,
-        error: <b>No se pudo agregar el ejercicio.</b>,
-      });
-    }
   }, [ejercicioToInsert]);
 
   let data = {
@@ -462,6 +478,8 @@ export const EjercicioProvider = ({ children }) => {
     dbSearch,
     idEjercicio,
     showVentEmergenteDelete,
+    loading,
+    loadingAction,
     patologiasxEjercicioAdd,
     patologiasxEjercicioEdit,
     categoriasxEjercicioAdd,

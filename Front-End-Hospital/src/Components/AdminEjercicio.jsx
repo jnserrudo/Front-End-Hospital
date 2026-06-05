@@ -1,16 +1,6 @@
 import React, { useContext, useState } from "react";
-import { Table } from "antd";
-import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import {
-  Button,
-  ButtonGroup,
-  Input,
-  FormControl,
-  FormLabel,
-  InputGroup,
-  InputRightElement,
-} from "@chakra-ui/react";
-import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
+import { Table, Button, Input } from "antd";
+import { PlusOutlined, SearchOutlined, ThunderboltOutlined } from "@ant-design/icons";
 
 import EjercicioContext from "../Contexts/EjercicioContext";
 import { VentEmergenteAddEjercicio } from "./VentEmergenteAddEjercicio";
@@ -32,60 +22,57 @@ export const AdminEjercicio = () => {
     idEjercicio,
     showVentEmergenteDelete,
     setShowVentEmergenteDelete,
+    loading = false,
+    loadingAction = false,
   } = useContext(EjercicioContext);
 
   const inhabilitarRegistro = async (id) => {
-    console.log("inhabilitarRegistro: ", id);
     const result = await inhabilitarEjercicio(id);
-    console.log("resultado de inhabilitar: ", result);
   };
   const [ejercicioSearch, setEjercicioSearch] = useState("");
 
-  console.log(db, columns);
   return (
-    <div className="form form_admin" >
-      <p className="titulo_administracion">Ejercicio</p>
+    <div className="admin-page-wrapper">
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <div className="admin-card-title">
+            <h3>Listado de Ejercicios</h3>
+            <span className="admin-badge">{db.length} en total</span>
+          </div>
+          <div className="admin-card-actions">
+            <Input
+              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
+              placeholder="Buscar ejercicio..."
+              value={ejercicioSearch}
+              onChange={(e) => {
+                setEjercicioSearch(e.target.value);
+                handleSearch(e.target.value, db);
+              }}
+              allowClear
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setShowVentEmergenteAddEjercicio(true)}
+              loading={loadingAction}
+              disabled={loadingAction}
+            >
+              Agregar Ejercicio
+            </Button>
+          </div>
+        </div>
 
-      <Button
-        className="btn_agregar"
-        colorScheme="green"
-        onClick={() => setShowVentEmergenteAddEjercicio(true)}
-      >
-        Agregar Ejercicio <UserAddOutlined className="icons" />
-      </Button>
-      <FormControl className="buscador" variant="floating" id="recetaSearch">
-        <InputGroup>
-          <Input
-            placeholder=""
-            name="ejercicioSearch"
-            type="text"
-            value={ejercicioSearch}
-            onChange={(e) => {
-              setEjercicioSearch(e.target.value);
-              handleSearch(e.target.value,db);
-            }}
-          />
-          <InputRightElement
-            width="4.5rem"
-            style={{ color: "#046ba3", fontSize: "20px" }}
-          >
-            <SearchOutlined />
-          </InputRightElement>
-        </InputGroup>
-
-        <FormLabel></FormLabel>
-      </FormControl>
-      <Table
-        className="tabla"
-        columns={columns}
-        /* pagination={{
-      position: [top, bottom],
-    }} */
-        pagination={{ position: ["none", "bottomRight"], pageSize: 5 }}
-        /* el pageSize determina la cantidad filas por tabla */
-
-        dataSource={ dbSearch.length > 0 ? dbSearch : db}
-      />
+        <Table
+          className="admin-table"
+          columns={columns}
+          pagination={{ position: ["bottomRight"], pageSize: 8 }}
+          dataSource={dbSearch.length > 0 ? dbSearch : db}
+          loading={loading}
+          rowKey="id"
+          size="middle"
+          locale={{ emptyText: "Sin registros" }}
+        />
+      </div>
 
       <VentEmergenteAddEjercicio
         isOpen={showVentEmergenteAddEjercicio}
@@ -99,7 +86,7 @@ export const AdminEjercicio = () => {
       />
 
       <VentEmergConfirmacion
-        mje={"Esta seguro de eliminar este registro?"}
+        mje={"¿Está seguro de eliminar este registro?"}
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
         handleSi={() => inhabilitarRegistro(idEjercicio)}

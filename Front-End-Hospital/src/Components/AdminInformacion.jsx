@@ -1,16 +1,6 @@
 import React, { useContext, useState } from "react";
-import { Table } from "antd";
-import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import {
-  Button,
-  ButtonGroup,
-  Input,
-  FormControl,
-  FormLabel,
-  InputGroup,
-  InputRightElement,
-} from "@chakra-ui/react";
-import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
+import { Table, Button, Input } from "antd";
+import { PlusOutlined, SearchOutlined, InfoCircleOutlined } from "@ant-design/icons";
 
 import InformacionContext from "../Contexts/InformacionContext";
 import { VentEmergenteAddInformacion } from "./VentEmergenteAddInformacion";
@@ -32,62 +22,58 @@ export const AdminInformacion = () => {
     idInformacion,
     showVentEmergenteDelete,
     setShowVentEmergenteDelete,
+    loading = false,
+    loadingAction = false,
   } = useContext(InformacionContext);
-  console.log(db, columns);
 
   const inhabilitarRegistro = async (id) => {
-    console.log("inhabilitarRegistro: ", id);
     const result = await inhabilitarInformacion(id);
-    console.log("resultado de inhabilitar: ", result);
   };
 
   const [informacionSearch, setInformacionSearch] = useState("");
 
-
   return (
-    <div  className="form form_admin">
-      <p className="titulo_administracion">Información</p>
+    <div className="admin-page-wrapper">
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <div className="admin-card-title">
+            <h3>Listado de Información</h3>
+            <span className="admin-badge">{db.length} en total</span>
+          </div>
+          <div className="admin-card-actions">
+            <Input
+              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
+              placeholder="Buscar información..."
+              value={informacionSearch}
+              onChange={(e) => {
+                setInformacionSearch(e.target.value);
+                handleSearch(e.target.value, db);
+              }}
+              allowClear
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setShowVentEmergenteAddInformacion(true)}
+              loading={loadingAction}
+              disabled={loadingAction}
+            >
+              Agregar Información
+            </Button>
+          </div>
+        </div>
 
-      <Button
-        className="btn_agregar"
-        colorScheme="green"
-        onClick={() => setShowVentEmergenteAddInformacion(true)}
-      >
-        Agregar Informacion <UserAddOutlined className="icons" />
-      </Button>
-      <FormControl className="buscador" variant="floating" id="recetaSearch">
-        <InputGroup>
-          <Input
-            placeholder=""
-            name="informacionSearch"
-            type="text"
-            value={informacionSearch}
-            onChange={(e) => {
-              setInformacionSearch(e.target.value);
-              handleSearch(e.target.value,db);
-            }}
-          />
-          <InputRightElement
-            width="4.5rem"
-            style={{ color: "#046ba3", fontSize: "20px" }}
-          >
-            <SearchOutlined />
-          </InputRightElement>
-        </InputGroup>
-
-        <FormLabel></FormLabel>
-      </FormControl>
-      <Table
-        className="tabla"
-        columns={columns}
-        /* pagination={{
-      position: [top, bottom],
-    }} */
-        pagination={{ position: ["none", "bottomRight"], pageSize: 5 }}
-        /* el pageSize determina la cantidad filas por tabla */
-
-        dataSource={ dbSearch.length > 0 ? dbSearch : db}
-      />
+        <Table
+          className="admin-table"
+          columns={columns}
+          pagination={{ position: ["bottomRight"], pageSize: 8 }}
+          dataSource={dbSearch.length > 0 ? dbSearch : db}
+          loading={loading}
+          rowKey="id"
+          size="middle"
+          locale={{ emptyText: "Sin registros" }}
+        />
+      </div>
 
       <VentEmergenteAddInformacion
         isOpen={showVentEmergenteAddInformacion}
@@ -101,7 +87,7 @@ export const AdminInformacion = () => {
       />
 
       <VentEmergConfirmacion
-        mje={"Esta seguro de eliminar este registro?"}
+        mje={"¿Está seguro de eliminar este registro?"}
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
         handleSi={() => inhabilitarRegistro(idInformacion)}

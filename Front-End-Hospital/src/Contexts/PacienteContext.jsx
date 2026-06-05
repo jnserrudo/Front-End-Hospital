@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   getAllPacientes,
   getPacienteById,
@@ -38,6 +39,10 @@ export const PacienteProvider = ({ children }) => {
   const [patologiasToPacienteEdit, setPatologiasToPacienteEdit] = useState([]);
 
   const [bandLoader, setBandLoader] = useState(false);
+
+  // Estados de loading
+  const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(false);
 
   const validationsForm = (form) => {
     //lo ideal seria que el objeto error permanezca vacio
@@ -200,19 +205,20 @@ export const PacienteProvider = ({ children }) => {
   };
 
   const handleUpdate = async (paciente) => {
-    const actualizarPaciente = async (paciente) => {
+    setLoadingAction(true);
+    try {
       console.log("se esta por actualizar este paciente: ", paciente);
       const update = await updatePaciente(paciente);
       console.log("update: ", update);
-    };
-
-    //activar loader
-    setBandLoader(true);
-    let resupdate = await actualizarPaciente(paciente);
-    getallPacientes();
-
-    console.log(resupdate);
-    setBandLoader(false);
+      toast.success("Paciente actualizado exitosamente");
+      await getallPacientes();
+      handleCloseVentEmergenteEditPaciente();
+    } catch (error) {
+      console.error("Error al actualizar paciente:", error);
+      toast.error("Error al actualizar paciente");
+    } finally {
+      setLoadingAction(false);
+    }
   };
 
   const handleSeePaciente = (paciente) => {
@@ -313,10 +319,17 @@ export const PacienteProvider = ({ children }) => {
   };
 
   let getallPacientes = async () => {
-    let pacientes = await getAllPacientes();
-    console.log(pacientes);
-
-    setDb(pacientes);
+    setLoading(true);
+    try {
+      let pacientes = await getAllPacientes();
+      console.log(pacientes);
+      setDb(pacientes);
+    } catch (error) {
+      console.error("Error al cargar pacientes:", error);
+      toast.error("Error al cargar pacientes");
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => {
     getallPacientes();
@@ -358,6 +371,8 @@ export const PacienteProvider = ({ children }) => {
     dbSearch,
     idPaciente,
     rolPaciente,
+    loading,
+    loadingAction,
     patologiasToPacienteAdd,
     allRolesAdd,
     allRolesEdit,

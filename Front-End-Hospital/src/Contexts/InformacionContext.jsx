@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   getAllInformacions,
   getAllInformacionsFiltro,
@@ -10,8 +11,6 @@ import {
   insertInformacion,
   updateInformacion,
 } from "../services/informacion-services";
-import toast from "react-hot-toast";
-
 import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
 const InformacionContext = createContext();
 export const InformacionProvider = ({ children }) => {
@@ -36,6 +35,10 @@ export const InformacionProvider = ({ children }) => {
   ] = useState(false);
 
   const [bandLoader, setBandLoader] = useState(false);
+
+  // Estados de loading
+  const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState(false);
 
   const [patologiasxInformacionAdd, setPatologiasxInformacionAdd] = useState(
     []
@@ -219,19 +222,21 @@ export const InformacionProvider = ({ children }) => {
   };
 
   const handleUpdate = async (informacion) => {
-    const actualizarInformacion = async (informacion) => {
+    setLoadingAction(true);
+    try {
       console.log("se esta por actualizar este informacion: ", informacion);
       const update = await updateInformacion(informacion);
       console.log("update: ", update);
-    };
-
-    //activar loader
-    setBandLoader(true);
-    let resupdate = await actualizarInformacion(informacion);
-    getallInformacions();
-
-    console.log(resupdate);
-    setBandLoader(false);
+      toast.success("Información actualizada exitosamente");
+      await getallInformacions();
+      handleCloseVentEmergenteEditInformacion();
+    } catch (error) {
+      console.error("Error al actualizar información:", error);
+      toast.error("Error al actualizar información");
+      throw error;
+    } finally {
+      setLoadingAction(false);
+    }
   };
 
   const handleSeePacient = (informacion) => {
@@ -348,8 +353,10 @@ export const InformacionProvider = ({ children }) => {
       }
     };
 
-    getpatologiatoinformacionedit();
-    getcategoriatoinformacionedit();
+    if (idInformacion > 0) {
+      getpatologiatoinformacionedit();
+      getcategoriatoinformacionedit();
+    }
   }, [idInformacion]);
 
   const columns = [
@@ -394,19 +401,30 @@ export const InformacionProvider = ({ children }) => {
     },
   ];
 
-  const handleInsert = async () => {
-    if (bandInsert) {
-      //validar para insert
-      console.log(
-        " se esta por insertar el informacion: ",
-        informacionToInsert
-      );
-      const resultInsert = await addInformacion(informacionToInsert);
-      if (resultInsert.err) {
-        throw new Error(resultInsert.err.message);
+  const handleInsert = async (customInformacion = null) => {
+    const dataToInsert = customInformacion || informacionToInsert;
+    if (bandInsert || customInformacion) {
+      setLoadingAction(true);
+      try {
+        console.log(
+          " se esta por insertar el informacion: ",
+          dataToInsert
+        );
+        const resultInsert = await addInformacion(dataToInsert);
+        if (resultInsert.err) {
+          throw new Error(resultInsert.err.message);
+        }
+        toast.success("Información creada exitosamente");
+        await getallInformacions();
+        handleCloseVentEmergenteConfInformacion();
+        handleCloseVentEmergenteAddInformacion();
+      } catch (error) {
+        console.error("Error al crear información:", error);
+        toast.error("Error al crear información");
+        throw error;
+      } finally {
+        setLoadingAction(false);
       }
-      handleCloseVentEmergenteConfInformacion();
-      handleCloseVentEmergenteAddInformacion();
     }
   };
   const addInformacion = async (informacion) => {
@@ -422,10 +440,18 @@ export const InformacionProvider = ({ children }) => {
   };
 
   let getallInformacions = async () => {
-    console.log("getallInformacions");
-    let informacions = await getAllInformacions();
-    console.log(informacions);
-    setDb(informacions);
+    setLoading(true);
+    try {
+      console.log("getallInformacions");
+      let informacions = await getAllInformacions();
+      console.log(informacions);
+      setDb(informacions);
+    } catch (error) {
+      console.error("Error al cargar información:", error);
+      toast.error("Error al cargar información");
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => {
     console.log("getallInformacions");
@@ -443,15 +469,6 @@ export const InformacionProvider = ({ children }) => {
     } else {
       setBandInsert(false);
     }
-    //setBandInsert()
-    if (informacionToInsert?.urlVideo?.length > 0) {
-      console.log("Ejecutando handleInsert");
-      toast.promise(handleInsert(), {
-        loading: "Cargando",
-        success: <b>Se agrego la información!</b>,
-        error: <b>No se pudo agregar la información.</b>,
-      });
-    }
   }, [informacionToInsert]);
 
   let data = {
@@ -468,6 +485,8 @@ export const InformacionProvider = ({ children }) => {
     bandLoader,
     dbSearch,
     showVentEmergenteDelete,
+    loading,
+    loadingAction,
     patologiasxInformacionAdd,
     patologiasxInformacionEdit,
     categoriasxInformacionAdd,

@@ -1,24 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  Button,
-  ButtonGroup,
-  FormControl,
-  FormLabel,
-  Textarea,
-  Grid,
-  GridItem,
-  Tooltip 
-} from "@chakra-ui/react";
-import "../style.css";
-import { Select, Space,/*  Tooltip, */ Upload } from "antd";
-import ImgCrop from "antd-img-crop";
-
+import { Tabs, Input, Button, Space, Upload, Select, Form, Row, Col, Divider } from "antd";
+import { UploadOutlined, ArrowRightOutlined, DeleteOutlined, PictureOutlined, WarningOutlined, InboxOutlined } from "@ant-design/icons";
+import { SmartTextArea } from "./SmartTextArea";
 import RecetasContext from "../Contexts/RecetaContext";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
-import { Input } from "@chakra-ui/react";
-import { getPatologiaToRecetaAdd } from "../services/recetas-services";
 import { entorno } from "../services/config";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
+import "../style.css";
+
+const { TabPane } = Tabs;
+
+
 
 export const AddReceta = ({ onClosePadre }) => {
   const {
@@ -26,64 +18,117 @@ export const AddReceta = ({ onClosePadre }) => {
     handleChangeInputInsert,
     handleChangeSelectInsert,
     handleChangeSelectCategoriasInsert,
-    addReceta,
     bandInsert,
     handleInsert,
     handleCloseVentEmergConfirmacion,
     patologiasxRecetasAdd,
     categoriasxRecetasAdd,
+    loadingAction,
   } = useContext(RecetasContext);
 
-  const sharedProps = {
-    mode: "multiple",
-    style: {
-      width: "100%",
-    },
-    options: patologiasxRecetasAdd,
-    placeholder: "Seleccione una Patología",
-    maxTagCount: "responsive",
-  };
-
-  const sharedPropsCategorias = {
-    mode: "multiple",
-    style: {
-      width: "100%",
-    },
-    options: categoriasxRecetasAdd,
-    placeholder: "Seleccione una Categoría",
-    maxTagCount: "responsive",
-  };
-
-  const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
-    useState(false);
-
+  const [form] = Form.useForm();
+  const [activeTab, setActiveTab] = useState("1");
+  const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] = useState(false);
   const [fileList, setFileList] = useState([]);
-
   const [shouldInsert, setShouldInsert] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [localPreview, setLocalPreview] = useState(null);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     if (shouldInsert) {
       toast.promise(handleInsert(), {
         loading: "Cargando",
-        success: <b>Se agrego la receta!</b>,
+        success: <b>Se agregó la receta!</b>,
         error: <b>No se pudo agregar la receta.</b>,
       });
-      setShouldInsert(false); // Reiniciar el estado para futuras inserciones
+      setShouldInsert(false);
     }
   }, [shouldInsert, handleInsert]);
 
-  const handleCloseVentEmergente = async () => {
-    setShowVentEmergenteConfirmacion(false);
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!recetaToInsert?.nombre || recetaToInsert.nombre.length < 3) {
+      newErrors.nombre = "Nombre requerido (mínimo 3 caracteres)";
+    }
+    
+    if (!recetaToInsert?.porciones) {
+      newErrors.porciones = "Porciones requeridas";
+    } else {
+      const porciones = parseInt(recetaToInsert.porciones);
+      if (isNaN(porciones) || porciones < 1 || porciones > 20) {
+        newErrors.porciones = "Porciones deben ser entre 1 y 20";
+      }
+    }
+    
+    if (!recetaToInsert?.calorias) {
+      newErrors.calorias = "Calorías requeridas";
+    } else {
+      const calorias = parseInt(recetaToInsert.calorias);
+      if (isNaN(calorias) || calorias < 1 || calorias > 9999) {
+        newErrors.calorias = "Calorías deben ser entre 1 y 9999";
+      }
+    }
+    
+    if (!recetaToInsert?.tiempo) {
+      newErrors.tiempo = "Tiempo requerido";
+    }
+    
+    if (!recetaToInsert?.ingredientes) {
+      newErrors.ingredientes = "Ingredientes requeridos";
+    } else {
+      const lines = recetaToInsert.ingredientes.split("\n").filter(l => l.trim() !== "");
+      if (lines.length < 3) {
+        // Validacion removida - no hay minimo de ingredientes
+      }
+    }
+    
+    if (!recetaToInsert?.preparacion) {
+      newErrors.preparacion = "Preparación requerida";
+    } else {
+      const lines = recetaToInsert.preparacion.split("\n").filter(l => l.trim() !== "");
+      if (lines.length < 3) {
+        // Validacion removida - no hay minimo de pasos
+      }
+    }
+    
+    if (!recetaToInsert?.idPatologias || recetaToInsert.idPatologias.length === 0) {
+      newErrors.idPatologias = "Seleccione al menos una patología";
+    }
+    
+    if (!recetaToInsert?.idCategorias || recetaToInsert.idCategorias.length === 0) {
+      newErrors.idCategorias = "Seleccione al menos una categoría";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleFileChange = ({ file, fileList: newFileList }) => {
-    // Si el archivo pasa la validación, ajustamos manualmente su estado a 'done'
-    //ESTO SE HACE PARA EVITAR EL BORDE ROJO, PORQUE EL COMPONENTE UPLOAD INTENTA SUBIR EL ARCHIVO, CUANDO
-    //POR AHORA SOLO VAMOS CARGANDOLO EN EL FORMULARIO.
-    if (file.status === "error") {
-      file.status = "done";
+  const handleFileChange = ({ fileList: newFileList }) => {
+    const updatedFileList = newFileList.map((f) => {
+      if (f.status === "error") {
+        return { ...f, status: "done" };
+      }
+      return f;
+    });
+    setFileList(updatedFileList);
+
+    if (updatedFileList.length > 0) {
+      const file = updatedFileList[0];
+      if (file.originFileObj) {
+        const url = URL.createObjectURL(file.originFileObj);
+        setLocalPreview(url);
+        setImageError(false);
+      } else if (file.url) {
+        setLocalPreview(file.url);
+        setImageError(false);
+      }
+    } else {
+      setLocalPreview(null);
+      setImageError(false);
+      handleChangeInputInsert({ target: { name: "urlFoto", value: "" } });
     }
-    setFileList(newFileList);
   };
 
   const handleFileUpload = async (file) => {
@@ -96,7 +141,7 @@ export const AddReceta = ({ onClosePadre }) => {
         body: formData,
       });
       const data = await response.json();
-      return data.url; // Suponiendo que el backend devuelve la URL de la imagen
+      return data.url;
     } catch (error) {
       console.error("Error uploading file:", error);
       throw error;
@@ -104,291 +149,417 @@ export const AddReceta = ({ onClosePadre }) => {
   };
 
   const beforeUpload = (file) => {
-    const isJpgOrPng =
-      file.type === "image/jpeg" ||
-      file.type === "image/png" ||
-      file.type === "image/jpg";
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/jpg" || file.type === "image/webp";
     if (!isJpgOrPng) {
-      console.error("Solo se permiten archivos de imagen (jpeg, jpg, png)");
+      toast.error("Solo se permiten archivos de imagen (jpeg, jpg, png, webp)");
+      return Upload.LIST_IGNORE;
+    }
+    const isLt5M = file.size / 1024 / 1024 < 5;
+    if (!isLt5M) {
+      toast.error("La imagen debe ser menor a 5MB");
       return Upload.LIST_IGNORE;
     }
     return true;
   };
 
+  // Función para limpiar líneas vacías de campos de texto
+  const cleanTextFields = (text) => {
+    if (!text) return text;
+    return text
+      .split("\n")
+      .map(line => line.trim())
+      .filter(line => line !== "")
+      .join("\n");
+  };
+
   const handleInsertWithImage = async () => {
+    if (!validateForm()) {
+      toast.error("Por favor, corrija los errores en el formulario");
+      return;
+    }
+
     try {
-      const uploadedImageUrls = await Promise.all(
-        fileList.map((file) => handleFileUpload(file.originFileObj))
-      );
+      let urlFoto = "";
+      if (fileList.length > 0) {
+        const uploadedImageUrls = await Promise.all(
+          fileList.map((file) => handleFileUpload(file.originFileObj))
+        );
+        urlFoto = uploadedImageUrls[0];
+      }
 
-      console.log(uploadedImageUrls);
-      const urlFoto = uploadedImageUrls[0]; // Usar la primera URL si solo se permite una imagen
+      // Crear receta completa con la imagen y transformar nombres para el backend
+      const { idPatologias, idCategorias, ...restReceta } = recetaToInsert;
+      
+      // Limpiar campos de texto (eliminar líneas vacías)
+      const fullReceta = {
+        ...restReceta,
+        urlFoto: urlFoto,
+        ingredientes: cleanTextFields(restReceta.ingredientes),
+        preparacion: cleanTextFields(restReceta.preparacion),
+        tipsSaludables: cleanTextFields(restReceta.tipsSaludables),
+        composicionNutricional: cleanTextFields(restReceta.composicionNutricional),
+        idsPatologias: idPatologias, // Backend espera "idsPatologias"
+        idsCategorias: idCategorias  // Backend espera "idsCategorias"
+      };
 
-      handleChangeInputInsert({ target: { name: "urlFoto", value: urlFoto } });
-      // Indicar que se debe insertar la receta después de actualizar el estado
-      setShouldInsert(true);
+      // Llamar a handleInsert con toast.promise
+      await toast.promise(handleInsert(fullReceta), {
+        loading: "Guardando receta...",
+        success: <b>Se agregó la receta!</b>,
+        error: <b>No se pudo agregar la receta.</b>,
+      });
     } catch (error) {
       console.error("Error inserting recipe:", error);
+      throw error;
     }
   };
 
-  return (
-    <div className="form">
-      <Toaster position="top-center" reverseOrder={false} />
-      <Grid
-        className="grid_chackra"
-        templateColumns={{
-          base: "1fr",
-          md: "repeat(auto-fit, minmax(400px, 1fr))",
-        }}
-        gap={10}
-      >
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="nombre"
-            isRequired
-          >
-            <Input
-              className={`input_floating`}
-              placeholder=""
-              name="nombre"
-              variant="outlined"
-              type="text"
-              value={recetaToInsert?.nombre ? recetaToInsert.nombre : ""}
-              onChange={(e) => handleChangeInputInsert(e)}
-            />
-            <FormLabel className="label_floating">Nombre</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="porciones"
-            isRequired
-          >
-            <Input
-              className={`input_floating`}
-              placeholder=""
-              name="porciones"
-              variant="outlined"
-              type="text"
-              value={recetaToInsert?.porciones ? recetaToInsert.porciones : ""}
-              onChange={(e) => handleChangeInputInsert(e)}
-            />
-            <FormLabel className="label_floating">Porciones</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="calorias"
-            isRequired
-          >
-            <Input
-              className={`input_floating`}
-              placeholder=""
-              name="calorias"
-              variant="outlined"
-              type="text"
-              value={recetaToInsert?.calorias ? recetaToInsert.calorias : ""}
-              onChange={(e) => handleChangeInputInsert(e)}
-            />
-            <FormLabel className="label_floating">Calorias</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="tiempo"
-            isRequired
-          >
-            <Input
-              className={`input_floating`}
-              placeholder=""
-              name="tiempo"
-              variant="outlined"
-              type="text"
-              value={recetaToInsert?.tiempo ? recetaToInsert.tiempo : ""}
-              onChange={(e) => handleChangeInputInsert(e)}
-            />
-            <FormLabel className="label_floating">Tiempo</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          {/*  <Input
-          className={`input_edit`}
-          placeholder="URL Foto"
-          name="urlFoto"
-          variant="outlined"
-          type="text"
-          value={recetaToInsert?.urlFoto ? recetaToInsert.urlFoto : ""}
-          onChange={(e) => handleChangeInputInsert(e)}
-        /> */}
+  const handleCloseVentEmergente = async () => {
+    setShowVentEmergenteConfirmacion(false);
+  };
 
-          <Upload
-            className="imgCrop"
-            listType="picture-card"
-            fileList={fileList}
-            beforeUpload={beforeUpload}
-            maxCount={1}
-            onChange={handleFileChange}
-            showUploadList={{
-              showPreviewIcon: false, // Oculta el ícono de ojito
-              showRemoveIcon: true, // Mantén el ícono de eliminación si es necesario
+  const normalizeTime = (value) => {
+    return value.replace(/minutos?/g, "min").replace(/horas?/g, "h");
+  };
+
+  return (
+    <div className="form-container-receta">
+
+      <Tabs 
+        activeKey={activeTab} 
+        onChange={setActiveTab}
+        className="form-tabs"
+      >
+        {/* TAB 1: BÁSICO */}
+        <TabPane tab="Básico" key="1">
+          <div className="section-guide">
+             Complete la información básica de la receta
+          </div>
+
+          <div className="form-section">
+            <div className="form-section-title">Información General</div>
+            
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Nombre <span className="required">*</span>
+                  </label>
+                  <Input
+                    placeholder="Ej: Humitas Saludables"
+                    value={recetaToInsert?.nombre || ""}
+                    onChange={(e) => handleChangeInputInsert(e)}
+                    name="nombre"
+                    className={errors.nombre ? "input-error" : ""}
+                  />
+                  {errors.nombre && <div className="error-message"> {errors.nombre}</div>}
+                  <div className="field-help">3-100 caracteres</div>
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Porciones <span className="required">*</span>
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="Ej: 4"
+                    value={recetaToInsert?.porciones || ""}
+                    onChange={(e) => handleChangeInputInsert(e)}
+                    name="porciones"
+                    min={1}
+                    max={20}
+                    className={errors.porciones ? "input-error" : ""}
+                  />
+                  {errors.porciones && <div className="error-message"> {errors.porciones}</div>}
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Calorías <span className="required">*</span>
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="Ej: 130"
+                    value={recetaToInsert?.calorias || ""}
+                    onChange={(e) => handleChangeInputInsert(e)}
+                    name="calorias"
+                    min={1}
+                    max={9999}
+                    className={errors.calorias ? "input-error" : ""}
+                  />
+                  {errors.calorias && <div className="error-message"> {errors.calorias}</div>}
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Tiempo <span className="required">*</span>
+                  </label>
+                  <Input
+                    placeholder="Ej: 30 min"
+                    value={recetaToInsert?.tiempo || ""}
+                    onChange={(e) => handleChangeInputInsert(e)}
+                    name="tiempo"
+                    className={errors.tiempo ? "input-error" : ""}
+                  />
+                  {errors.tiempo && <div className="error-message"> {errors.tiempo}</div>}
+                </div>
+              </Col>
+            </Row>
+          </div>
+
+          <Divider />
+
+          <div className="form-section">
+            <div className="form-section-title">Imagen</div>
+            <div className="form-field">
+              <label className="form-label">
+                Foto de la receta
+              </label>
+              
+              {localPreview && !imageError ? (
+                <div className="custom-image-preview-container">
+                  <img 
+                    src={localPreview} 
+                    alt={recetaToInsert?.nombre || "Foto de la receta"} 
+                    className="custom-image-preview"
+                    onError={() => setImageError(true)}
+                  />
+                  <div className="custom-image-overlay">
+                    <div className="custom-image-actions">
+                      <Upload
+                        accept="image/*"
+                        beforeUpload={beforeUpload}
+                        showUploadList={false}
+                        onChange={handleFileChange}
+                        fileList={fileList}
+                        maxCount={1}
+                      >
+                        <Button type="primary" icon={<UploadOutlined />}>Cambiar Imagen</Button>
+                      </Upload>
+                      <Button 
+                        danger 
+                        type="primary" 
+                        icon={<DeleteOutlined />} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFileList([]);
+                          setLocalPreview(null);
+                          setImageError(false);
+                          handleChangeInputInsert({ target: { name: "urlFoto", value: "" } });
+                        }}
+                      >
+                        Eliminar Imagen
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Upload
+                  accept="image/*"
+                  beforeUpload={beforeUpload}
+                  showUploadList={false}
+                  onChange={handleFileChange}
+                  fileList={fileList}
+                  maxCount={1}
+                >
+                  <div className="custom-image-upload-dropzone">
+                    {imageError ? (
+                      <div className="custom-image-placeholder-error">
+                        <span className="placeholder-icon">
+                          <WarningOutlined style={{ color: 'var(--danger)' }} />
+                        </span>
+                        <span className="placeholder-title">{recetaToInsert?.nombre || "Sin imagen"}</span>
+                        <span className="placeholder-subtitle">Imagen no disponible localmente</span>
+                        <Button type="dashed" size="small" style={{ marginTop: 12 }}>Subir otra imagen</Button>
+                      </div>
+                    ) : (
+                      <div className="custom-image-placeholder-empty">
+                        <span className="placeholder-icon">
+                          <InboxOutlined style={{ color: 'var(--primary)' }} />
+                        </span>
+                        <span className="placeholder-title font-semibold">Subir foto de la receta</span>
+                        <span className="placeholder-subtitle">Formatos: JPG, PNG, WEBP. Máx 5MB</span>
+                      </div>
+                    )}
+                  </div>
+                </Upload>
+              )}
+              <div className="field-help">Formatos: JPG, PNG, WEBP. Max 5MB</div>
+            </div>
+          </div>
+
+          <Divider />
+
+          <div className="form-section">
+            <div className="form-section-title">Clasificación</div>
+            
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Patologías <span className="required">*</span>
+                  </label>
+                  <Select
+                    mode="multiple"
+                    placeholder="Seleccione patologías"
+                    value={recetaToInsert?.idPatologias || []}
+                    onChange={(value) => handleChangeSelectInsert({ target: { name: "idPatologias", value } })}
+                    options={patologiasxRecetasAdd}
+                    maxTagCount="responsive"
+                    className={errors.idPatologias ? "input-error" : ""}
+                  />
+                  {errors.idPatologias && <div className="error-message"> {errors.idPatologias}</div>}
+                </div>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <div className="form-field">
+                  <label className="form-label">
+                    Categorías <span className="required">*</span>
+                  </label>
+                  <Select
+                    mode="multiple"
+                    placeholder="Seleccione categorías"
+                    value={recetaToInsert?.idCategorias || []}
+                    onChange={(value) => handleChangeSelectCategoriasInsert({ target: { name: "idCategorias", value } })}
+                    options={categoriasxRecetasAdd}
+                    maxTagCount="responsive"
+                    className={errors.idCategorias ? "input-error" : ""}
+                  />
+                  {errors.idCategorias && <div className="error-message"> {errors.idCategorias}</div>}
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </TabPane>
+
+        {/* TAB 2: INGREDIENTES & PREPARACIÓN */}
+        <TabPane tab="Ingredientes & Preparación" key="2">
+          <div className="section-guide">
+             Presiona Enter para numerar automáticamente. Mínimo 3 ingredientes y 3 pasos.
+          </div>
+
+          <div className="form-section">
+            <div className="form-section-title">Ingredientes</div>
+            
+            <div className="form-field">
+              <SmartTextArea
+                value={recetaToInsert?.ingredientes || ""}
+                onChange={handleChangeInputInsert}
+                name="ingredientes"
+                placeholder="Ejemplo: 1 taza de harina&#10;65 gr de zapallo&#10;50 gr de pimiento"
+                helpText="Presiona Enter para numerar automáticamente"
+                required={true}
+              />
+              {errors.ingredientes && <div className="error-message"> {errors.ingredientes}</div>}
+            </div>
+          </div>
+
+          <Divider />
+
+          <div className="form-section">
+            <div className="form-section-title">Preparación</div>
+            
+            <div className="form-field">
+              <SmartTextArea
+                value={recetaToInsert?.preparacion || ""}
+                onChange={handleChangeInputInsert}
+                name="preparacion"
+                placeholder="Ejemplo: Cortar el choclo en trozos&#10;Cocinar el zapallo&#10;Mezclar todos los ingredientes"
+                helpText="Describe paso a paso. Presiona Enter para numerar."
+                maxItems={20}
+                required={true}
+              />
+              {errors.preparacion && <div className="error-message"> {errors.preparacion}</div>}
+            </div>
+          </div>
+        </TabPane>
+
+        {/* TAB 3: NUTRICIÓN & TIPS */}
+        <TabPane tab="Nutrición & Tips" key="3">
+          <div className="section-guide">
+             Información nutricional opcional para enriquecer la receta
+          </div>
+
+          <div className="form-section">
+            <div className="form-section-title">Tips Saludables (Opcional)</div>
+            
+            <div className="form-field">
+              <label className="form-label">
+                Tips
+              </label>
+              <SmartTextArea
+                value={recetaToInsert?.tipsSaludables || ""}
+                onChange={handleChangeInputInsert}
+                name="tipsSaludables"
+                placeholder="Ejemplo: Rico en fibra&#10;Bajo en sodio&#10;Sin gluten"
+                helpText="Consejos nutricionales"
+                minItems={0}
+                maxItems={10}
+                required={false}
+              />
+            </div>
+          </div>
+
+          <Divider />
+
+          <div className="form-section">
+            <div className="form-section-title">Composición Nutricional (Opcional)</div>
+            
+            <div className="form-field">
+              <label className="form-label">
+                Composición
+              </label>
+              <SmartTextArea
+                value={recetaToInsert?.composicionNutricional || ""}
+                onChange={handleChangeInputInsert}
+                name="composicionNutricional"
+                placeholder="Ejemplo: Proteínas: 5g&#10;Carbohidratos: 20g&#10;Grasas: 3g"
+                helpText="Detalla valores nutricionales"
+                minItems={0}
+                maxItems={15}
+                required={false}
+              />
+            </div>
+          </div>
+        </TabPane>
+      </Tabs>
+
+      <div className="form-actions">
+        <Space>
+          <Button onClick={onClosePadre}>
+            Cancelar
+          </Button>
+          <Button 
+            type="primary" 
+            icon={<ArrowRightOutlined />}
+            loading={activeTab === "3" && loadingAction}
+            onClick={() => {
+              if (activeTab === "1") {
+                setActiveTab("2");
+              } else if (activeTab === "2") {
+                setActiveTab("3");
+              } else {
+                setShowVentEmergenteConfirmacion(true);
+              }
             }}
           >
-            {fileList.length < 1 && "Imagen/Video"}
-          </Upload>
-          {/* <ImgCrop rotationSlider>
-        </ImgCrop> */}
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="ingredientes"
-            isRequired
-          >
-            <Textarea
-              className={`input_floating`}
-              placeholder=""
-              name="ingredientes"
-              size="sm"
-              variant="outlined"
-              type="text"
-              value={
-                recetaToInsert?.ingredientes ? recetaToInsert.ingredientes : ""
-              }
-              onChange={(e) => handleChangeInputInsert(e)}
-            />
-            <FormLabel className="label_floating">Ingredientes</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="tipsSaludables"
-          >
-            <Textarea
-              className={`input_floating`}
-              placeholder=""
-              name="tipsSaludables"
-              size="sm"
-              variant="outlined"
-              type="text"
-              value={
-                recetaToInsert?.tipsSaludables
-                  ? recetaToInsert.tipsSaludables
-                  : ""
-              }
-              onChange={(e) => handleChangeInputInsert(e)}
-            />
-            <FormLabel className="label_floating">Tips Saludables</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="composicionNutricional"
-          >
-            <Textarea
-              className={`input_floating`}
-              placeholder=""
-              name="composicionNutricional"
-              size="sm"
-              variant="outlined"
-              type="text"
-              value={
-                recetaToInsert?.composicionNutricional
-                  ? recetaToInsert.composicionNutricional
-                  : ""
-              }
-              onChange={(e) => handleChangeInputInsert(e)}
-            />
-            <FormLabel className="label_floating">
-              Composición Nutricional
-            </FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 2 }}>
-          <FormControl
-            className="cont_input_edit"
-            variant="floating"
-            id="preparacion"
-            isRequired
-          >
-            <Textarea
-              className={`input_floating`}
-              placeholder=""
-              name="preparacion"
-              variant="outlined"
-              type="text"
-              value={
-                recetaToInsert?.preparacion ? recetaToInsert.preparacion : ""
-              }
-              onChange={(e) => handleChangeInputInsert(e)}
-            />
-            <FormLabel className="label_floating">Preparacion</FormLabel>
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          {/* SELECT DE LAS PATOLOGIAS */}
-          <FormControl /* isRequired */>
-            <FormLabel>Patologias</FormLabel>
-            <Select
-              name="idPatologias"
-              {...sharedProps}
-              /* value={alumnos} */
-              onChange={handleChangeSelectInsert}
-            />
-          </FormControl>
-        </GridItem>
-        <GridItem colSpan={{ base: 1, md: 1 }}>
-          <FormControl /* isRequired */>
-            <FormLabel>Categorias</FormLabel>
-            <Select
-              name="idCategorias"
-              {...sharedPropsCategorias}
-              /* value={alumnos} */
-              onChange={handleChangeSelectCategoriasInsert}
-            />
-          </FormControl>
-        </GridItem>
-      </Grid>
-      <Tooltip
-        label={!bandInsert ? "Faltan valores a cargar en el formulario" : ""}
-        hasArrow
-        shouldWrapChildren
-        placement="top"
-      >
-        <Button
-          className="btn_accion_edit_receta"
-          colorScheme="green"
-          style={{ margin: "1rem auto 0" }}
-          onClick={() => setShowVentEmergenteConfirmacion(true)}
-          isDisabled={!bandInsert} // El botón se deshabilita si `bandInsert` es false.
-        >
-          Agregar Receta
-        </Button>
-      </Tooltip>
+            {activeTab === "3" ? "Guardar Receta" : "Siguiente"}
+          </Button>
+        </Space>
+      </div>
 
       <VentEmergConfirmacion
         onClosePadre={onClosePadre}
         onClose={handleCloseVentEmergente}
-        mje={"Esta seguro de agregar a la receta? "}
-        /* handleSi={handleInsert} */
-        handleSi={() => {
-          handleInsertWithImage()
-
-          //toast.success("Se agrego el usuario!")
-        }}
+        mje="¿Está seguro de agregar esta receta?"
+        handleSi={handleInsertWithImage}
         isOpen={showVentEmergenteConfirmacion}
       />
     </div>

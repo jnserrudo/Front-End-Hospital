@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Table } from "antd";
-import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import { Button, ButtonGroup } from "@chakra-ui/react";
-import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
+import { Table, Button, Input } from "antd";
+import { PlusOutlined, SearchOutlined, UserOutlined } from "@ant-design/icons";
 
 import PacienteContext from "../Contexts/PacienteContext";
+import { VentEmergenteAddPaciente } from "./VentEmergenteAddPaciente";
 import { VentEmergenteEditPaciente } from "./VentEmergenteEditPaciente";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { inhabilitarPaciente } from "../services/paciente-services";
+
 export const AdminPaciente = ({selectedKey}) => {
   const {
     db,
@@ -23,53 +23,79 @@ export const AdminPaciente = ({selectedKey}) => {
     getallPacientes,
     showVentEmergenteDelete,
     setShowVentEmergenteDelete,
+    loading = false,
+    loadingAction = false,
   } = useContext(PacienteContext);
-  console.log(db, columns);
 
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
+  const [pacienteSearch, setPacienteSearch] = useState("");
+
   const handleCloseVentEmergente = async () => {
     setShowVentEmergenteConfirmacion(false);
   };
+
   const inhabilitarRegistro = async (id) => {
-    console.log("inhabilitarRegistro: ", id);
     const result = await inhabilitarPaciente(id);
-    console.log("resultado de inhabilitar: ", result);
   };
 
-
   useEffect(() => {
-    getallPacientes(); // Recargar pacientes
-  }, [selectedKey]); // El efecto se ejecutará cada vez que selectedKey cambie
+    getallPacientes();
+  }, [selectedKey]);
+
+  const pacientesFiltrados = db.filter(pac => pac?.usuario).map((pac) => ({
+    id: pac?.id,
+    ...pac?.usuario,
+  }));
+
   return (
-    <div>
-      <p className="titulo_administracion">Pacientes</p>
+    <div className="admin-page-wrapper">
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <div className="admin-card-title">
+            <h3>Listado de Pacientes</h3>
+            <span className="admin-badge">{pacientesFiltrados.length} en total</span>
+          </div>
+          <div className="admin-card-actions">
+            <Input
+              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
+              placeholder="Buscar paciente..."
+              value={pacienteSearch}
+              onChange={(e) => {
+                setPacienteSearch(e.target.value);
+                handleSearch(e.target.value);
+              }}
+              allowClear
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setShowVentEmergenteAddPaciente(true)}
+              loading={loadingAction}
+              disabled={loadingAction}
+            >
+              Agregar Paciente
+            </Button>
+          </div>
+        </div>
 
-      <Table
-        className="tabla"
-        columns={columns}
-        /* pagination={{
-      position: [top, bottom],
-    }} */
-        pagination={{ position: ["none", "bottomRight"], pageSize: 5 }}
-        /* el pageSize determina la cantidad filas por tabla */
+        <Table
+          className="admin-table"
+          columns={columns}
+          pagination={{ position: ["bottomRight"], pageSize: 8 }}
+          dataSource={pacientesFiltrados}
+          loading={loading}
+          rowKey="id"
+          size="middle"
+          locale={{ emptyText: "Sin registros" }}
+        />
+      </div>
 
-        dataSource={db.filter(pac=>pac?.usuario).map((pac)=>{
-          return{
-            id:pac?.id,
-            ...pac?.usuario
-          }
-        })}
+      <VentEmergenteAddPaciente
+        isOpen={showVentEmergenteAddPaciente}
+        onClose={handleCloseVentEmergenteAddPaciente}
       />
 
-      {/*  <VentEmergConfirmacion
-        onClosePadre={onClosePadre}
-        onClose={handleCloseVentEmergente}
-        mje={"Esta seguro de agregar a la categoria? "}
-        handleSi={handleInsert}
-        isOpen={showVentEmergenteConfirmacion}
-      /> */}
-      
       <VentEmergenteEditPaciente
         isOpen={showVentEmergenteEditPaciente}
         pacienteSelected={pacienteSelected}
@@ -77,7 +103,7 @@ export const AdminPaciente = ({selectedKey}) => {
       />
 
       <VentEmergConfirmacion
-        mje={"Esta seguro de eliminar este registro?"}
+        mje={"¿Está seguro de eliminar este registro?"}
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
         handleSi={() => inhabilitarRegistro(idPaciente)}

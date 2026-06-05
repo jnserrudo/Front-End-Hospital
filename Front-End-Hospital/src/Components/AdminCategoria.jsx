@@ -1,16 +1,6 @@
 import React, { useContext, useState } from "react";
-import { Table } from "antd";
-import { EditOutlined, DragOutlined } from "@ant-design/icons";
-import {
-  Button,
-  ButtonGroup,
-  Input,
-  FormControl,
-  FormLabel,
-  InputGroup,
-  InputRightElement,
-} from "@chakra-ui/react";
-import { UserAddOutlined, SearchOutlined } from "@ant-design/icons";
+import { Table, Button, Input } from "antd";
+import { PlusOutlined, SearchOutlined, AppstoreOutlined } from "@ant-design/icons";
 
 import CategoriaContext from "../Contexts/CategoriaContext";
 import { VentEmergenteAddCategoria } from "./VentEmergenteAddCategoria";
@@ -32,61 +22,58 @@ export const AdminCategoria = () => {
     idCategoria,
     showVentEmergenteDelete,
     setShowVentEmergenteDelete,
+    loading = false,
+    loadingAction = false,
   } = useContext(CategoriaContext);
-  console.log(columns);
 
   const inhabilitarRegistro = async (id) => {
-    console.log("inhabilitarRegistro: ", id);
     const result = await inhabilitarCategoria(id);
-    console.log("resultado de inhabilitar: ", result);
   };
 
   const [categoriaSearch, setCategoriaSearch] = useState("");
 
   return (
-    <div className="form form_admin">
-      <p className="titulo_administracion">Categorias</p>
-      <Button
-        className="btn_agregar"
-        colorScheme="green"
-        onClick={() => setShowVentEmergenteAddCategoria(true)}
-      >
-        Agregar Categoria <UserAddOutlined className="icons" />
-      </Button>
+    <div className="admin-page-wrapper">
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <div className="admin-card-title">
+            <h3>Listado de Categorías</h3>
+            <span className="admin-badge">{db.length} en total</span>
+          </div>
+          <div className="admin-card-actions">
+            <Input
+              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
+              placeholder="Buscar categoría..."
+              value={categoriaSearch}
+              onChange={(e) => {
+                setCategoriaSearch(e.target.value);
+                handleSearch(e.target.value);
+              }}
+              allowClear
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setShowVentEmergenteAddCategoria(true)}
+              loading={loadingAction}
+              disabled={loadingAction}
+            >
+              Agregar Categoría
+            </Button>
+          </div>
+        </div>
 
-      <FormControl className="buscador" variant="floating" id="recetaSearch">
-        <InputGroup>
-          <Input
-            placeholder=""
-            name="categoriaSearch"
-            type="text"
-            value={categoriaSearch}
-            onChange={(e) => {
-              setCategoriaSearch(e.target.value);
-              handleSearch(e.target.value);
-            }}
-          />
-          <InputRightElement
-            width="4.5rem"
-            style={{ color: "#046ba3", fontSize: "20px" }}
-          >
-            <SearchOutlined />
-          </InputRightElement>
-        </InputGroup>
-
-        <FormLabel></FormLabel>
-      </FormControl>
-      <Table
-        className="tabla"
-        columns={columns}
-        /* pagination={{
-      position: [top, bottom],
-    }} */
-        pagination={{ position: ["none", "bottomRight"], pageSize: 5 }}
-        /* el pageSize determina la cantidad filas por tabla */
-
-        dataSource={dbSearch.length > 0 ? dbSearch : db}
-      />
+        <Table
+          className="admin-table"
+          columns={columns}
+          pagination={{ position: ["bottomRight"], pageSize: 8 }}
+          dataSource={dbSearch.length > 0 ? dbSearch : db}
+          loading={loading}
+          rowKey="id"
+          size="middle"
+          locale={{ emptyText: "Sin registros" }}
+        />
+      </div>
 
       <VentEmergenteAddCategoria
         isOpen={showVentEmergenteAddCategoria}
@@ -100,7 +87,7 @@ export const AdminCategoria = () => {
       />
 
       <VentEmergConfirmacion
-        mje={"Esta seguro de eliminar este registro?"}
+        mje={"¿Está seguro de eliminar este registro?"}
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
         handleSi={() => inhabilitarRegistro(idCategoria)}

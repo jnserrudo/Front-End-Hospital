@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { Table, Button } from 'antd';
-import { Box } from '@chakra-ui/react';
 
 const ExcelViewer = ({ filePath, toggleMessage }) => {
   const [data, setData] = useState([]);
@@ -66,15 +65,15 @@ const ExcelViewer = ({ filePath, toggleMessage }) => {
         {isVisible? 'Ocultar Tabla': toggleMessage}
       </Button>
       {isVisible && data.length > 0 && (
-        <Box overflowX="auto">
+        <div style={{ overflowX: 'auto' }}>
           <Table
             columns={columns}
             dataSource={data}
             pagination={{ pageSize: 10, position: ["bottomRight"] }}
-            rowClassName={rowClassName}
-            
+            size="small"
+            bordered
           />
-        </Box>
+        </div>
       )}
     </div>
   );

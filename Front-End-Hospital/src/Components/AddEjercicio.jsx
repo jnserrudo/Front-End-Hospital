@@ -15,7 +15,7 @@ import EjerciciosContext from "../Contexts/EjercicioContext";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { Input } from "@chakra-ui/react";
 import ReactPlayer from "react-player";
-import { Toaster } from "react-hot-toast";
+
 
 import { Upload, Select } from "antd";
 import { entorno } from "../services/config";
@@ -32,6 +32,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
     patologiasxEjercicioAdd,
     categoriasxInformacionAdd,
     handleChangeSelectCategoriasInsert,
+    loadingAction,
   } = useContext(EjerciciosContext);
   const sharedProps = {
     mode: "multiple",
@@ -126,25 +127,42 @@ export const AddEjercicio = ({ onClosePadre }) => {
     }
     return true;
   };
+  // Función para limpiar líneas vacías
+  const cleanTextFields = (text) => {
+    if (!text) return text;
+    return text
+      .split("\n")
+      .map(line => line.trim())
+      .filter(line => line !== "")
+      .join("\n");
+  };
+
   const handleInsertWithVideo = async () => {
     try {
       let urlVideo = "";
-      // Indicar que se debe insertar la información después de cargar la URL del video
       if (useYoutube && youtubeUrl) {
-        // Si se está utilizando la URL de YouTube
         urlVideo = youtubeUrl;
       } else if (fileList.length > 0) {
         const uploadedVideoUrls = await Promise.all(
           fileList.map((file) => handleFileUpload(file.originFileObj))
         );
-        urlVideo = uploadedVideoUrls[0]; // Usar la primera URL si solo se permite un video
+        urlVideo = uploadedVideoUrls[0];
       }
 
-      handleChangeInputInsert({
-        target: { name: "urlVideo", value: urlVideo },
+      const fullEjercicio = {
+        ...ejercicioToInsert,
+        urlVideo: urlVideo,
+        descripcion: cleanTextFields(ejercicioToInsert.descripcion),
+      };
+
+      await toast.promise(handleInsert(fullEjercicio), {
+        loading: "Cargando Ejercicio...",
+        success: <b>Se agregó el Ejercicio!</b>,
+        error: <b>No se pudo agregar el ejercicio.</b>,
       });
     } catch (error) {
       console.error("Error inserting ejercicio:", error);
+      throw error;
     }
   };
   /* 
@@ -161,7 +179,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
 
   return (
     <div className="form">
-      <Toaster position="top-center" reverseOrder={false} />
+
       <Grid
         className="grid_chackra"
         templateColumns={{
@@ -231,7 +249,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
                         // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
                         const imgWindow = window.open();
                         imgWindow.document.write(
-                          `<img src="${preview}" alt="preview" />`
+                          `<img src="${preview}" alt="preview" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:red;text-align:center;padding:20px;\'>Error al cargar la imagen</p>'" />`
                         );
                       }
                     }}
@@ -309,6 +327,46 @@ export const AddEjercicio = ({ onClosePadre }) => {
             />
           </FormControl>
         </GridItem>
+
+        <GridItem colSpan={{ base: 1, md: 1 }}>
+          {/* TIPO DE CONTENIDO */}
+          <FormControl isRequired>
+            <FormLabel>Tipo de Contenido</FormLabel>
+            <Select
+              style={{ width: "100%" }}
+              value={ejercicioToInsert?.tipoContenido || "video"}
+              onChange={(value) => handleChangeInputInsert({ target: { name: "tipoContenido", value } })}
+              options={[
+                { label: "Video", value: "video" },
+                { label: "Infografia", value: "infografia" },
+                { label: "Ambos", value: "ambos" },
+              ]}
+            />
+          </FormControl>
+        </GridItem>
+
+        {(ejercicioToInsert?.tipoContenido === "infografia" || ejercicioToInsert?.tipoContenido === "ambos") && (
+          <GridItem colSpan={{ base: 1, md: 1 }}>
+            <FormControl
+              className="cont_input_edit"
+              variant="floating"
+              id="urlInfografia"
+              isRequired
+            >
+              <Input
+                className="input_floating"
+                placeholder=""
+                name="urlInfografia"
+                variant="outlined"
+                type="text"
+                value={ejercicioToInsert?.urlInfografia ? ejercicioToInsert.urlInfografia : ""}
+                onChange={(e) => handleChangeInputInsert(e)}
+              />
+              <FormLabel>URL de la Infografia</FormLabel>
+            </FormControl>
+          </GridItem>
+        )}
+
         <GridItem colSpan={{ base: 1, md: 2 }}>
           <FormControl
             className="cont_input_edit"
@@ -330,7 +388,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
               }
               onChange={(e) => handleChangeInputInsert(e)}
             />
-            <FormLabel>Descripción</FormLabel>
+            <FormLabel>Descripcion</FormLabel>
           </FormControl>
         </GridItem>
       </Grid>
@@ -341,6 +399,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
           colorScheme="green"
           style={{ margin: "1rem auto 0" }}
           onClick={() => setShowVentEmergenteConfirmacion(true)}
+          isLoading={loadingAction}
         >
           Agregar Ejercicio
         </Button>

@@ -14,7 +14,7 @@ import PacientesContext from "../Contexts/PacienteContext";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@chakra-ui/react";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import {
   DeshabilitarPaciente,
   HabilitarPaciente,
@@ -72,7 +72,7 @@ export const EditPaciente = ({ paciente, onCloseEdit }) => {
 
   return (
     <div className="form_edit_receta">
-      <Toaster position="top-center" reverseOrder={false} />
+
 
       <div className="cont_form_input">
         <FormControl
@@ -206,8 +206,10 @@ export const EditPaciente = ({ paciente, onCloseEdit }) => {
         onClosePadre={onCloseEdit}
         onClose={handleCloseVentEmergente}
         mje={"Esta seguro de actualizar los datos del paciente " + " ?"}
-        handleSi={() => handleUpdate(paciente)}
-        /*  handleSi={handleUpdateWithImage} */
+        handleSi={async () => {
+          await handleUpdate(paciente);
+          handleCloseVentEmergente();
+        }}
         isOpen={showVentEmergenteConfirmacion}
       />
     </div>
