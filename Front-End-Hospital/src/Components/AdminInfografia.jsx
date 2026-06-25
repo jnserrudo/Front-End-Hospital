@@ -141,7 +141,7 @@ export const AdminInfografia = () => {
           </div>
         </div>
 
-        <Table
+        <Table scroll={{ x: 'max-content' }}
             className="admin-table"
             columns={columns}
             dataSource={infografiasFiltradas}

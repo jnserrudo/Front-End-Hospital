@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Card, Select, Input, Spin, Row, Col, Tag, Empty, Badge, Alert } from "antd";
-import { PictureOutlined, FilePdfOutlined, SearchOutlined, AppstoreOutlined, ExportOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { Card, Select, Input, Spin, Row, Col, Tag, Empty, Badge, Alert, Button } from "antd";
+import { PictureOutlined, FilePdfOutlined, SearchOutlined, AppstoreOutlined, ExportOutlined, InfoCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { getAllInfografias, getInfografiasByCategoria } from "../services/infografia-services";
 import { getMediaUrl } from "../services/config";
 
@@ -23,11 +23,15 @@ const CATEGORIA_COLORS = {
   baja_sodio: "orange",
 };
 
-export const Infografias = () => {
+export const Infografias = ({ setSelectedKey }) => {
   const [infografias, setInfografias] = useState([]);
   const [infografiasFiltradas, setInfografiasFiltradas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("todas");
+  
+  // Verificar si el usuario es administrador o profesional
+  const rol = localStorage.getItem("rol");
+  const isAdmin = rol === "1" || rol === "2" || rol === 1 || rol === 2 || parseInt(rol) === 1 || parseInt(rol) === 2;
   const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => { cargarInfografias(); }, []);
@@ -109,6 +113,17 @@ export const Infografias = () => {
           options={CATEGORIAS}
           style={{ minWidth: 200 }}
         />
+        {isAdmin && setSelectedKey && (
+          <Button
+            type="primary"
+            icon={<SettingOutlined />}
+            onClick={() => setSelectedKey("19")}
+            className="admin-action-btn"
+            size="large"
+          >
+            <span className="btn-text">Administrar</span>
+          </Button>
+        )}
       </div>
 
       <Alert

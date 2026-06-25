@@ -325,31 +325,26 @@ export const EditInformacion = ({ informacion, onCloseEdit }) => {
         </GridItem>
         {previewUrl &&
           (previewUrl.includes("<iframe") ? (
-            <GridItem
-              colSpan={{ base: 1, md: 2 }}
-              rowSpan={2}
-              style={{ height: "60vh" }}
-            >
-              <div
-                style={{ height: "100%", padding: "2rem !important" }}
-                dangerouslySetInnerHTML={{
-                  __html: previewUrl.replace(
-                    "<iframe",
-                    "<iframe style='width: 100%; height: 100%; border: none;'"
-                  ),
-                }}
-              />
-            </GridItem>
-          ) : (
-            <GridItem colSpan={{ base: 1, md: 2 }}>
-              <ReactPlayer
-                width="60%"
-                height="100%"
-                controls
-                url={previewUrl}
-              />
-            </GridItem>
-          ))}
+              <GridItem colSpan={{ base: 1, md: 2 }}>
+                <div style={{ position: 'relative', paddingTop: '56.25%', width: '100%', marginBottom: '1rem', background: 'var(--gray-100)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+                  <div
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                    dangerouslySetInnerHTML={{
+                      __html: previewUrl.replace(
+                        "<iframe",
+                        "<iframe style='width: 100%; height: 100%; border: none;'"
+                      ),
+                    }}
+                  />
+                </div>
+              </GridItem>
+            ) : (
+              <GridItem colSpan={{ base: 1, md: 2 }}>
+                <div style={{ position: 'relative', paddingTop: '56.25%', width: '100%', marginBottom: '1rem', background: 'var(--gray-100)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+                  <ReactPlayer width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }} controls url={previewUrl} />
+                </div>
+              </GridItem>
+            ))}
 
         <Tabs variant="enclosed">
           <TabList>

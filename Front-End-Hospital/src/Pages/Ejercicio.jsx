@@ -3,14 +3,18 @@ import { Select, Input, Alert, Button, Modal, Form, Radio, Checkbox, Slider, Rat
 import { ListVideos } from "../Components/ListVideos";
 import EjercicioContext from "../Contexts/EjercicioContext";
 import { entorno, getMediaUrl } from "../services/config";
-import { SearchOutlined, ThunderboltOutlined, InfoCircleOutlined, HeartOutlined, SendOutlined, FilePdfOutlined, ExportOutlined } from "@ant-design/icons";
+import { SearchOutlined, ThunderboltOutlined, InfoCircleOutlined, HeartOutlined, SendOutlined, FilePdfOutlined, ExportOutlined, SettingOutlined } from "@ant-design/icons";
 import { getAllEjercicios } from "../services/ejercicio-services";
 
-export const Ejercicio = () => {
+export const Ejercicio = ({ setSelectedKey }) => {
   const [videos, setVideos] = useState([]);
 
   const [options, setOptions] = useState([]);
   const [videosSearch, setVideosSearch] = useState("");
+  
+  // Verificar si el usuario es administrador o profesional
+  const rol = localStorage.getItem("rol");
+  const isAdmin = rol === "1" || rol === "2" || rol === 1 || rol === 2 || parseInt(rol) === 1 || parseInt(rol) === 2;
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [evalType, setEvalType] = useState('general'); // 'general' o 'ejercicio'
@@ -140,13 +144,11 @@ export const Ejercicio = () => {
     const ejercicios = await getAllEjercicios();
 
     console.log(ejercicios);
-    let videosOfEjercicio = ejercicios.map((videos) => {
-      if (videos.urlVideo) {
-        return {
-          ...videos,
-          url: getMediaUrl(videos.urlVideo),
-        };
-      }
+    let videosOfEjercicio = ejercicios.map((item) => {
+      return {
+        ...item,
+        url: item.urlVideo ? getMediaUrl(item.urlVideo) : "",
+      };
     });
     console.log(videosOfEjercicio);
     setVideos(videosOfEjercicio);
@@ -175,13 +177,11 @@ export const Ejercicio = () => {
     } */
 
     if (db?.length > 0) {
-      let videosOfEjercicio = db.map((videos) => {
-        if (videos.urlVideo) {
-          return {
-            ...videos,
-            url: getMediaUrl(videos.urlVideo),
-          };
-        }
+      let videosOfEjercicio = db.map((item) => {
+        return {
+          ...item,
+          url: item.urlVideo ? getMediaUrl(item.urlVideo) : "",
+        };
       });
       console.log(videosOfEjercicio);
       setVideos(videosOfEjercicio);
@@ -306,6 +306,17 @@ export const Ejercicio = () => {
             >
               Evaluación General
             </Button>
+            {isAdmin && setSelectedKey && (
+              <Button
+                type="primary"
+                icon={<SettingOutlined />}
+                onClick={() => setSelectedKey("8")}
+                className="admin-action-btn"
+                size="large"
+              >
+                <span className="btn-text">Administrar</span>
+              </Button>
+            )}
           </div>
         </div>
       </nav>

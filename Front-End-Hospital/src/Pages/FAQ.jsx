@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Collapse, Input, Select, Spin, Tag, Empty, Alert } from "antd";
-import { QuestionCircleOutlined, SearchOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { Collapse, Input, Select, Spin, Tag, Empty, Alert, Button } from "antd";
+import { QuestionCircleOutlined, SearchOutlined, InfoCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { getAllFAQs, getFAQsByCategoria } from "../services/faq-services";
 
 const { Panel } = Collapse;
@@ -20,12 +20,16 @@ const TAG_COLORS = {
   patologias: "red",
 };
 
-export const FAQ = () => {
+export const FAQ = ({ setSelectedKey }) => {
   const [faqs, setFaqs] = useState([]);
   const [faqsFiltradas, setFaqsFiltradas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("todas");
   const [busqueda, setBusqueda] = useState("");
+  
+  // Verificar si el usuario es administrador o profesional
+  const rol = localStorage.getItem("rol");
+  const isAdmin = rol === "1" || rol === "2" || rol === 1 || rol === 2 || parseInt(rol) === 1 || parseInt(rol) === 2;
 
   useEffect(() => { cargarFAQs(); }, []);
 
@@ -93,6 +97,17 @@ export const FAQ = () => {
           options={CATEGORIAS}
           style={{ minWidth: 200 }}
         />
+        {isAdmin && setSelectedKey && (
+          <Button
+            type="primary"
+            icon={<SettingOutlined />}
+            onClick={() => setSelectedKey("20")}
+            className="admin-action-btn"
+            size="large"
+          >
+            <span className="btn-text">Administrar</span>
+          </Button>
+        )}
       </div>
 
       <Alert

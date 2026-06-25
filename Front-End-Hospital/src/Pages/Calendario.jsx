@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, Badge, Modal, Spin, Select, Tag, Descriptions, ConfigProvider, Alert } from "antd";
+import { Calendar, Badge, Modal, Spin, Select, Tag, Descriptions, ConfigProvider, Alert, Button } from "antd";
 import esES from "antd/locale/es_ES";
-import { CalendarOutlined, ClockCircleOutlined, TagOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { CalendarOutlined, ClockCircleOutlined, TagOutlined, InfoCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { getAllEventos } from "../services/calendario-services";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -18,12 +18,16 @@ const TIPOS_FILTRO = [
 const TIPO_BADGE = { general: "success", patologia: "warning" };
 const TIPO_TAG_COLOR = { general: "green", patologia: "orange" };
 
-export const Calendario = () => {
+export const Calendario = ({ setSelectedKey }) => {
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvento, setSelectedEvento] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [tipoFiltro, setTipoFiltro] = useState("todos");
+  
+  // Verificar si el usuario es administrador o profesional
+  const rol = localStorage.getItem("rol");
+  const isAdmin = rol === "1" || rol === "2" || rol === 1 || rol === 2 || parseInt(rol) === 1 || parseInt(rol) === 2;
 
   useEffect(() => { cargarEventos(); }, []);
 
@@ -99,6 +103,17 @@ export const Calendario = () => {
         <span style={{ color: "var(--gray-400)", fontSize: 13 }}>
           {eventos.length} evento{eventos.length !== 1 ? "s" : ""} cargado{eventos.length !== 1 ? "s" : ""}
         </span>
+        {isAdmin && setSelectedKey && (
+          <Button
+            type="primary"
+            icon={<SettingOutlined />}
+            onClick={() => setSelectedKey("21")}
+            className="admin-action-btn"
+            size="large"
+          >
+            <span className="btn-text">Administrar</span>
+          </Button>
+        )}
       </div>
 
       <Alert

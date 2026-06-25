@@ -3,15 +3,19 @@ import { Select, Input, Alert, Tabs, Button, Empty } from "antd";
 import { ListVideos } from "../Components/ListVideos";
 import InformacionContext from "../Contexts/InformacionContext";
 import { entorno, getMediaUrl } from "../services/config";
-import { SearchOutlined, ReadOutlined, InfoCircleOutlined, FilePdfOutlined, ExportOutlined } from "@ant-design/icons";
+import { SearchOutlined, ReadOutlined, InfoCircleOutlined, FilePdfOutlined, ExportOutlined, SettingOutlined } from "@ant-design/icons";
 import { getAllInformacions } from "../services/informacion-services";
-export const Info = () => {
+export const Info = ({ setSelectedKey }) => {
   //esta vble videos sera reemplazada por un listado de videos que ser iran cargando con sus URLs en la BD
   const [videos, setVideos] = useState([]);
 
   const [options, setOptions] = useState([]);
   const [videosSearch, setVideosSearch] = useState("");
   const [activeTab, setActiveTab] = useState("1");
+  
+  // Verificar si el usuario es administrador o profesional
+  const rol = localStorage.getItem("rol");
+  const isAdmin = rol === "1" || rol === "2" || rol === 1 || rol === 2 || parseInt(rol) === 1 || parseInt(rol) === 2;
   const {
     db,
     dbSearch,
@@ -65,13 +69,11 @@ export const Info = () => {
     //const infos = await getInformacionxPaciente(idUsuario); AHORA SE LLAMA A TODOS, SIN IMPORTAR LA PATOLOGIA
     const infos = await getAllInformacions();
 
-    let videosOfInfo = infos.map((videos) => {
-      if (videos.urlVideo) {
-        return {
-          ...videos,
-          url: getMediaUrl(videos.urlVideo),
-        };
-      }
+    let videosOfInfo = infos.map((item) => {
+      return {
+        ...item,
+        url: item.urlVideo ? getMediaUrl(item.urlVideo) : "",
+      };
     });
     console.log(videosOfInfo);
     setVideos(videosOfInfo);
@@ -100,13 +102,11 @@ export const Info = () => {
     } */
 
     if (db?.length > 0) {
-      let videosOfInfo = db.map((videos) => {
-        if (videos.urlVideo) {
-          return {
-            ...videos,
-            url: getMediaUrl(videos.urlVideo),
-          };
-        }
+      let videosOfInfo = db.map((item) => {
+        return {
+          ...item,
+          url: item.urlVideo ? getMediaUrl(item.urlVideo) : "",
+        };
       });
       console.log(videosOfInfo);
       setVideos(videosOfInfo);
@@ -209,6 +209,17 @@ export const Info = () => {
               onChange={handleChangeSelectCategoriasFiltrar}
               size="large"
             />
+            {isAdmin && setSelectedKey && (
+              <Button
+                type="primary"
+                icon={<SettingOutlined />}
+                onClick={() => setSelectedKey("9")}
+                className="admin-action-btn"
+                size="large"
+              >
+                <span className="btn-text">Administrar</span>
+              </Button>
+            )}
           </div>
         </div>
       </nav>

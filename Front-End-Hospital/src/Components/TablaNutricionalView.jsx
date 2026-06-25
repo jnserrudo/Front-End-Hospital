@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
-import { Table, Button, Tabs, Spin, Pagination, Select } from 'antd';
+import { Table, Button, Tabs, Spin, Pagination, Select, ConfigProvider } from 'antd';
+import esES from "antd/locale/es_ES";
 import { ArrowLeftOutlined, FileTextOutlined } from '@ant-design/icons';
 
 const { TabPane } = Tabs;
@@ -150,26 +151,65 @@ export const TablaNutricionalView = ({ tabla, onVolver }) => {
   const columns = useMemo(() => {
     if (headers.length === 0) return [];
     
+    // Obtenemos los índices de la categoría activa
     const indices = categorias[activeTab] || [];
     
-    return indices.map(index => ({
-      title: headers[index],
-      dataIndex: index,
-      key: index,
-      width: 120,
-      sorter: (a, b) => {
-        const valA = parseFloat(a[index]) || 0;
-        const valB = parseFloat(b[index]) || 0;
-        return valA - valB;
-      },
-      render: (text) => {
-        const num = parseFloat(text);
-        if (!isNaN(num) && typeof text === 'number') {
-          return num.toLocaleString('es-AR', { maximumFractionDigits: 2 });
-        }
-        return text || '-';
+    // Buscamos si la columna 0 es el número (Nº) y la 1 es el Alimento
+    const hasNum = headers[0] && (headers[0].toLowerCase().includes('nº') || headers[0].toLowerCase().includes('n°') || headers[0].toLowerCase().includes('num') || headers[0].toLowerCase() === 'no' || headers[0].toLowerCase() === 'no.');
+    const hasAlimento = headers[1] && (headers[1].toLowerCase().includes('alimento') || headers[1].toLowerCase().includes('nombre') || headers[1].toLowerCase().includes('descrip'));
+    
+    // Filtramos los índices 0 y 1 de los índices de la categoría para evitar duplicados
+    let filteredIndices = [...indices];
+    if (hasNum) {
+      filteredIndices = filteredIndices.filter(idx => idx !== 0);
+    }
+    if (hasAlimento) {
+      filteredIndices = filteredIndices.filter(idx => idx !== 1);
+    }
+    
+    // Forzamos que la columna de Nº y Alimento estén siempre al principio en cada pestaña
+    const prefixIndices = [];
+    if (hasNum) prefixIndices.push(0);
+    if (hasAlimento) prefixIndices.push(1);
+    
+    const allIndices = [...prefixIndices, ...filteredIndices];
+    
+    return allIndices.map(index => {
+      const title = headers[index] || '';
+      
+      let width = 100;
+      let fixed = undefined;
+      
+      if (index === 0 && hasNum) {
+        width = 70;
+        fixed = 'left';
+      } else if (index === 1 && hasAlimento) {
+        width = 220;
+        fixed = 'left';
+      } else {
+        width = title.length > 20 ? 180 : (title.length > 12 ? 140 : 100);
       }
-    }));
+      
+      return {
+        title: title,
+        dataIndex: index,
+        key: index,
+        width: width,
+        fixed: fixed,
+        sorter: (a, b) => {
+          const valA = parseFloat(a[index]) || 0;
+          const valB = parseFloat(b[index]) || 0;
+          return valA - valB;
+        },
+        render: (text) => {
+          const num = parseFloat(text);
+          if (!isNaN(num) && typeof text === 'number') {
+            return num.toLocaleString('es-AR', { maximumFractionDigits: 2 });
+          }
+          return text || '-';
+        }
+      };
+    });
   }, [headers, categorias, activeTab]);
 
   // Datos paginados
@@ -265,53 +305,55 @@ export const TablaNutricionalView = ({ tabla, onVolver }) => {
   }
 
   return (
-    <div className="tabla-fullscreen-container tabla-fullscreen-enter">
-      {/* Header */}
-      <div className="tabla-fullscreen-header">
-        <Button icon={<ArrowLeftOutlined />} onClick={onVolver} className="tabla-volver-btn">
-          Volver
-        </Button>
-        <div className="tabla-fullscreen-title">
-          {tabla?.icon && <span style={{ marginRight: 8 }}>{tabla.icon}</span>}
-          Tabla Nutricional - {tabla?.titulo}
+    <ConfigProvider locale={esES}>
+      <div className="tabla-fullscreen-container tabla-fullscreen-enter">
+        {/* Header */}
+        <div className="tabla-fullscreen-header">
+          <Button icon={<ArrowLeftOutlined />} onClick={onVolver} className="tabla-volver-btn">
+            Volver
+          </Button>
+          <div className="tabla-fullscreen-title">
+            {tabla?.icon && <span style={{ marginRight: 8 }}>{tabla.icon}</span>}
+            Tabla Nutricional - {tabla?.titulo}
+          </div>
+          <div style={{ width: 80 }} />
         </div>
-        <div style={{ width: 80 }} />
+
+        {/* Tabs */}
+        {renderTabs()}
+
+        {/* Content */}
+        <div className="tabla-fullscreen-content">
+          <div className="tabla-fullscreen-table-wrapper">
+            <Table
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              size="small"
+              bordered
+              scroll={{ x: 'max-content', y: 'calc(100vh - 280px)' }}
+              rowClassName={(_, index) => index % 2 === 0 ? 'tabla-row-even' : 'tabla-row-odd'}
+            />
+          </div>
+
+          {/* Pagination */}
+          <div className="tabla-fullscreen-pagination">
+            <span className="tabla-pagination-info">
+              Mostrando {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, data.length)} de {data.length} alimentos
+            </span>
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={data.length}
+              onChange={setCurrentPage}
+              showSizeChanger
+              pageSizeOptions={[10, 25, 50, 100]}
+              onShowSizeChange={(_, size) => { setPageSize(size); setCurrentPage(1); }}
+            />
+          </div>
+        </div>
       </div>
-
-      {/* Tabs */}
-      {renderTabs()}
-
-      {/* Content */}
-      <div className="tabla-fullscreen-content">
-        <div className="tabla-fullscreen-table-wrapper">
-          <Table
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            size="small"
-            bordered
-            scroll={{ x: 'max-content', y: 'calc(100vh - 280px)' }}
-            rowClassName={(_, index) => index % 2 === 0 ? 'tabla-row-even' : 'tabla-row-odd'}
-          />
-        </div>
-
-        {/* Pagination */}
-        <div className="tabla-fullscreen-pagination">
-          <span className="tabla-pagination-info">
-            Mostrando {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, data.length)} de {data.length} alimentos
-          </span>
-          <Pagination
-            current={currentPage}
-            pageSize={pageSize}
-            total={data.length}
-            onChange={setCurrentPage}
-            showSizeChanger
-            pageSizeOptions={[10, 25, 50, 100]}
-            onShowSizeChange={(_, size) => { setPageSize(size); setCurrentPage(1); }}
-          />
-        </div>
-      </div>
-    </div>
+    </ConfigProvider>
   );
 };
 

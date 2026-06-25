@@ -15,18 +15,30 @@ export const ListVideos = ({ videos, onEvaluate }) => {
       {videos.filter(Boolean).map((v, index) => (
         <div key={v?.id || index} className="video-card">
           <div className="video-player-wrapper">
-            <ReactPlayer
-              width="100%"
-              height="100%"
-              url={v.url}
-              controls
-              light={true}
-              playIcon={
-                <div className="video-play-btn">
-                  <PlayCircleOutlined style={{ fontSize: 48, color: "white" }} />
-                </div>
-              }
-            />
+            {v.urlVideo && v.urlVideo.startsWith("<iframe") ? (
+              <div
+                style={{ width: "100%", height: "100%" }}
+                dangerouslySetInnerHTML={{
+                  __html: v.urlVideo.replace(
+                    "<iframe",
+                    "<iframe style='width: 100%; height: 100%; border: none;'"
+                  )
+                }}
+              />
+            ) : (
+              <ReactPlayer
+                width="100%"
+                height="100%"
+                url={v.url}
+                controls
+                light={v.url && (v.url.includes("youtube.com") || v.url.includes("youtu.be"))}
+                playIcon={
+                  <div className="video-play-btn">
+                    <PlayCircleOutlined style={{ fontSize: 48, color: "white" }} />
+                  </div>
+                }
+              />
+            )}
           </div>
           <div className="video-info">
             <p className="video-title">{v.nombre}</p>

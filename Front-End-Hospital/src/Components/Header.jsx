@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../style.css";
-import { EnvironmentOutlined, PhoneOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { EnvironmentOutlined, PhoneOutlined, LogoutOutlined, UserOutlined, MenuOutlined } from "@ant-design/icons";
 import { Dropdown } from "antd";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -11,7 +11,7 @@ const ROLES = {
   3: "Paciente"
 };
 
-export const Header = ({ setSelectedKey }) => {
+export const Header = ({ setSelectedKey, collapsed, setCollapsed }) => {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState("");
   const [rol, setRol] = useState("");
@@ -56,6 +56,12 @@ export const Header = ({ setSelectedKey }) => {
   return (
     <div className="header">
       <div className="header-brand">
+        <div 
+          className="menu-toggle-btn" 
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          <MenuOutlined style={{ fontSize: '20px', color: 'white' }} />
+        </div>
         <img
           className="logo_hospital"
           onClick={() => setSelectedKey("1")}

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Select, Input, Empty, Pagination, Alert } from "antd";
-import { PictureOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { Select, Input, Empty, Pagination, Alert, Button } from "antd";
+import { PictureOutlined, InfoCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { VentEmergenteRecetaSee } from "../Components/VentEmergRecetaSee";
 import RecetaContext from "../Contexts/RecetaContext";
 import { getAllPatologias } from "../services/patologia-services";
@@ -8,11 +8,15 @@ import { getRecetaByPatologia } from "../services/recetas-services";
 import { entorno, getMediaUrl } from "../services/config";
 import "../style.css";
 
-export const Recetas = () => {
+export const Recetas = ({ setSelectedKey }) => {
   const [showVentEmergRecetaSee, setShowVentEmergRecetaSee] = useState(false);
   const [recetaSee, setRecetaSee] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
+  
+  // Verificar si el usuario es administrador o profesional
+  const rol = localStorage.getItem("rol");
+  const isAdmin = rol === "1" || rol === "2" || rol === 1 || rol === 2 || parseInt(rol) === 1 || parseInt(rol) === 2;
 
   const {
     db,
@@ -97,6 +101,17 @@ export const Recetas = () => {
             onChange={handleChangeSelectCategoriasFiltrar}
             size="large"
           />
+          {isAdmin && setSelectedKey && (
+            <Button
+              type="primary"
+              icon={<SettingOutlined />}
+              onClick={() => setSelectedKey("7")}
+              className="admin-action-btn"
+              size="large"
+            >
+              <span className="btn-text">Administrar</span>
+            </Button>
+          )}
         </div>
       </div>
 

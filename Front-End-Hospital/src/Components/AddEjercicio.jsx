@@ -216,12 +216,15 @@ export const AddEjercicio = ({ onClosePadre }) => {
             <TabPanels>
               <TabPanel className="tab_video_iframe">
                 {previewUrl && (
-                  <ReactPlayer
-                    width="60%"
-                    height="100%"
-                    controls
-                    url={previewUrl}
-                  />
+                  <div style={{ position: 'relative', paddingTop: '56.25%', width: '100%', marginBottom: '1rem', background: 'var(--gray-100)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+                    <ReactPlayer
+                      width="100%"
+                      height="100%"
+                      style={{ position: 'absolute', top: 0, left: 0 }}
+                      controls
+                      url={previewUrl}
+                    />
+                  </div>
                 )}
                 <GridItem colSpan={{ base: 1, md: 2 }}>
                   <Upload
@@ -286,8 +289,9 @@ export const AddEjercicio = ({ onClosePadre }) => {
                 </GridItem>
                 {iframeUrl && (
                   <GridItem colSpan={{ base: 1, md: 2 }}>
-                    <div style={{ marginTop: "1rem" }}>
+                    <div style={{ position: 'relative', paddingTop: '56.25%', width: '100%', marginTop: '1rem', background: 'var(--gray-100)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
                       <div
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
                         dangerouslySetInnerHTML={{
                           __html: iframeUrl.replace(
                             "<iframe",

@@ -113,7 +113,7 @@ const customTheme = extendTheme({
 });
 
 export const MainApp = () => {
-  const [collapsed, setCollapsed] = useState(true); // Estado para manejar la colapsabilidad del Sider
+  const [collapsed, setCollapsed] = useState(window.innerWidth <= 768); // Estado para manejar la colapsabilidad del Sider
   const [selectedKey, setSelectedKey] = useState("1"); // Estado para manejar la clave seleccionada del menú
   const [token, setToken] = useState(null); // Estado para almacenar el token JWT
   const [validatedToken, setValidatedToken] = useState(false); // Estado para manejar la validación del token
@@ -212,9 +212,11 @@ export const MainApp = () => {
     }
   }, [token, navigate]);
 
-  useEffect(()=>{
-    setCollapsed(true)
-  },[selectedKey])
+  useEffect(() => {
+    if (window.innerWidth <= 768) {
+      setCollapsed(true);
+    }
+  }, [selectedKey]);
 
   return (
     <FAQProvider>
@@ -227,6 +229,7 @@ export const MainApp = () => {
           collapsed={collapsed}
           onCollapse={setCollapsed}
           collapsedWidth="0"
+          trigger={null}
           style={{
             background: "linear-gradient(180deg, #075985 0%, #0369a1 50%, #0284c7 100%)",
             position: "fixed",
@@ -268,11 +271,22 @@ export const MainApp = () => {
             onClick={handleMenuClick}
           />
         </Sider>
-        <Layout>
+
+        {/* Overlay for mobile when sidebar is open */}
+        {!collapsed && (
+          <div 
+            className="mobile-sidebar-overlay"
+            onClick={() => setCollapsed(true)}
+          />
+        )}
+        <Layout className="main-layout">
           {/* <Header style={{ margin:'1rem', padding: 0, background: colorBgContainer }}>
           </Header> */}
-          <CustomHeader setSelectedKey={setSelectedKey} />{" "}
-          {/* Componente de cabecera personalizado */}
+          <CustomHeader 
+            setSelectedKey={setSelectedKey} 
+            collapsed={collapsed} 
+            setCollapsed={setCollapsed} 
+          />{" "}
           <Content
             className="content-main"
           >
@@ -296,12 +310,12 @@ export const MainApp = () => {
                   />
                 </main>
               ) : null}
-              {selectedKey === "2" && <Recetas />}
-              {selectedKey === "3" && <Info />}
-              {selectedKey === "4" && <Ejercicio />}
-              {selectedKey === "15" && <Infografias />}
-              {selectedKey === "16" && <Calendario />}
-              {selectedKey === "17" && <FAQ />}
+              {selectedKey === "2" && <Recetas setSelectedKey={setSelectedKey} />}
+              {selectedKey === "3" && <Info setSelectedKey={setSelectedKey} />}
+              {selectedKey === "4" && <Ejercicio setSelectedKey={setSelectedKey} />}
+              {selectedKey === "15" && <Infografias setSelectedKey={setSelectedKey} />}
+              {selectedKey === "16" && <Calendario setSelectedKey={setSelectedKey} />}
+              {selectedKey === "17" && <FAQ setSelectedKey={setSelectedKey} />}
               {selectedKey === "18" && <FormularioFeedback />}
               {+selectedKey >= 6 && +selectedKey <= 22 && selectedKey !== "13" && selectedKey !== "14" && selectedKey !== "15" && selectedKey !== "16" && selectedKey !== "17" && selectedKey !== "18" && localStorage.getItem("rol") != 3 && (
                 <PanelAdministracion key={selectedKey} selectedKey={selectedKey} />

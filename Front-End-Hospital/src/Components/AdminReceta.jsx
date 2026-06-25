@@ -70,7 +70,7 @@ export const AdminReceta = () => {
           </div>
         </div>
 
-        <Table
+        <Table scroll={{ x: 'max-content' }}
           className="admin-table"
           columns={columns}
           pagination={{ position: ["bottomRight"], pageSize: 8 }}

@@ -66,7 +66,7 @@ const ExcelViewer = ({ filePath, toggleMessage }) => {
       </Button>
       {isVisible && data.length > 0 && (
         <div style={{ overflowX: 'auto' }}>
-          <Table
+          <Table scroll={{ x: 'max-content' }}
             columns={columns}
             dataSource={data}
             pagination={{ pageSize: 10, position: ["bottomRight"] }}
