@@ -38,18 +38,44 @@ export const Infografias = ({ setSelectedKey }) => {
 
   const cargarInfografias = async () => {
     setLoading(true);
-    const data = await getAllInfografias();
-    setInfografias(data);
-    setInfografiasFiltradas(data);
-    setLoading(false);
+    try {
+      const data = await getAllInfografias();
+      if (Array.isArray(data)) {
+        setInfografias(data);
+        setInfografiasFiltradas(data);
+      } else {
+        console.error("Response is not an array:", data);
+        setInfografias([]);
+        setInfografiasFiltradas([]);
+      }
+    } catch (err) {
+      console.error("Error loading infografias:", err);
+      setInfografias([]);
+      setInfografiasFiltradas([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCategoriaChange = async (categoria) => {
     setCategoriaSeleccionada(categoria);
     setLoading(true);
-    const data = categoria === "todas" ? await getAllInfografias() : await getInfografiasByCategoria(categoria);
-    setInfografiasFiltradas(data);
-    setLoading(false);
+    try {
+      const data = categoria === "todas" 
+        ? await getAllInfografias() 
+        : await getInfografiasByCategoria(categoria);
+      if (Array.isArray(data)) {
+        setInfografiasFiltradas(data);
+      } else {
+        console.error("Response is not an array:", data);
+        setInfografiasFiltradas([]);
+      }
+    } catch (err) {
+      console.error("Error filtering infografias:", err);
+      setInfografiasFiltradas([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBusqueda = (value) => {

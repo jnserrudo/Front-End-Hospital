@@ -264,7 +264,7 @@ export const ConversionUnidades = () => {
             <Divider style={{ margin: "24px 0" }} />
 
             <div className="reference-card-title">
-              <Table scroll={{ x: 'max-content' }}Outlined style={{ color: "var(--primary)" }} />
+              <TableOutlined style={{ color: "var(--primary)" }} />
               Medidas Domésticas Comunes (Nutrición)
             </div>
 
