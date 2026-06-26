@@ -13,6 +13,7 @@ import {
   SettingOutlined,
   BarChartOutlined,
   SwapOutlined,
+  MenuFoldOutlined,
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react"; // Importamos ChakraProvider para mantener los estilos de Chakra UI
@@ -265,11 +266,49 @@ export const MainApp = () => {
               flex: 1,
               overflowY: "auto",
               overflowX: "hidden",
-              maxHeight: "calc(100vh - 80px)",
             }}
             items={items}
             onClick={handleMenuClick}
           />
+          {/* Botón para colapsar en la parte inferior */}
+          <div style={{
+            padding: "16px 20px",
+            borderTop: "1px solid rgba(255,255,255,0.1)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexShrink: 0,
+            background: "rgba(0,0,0,0.1)",
+          }}>
+            <button
+              onClick={() => setCollapsed(true)}
+              style={{
+                width: "100%",
+                padding: "10px 16px",
+                background: "rgba(255, 255, 255, 0.15)",
+                border: "none",
+                borderRadius: "var(--radius-md)",
+                color: "white",
+                fontWeight: 600,
+                fontSize: 13,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.25)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+              }}
+            >
+              <MenuFoldOutlined />
+              <span>Cerrar menú</span>
+            </button>
+          </div>
         </Sider>
 
         {/* Overlay for mobile when sidebar is open */}

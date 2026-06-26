@@ -4527,9 +4527,23 @@ body.modal-open .ant-layout-sider-zero-width-trigger {
     gap: 6px !important;
   }
   
-  .cont_login .ant-input,
-  .cont_login .ant-input-password,
   .cont_login .ant-input-affix-wrapper {
+    font-size: 13px !important;
+    height: 38px !important;
+    padding: 8px 11px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  .cont_login .ant-input-affix-wrapper .ant-input {
+    height: 100% !important;
+    padding: 0 !important;
+    font-size: 13px !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .cont_login input.ant-input:not(.ant-input-affix-wrapper input) {
     font-size: 13px !important;
     height: 38px !important;
     padding: 8px 11px !important;
