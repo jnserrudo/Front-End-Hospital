@@ -132,12 +132,13 @@ export const AdminInfografia = () => {
               onChange={(e) => handleSearch(e.target.value)}
               allowClear
             />
-            <Button
-              colorScheme="green"
+            <AntButton
+              type="primary"
+              icon={<PlusOutlined />}
               onClick={() => setShowAdd(true)}
             >
-              Agregar Infografía <PlusOutlined className="icons" />
-            </Button>
+              Agregar Infografía
+            </AntButton>
           </div>
         </div>
 
