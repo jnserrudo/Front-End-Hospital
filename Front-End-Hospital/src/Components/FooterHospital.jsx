@@ -7,9 +7,9 @@ import {
   FacebookOutlined,
 } from "@ant-design/icons";
 
-export const FooterHospital = ({ setSelectedKey }) => {
+export const FooterHospital = ({ setSelectedKey, isHome = false }) => {
   return (
-    <div className="footer">
+    <div className={`footer ${isHome ? "footer--home" : ""}`}>
       <div className="footer-brand">
         <img
           className="logo_hospital_footer"

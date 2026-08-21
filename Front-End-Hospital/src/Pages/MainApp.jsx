@@ -259,56 +259,24 @@ export const MainApp = () => {
             theme="dark"
             defaultSelectedKeys={["1"]}
             mode="inline"
+            className="sider-menu"
             style={{
               background: "transparent",
               border: "none",
               marginTop: 8,
-              flex: 1,
-              overflowY: "auto",
-              overflowX: "hidden",
             }}
             items={items}
             onClick={handleMenuClick}
           />
-          {/* Botón para colapsar en la parte inferior */}
-          <div style={{
-            padding: "16px 20px",
-            borderTop: "1px solid rgba(255,255,255,0.1)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexShrink: 0,
-            background: "rgba(0,0,0,0.1)",
-          }}>
-            <button
-              onClick={() => setCollapsed(true)}
-              style={{
-                width: "100%",
-                padding: "10px 16px",
-                background: "rgba(255, 255, 255, 0.15)",
-                border: "none",
-                borderRadius: "var(--radius-md)",
-                color: "white",
-                fontWeight: 600,
-                fontSize: 13,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.25)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
-              }}
-            >
-              <MenuFoldOutlined />
-              <span>Cerrar menú</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            className="sider-close-btn"
+            onClick={() => setCollapsed(true)}
+            aria-label="Cerrar menú"
+          >
+            <MenuFoldOutlined />
+            <span>Cerrar menú</span>
+          </button>
         </Sider>
 
         {/* Overlay for mobile when sidebar is open */}
@@ -327,7 +295,7 @@ export const MainApp = () => {
             setCollapsed={setCollapsed} 
           />{" "}
           <Content
-            className="content-main"
+            className={`content-main ${selectedKey === "1" ? "content-main--home" : ""}`}
           >
             {/* <Breadcrumb style={{ margin: '16px 0' }}>
               <Breadcrumb.Item>App</Breadcrumb.Item>
@@ -339,7 +307,7 @@ export const MainApp = () => {
                 background: selectedKey === "1" ? "transparent" : colorBgContainer,
                 color: "black",
               }}
-              className={`content-container ${selectedKey !== "1" ? "content-page-padding" : ""}`}
+              className={`content-container ${selectedKey === "1" ? "content-container--home" : "content-page-padding"}`}
             >
               {selectedKey === "1" ? (
                 <main className="main_home">
@@ -362,7 +330,7 @@ export const MainApp = () => {
               {selectedKey === "13"   && <TablasInformativas />}
               {selectedKey === "14"   && <ConversionUnidades/>}
             </div>
-            <FooterHospital setSelectedKey={setSelectedKey} />
+            <FooterHospital setSelectedKey={setSelectedKey} isHome={selectedKey === "1"} />
 
             {/* <Footer style={{ textAlign: "center" }}>
               <FooterHospital />

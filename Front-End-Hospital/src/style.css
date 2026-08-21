@@ -211,6 +211,11 @@ body {
   gap: var(--spacing-4);
   color: white;
   margin-top: var(--spacing-8);
+  flex-shrink: 0;
+}
+
+.footer--home {
+  margin-top: 0;
 }
 
 .footer-section {
@@ -342,15 +347,20 @@ body.modal-open .ant-layout-sider-zero-width-trigger {
   height: 100vh !important;
 }
 
-.ant-layout-sider > div:not(.ant-layout-sider-zero-width-trigger) {
-  flex-shrink: 0 !important;
+.ant-layout-sider .ant-layout-sider-children {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
 }
 
-.ant-layout-sider .ant-menu {
-  flex: 1 !important;
+.ant-layout-sider .sider-menu.ant-menu {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  max-height: calc(100vh - 80px) !important;
   scrollbar-width: thin !important;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent !important;
 }
@@ -370,6 +380,35 @@ body.modal-open .ant-layout-sider-zero-width-trigger {
 
 .ant-layout-sider .ant-menu::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5) !important;
+}
+
+.sider-close-btn {
+  flex-shrink: 0;
+  margin-top: auto;
+  width: 100%;
+  padding: 14px 20px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.sider-close-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sider-close-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: -2px;
 }
 
 /* ============================================================
@@ -410,30 +449,51 @@ body.modal-open .ant-layout-sider-zero-width-trigger {
 }
 
 /* ============================================================
-   PÁGINA DE INICIO
+   PÁGINA DE INICIO / LOGIN
    ============================================================ */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--primary-dark);
+}
+
 .main_home {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 72px);
+  width: 100%;
   overflow: hidden;
   background-color: var(--primary-dark);
-  padding-top: var(--spacing-12);
+  padding: var(--spacing-6) 0;
+}
+
+/* Login: llena todo el alto bajo el header (sin footer) */
+.main_home--fullscreen {
+  flex: 1 1 auto;
+  min-height: calc(100vh - 72px);
+}
+
+/* Inicio logueado: llena el espacio entre header y footer */
+.content-container--home .main_home {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
 }
 
 .img_fondo {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center center;
   filter: brightness(0.50);
   display: block;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .home-nav-overlay {
@@ -520,11 +580,8 @@ body.modal-open .ant-layout-sider-zero-width-trigger {
   padding: var(--spacing-8);
   width: 400px;
   max-width: calc(100vw - 2rem);
-  position: absolute;
+  position: relative;
   z-index: 100;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4);
@@ -1448,14 +1505,36 @@ textarea.input_floating {
   min-height: calc(100vh - 160px);
 }
 
+.content-container--home {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .main-layout {
   transition: padding-left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .content-main {
   flex: 1;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+}
+
+.content-main--home {
+  background: var(--primary-dark);
+  min-height: 0;
+}
+
+.content-main--home.ant-layout-content {
+  background: var(--primary-dark) !important;
 }
 
 @media (min-width: 769px) {
@@ -4578,16 +4657,37 @@ body.modal-open .ant-layout-sider-zero-width-trigger {
     font-size: 11px !important;
   }
   
-  /* Home page responsive */
+  /* Home / login responsive */
   .main_home {
-    min-height: 100vh !important;
-    padding-top: var(--spacing-4) !important;
+    padding: var(--spacing-4) 0 !important;
     overflow-x: hidden !important;
-    width: 100vw !important;
+    width: 100% !important;
+  }
+
+  .main_home--fullscreen {
+    min-height: calc(100vh - 64px) !important;
+  }
+
+  .content-container--home .main_home {
+    min-height: 0 !important;
+    height: 100% !important;
   }
   
   .img_fondo {
-    object-position: center top !important;
-    filter: brightness(0.4) !important;
+    object-position: center center !important;
+    filter: brightness(0.45) !important;
+  }
+
+  .content-main--home {
+    background: var(--primary-dark) !important;
+  }
+
+  .footer--home {
+    margin-top: 0 !important;
+  }
+
+  .login-page {
+    min-height: 100vh;
+    background-color: var(--primary-dark);
   }
 }
