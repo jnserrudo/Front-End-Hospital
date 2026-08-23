@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Card, Select, Input, Spin, Row, Col, Tag, Empty, Badge, Alert, Button } from "antd";
-import { PictureOutlined, FilePdfOutlined, SearchOutlined, AppstoreOutlined, ExportOutlined, InfoCircleOutlined, SettingOutlined } from "@ant-design/icons";
+import { PictureOutlined, FilePdfOutlined, SearchOutlined, ExportOutlined, InfoCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { getAllInfografias, getInfografiasByCategoria } from "../services/infografia-services";
 import { getMediaUrl } from "../services/config";
+import { HospitalIcon } from "../Components/HospitalIcon";
+import { PageHeader } from "../Components/PageHeader";
 
 const { Meta } = Card;
 
@@ -98,31 +100,33 @@ export const Infografias = ({ setSelectedKey }) => {
 
   return (
     <div className="page-wrapper">
-      <div className="page-header">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: "var(--radius-md)",
-            background: "var(--primary-100)", display: "flex",
-            alignItems: "center", justifyContent: "center",
-            color: "var(--primary)", fontSize: 24,
-          }}>
-            <AppstoreOutlined />
-          </div>
-          <div>
-            <h2 className="page-title">Infografías de Dietas</h2>
-            <p className="page-subtitle">
-              Material visual sobre nutrición y planes alimentarios
-              {infografiasFiltradas.length > 0 && (
-                <Badge
-                  count={infografiasFiltradas.length}
-                  style={{ backgroundColor: "var(--primary)", marginLeft: 8 }}
-                />
-              )}
-            </p>
-          </div>
-        </div>
-        <div className="page-title-bar" />
-      </div>
+      <PageHeader
+        icon={<HospitalIcon name="platoNutricion" size={32} alt="Infografías" />}
+        title="Infografías de Dietas"
+        subtitle={
+          <>
+            Material visual sobre nutrición y planes alimentarios
+            {infografiasFiltradas.length > 0 && (
+              <Badge
+                count={infografiasFiltradas.length}
+                style={{ backgroundColor: "var(--primary)", marginLeft: 8 }}
+              />
+            )}
+          </>
+        }
+        actions={
+          isAdmin && setSelectedKey ? (
+            <Button
+              type="primary"
+              icon={<SettingOutlined />}
+              onClick={() => setSelectedKey("19")}
+              className="admin-action-btn"
+            >
+              <span className="btn-text">Administrar</span>
+            </Button>
+          ) : null
+        }
+      />
 
       <div className="filter-bar">
         <Input
@@ -130,26 +134,15 @@ export const Infografias = ({ setSelectedKey }) => {
           placeholder="Buscar infografía..."
           value={busqueda}
           onChange={(e) => handleBusqueda(e.target.value)}
-          style={{ flex: 1, minWidth: 200 }}
+          style={{ flex: 1, minWidth: 0 }}
           allowClear
         />
         <Select
           value={categoriaSeleccionada}
           onChange={handleCategoriaChange}
           options={CATEGORIAS}
-          style={{ minWidth: 200 }}
+          style={{ flex: "1 1 140px", minWidth: 0, maxWidth: "100%" }}
         />
-        {isAdmin && setSelectedKey && (
-          <Button
-            type="primary"
-            icon={<SettingOutlined />}
-            onClick={() => setSelectedKey("19")}
-            className="admin-action-btn"
-            size="large"
-          >
-            <span className="btn-text">Administrar</span>
-          </Button>
-        )}
       </div>
 
       <Alert

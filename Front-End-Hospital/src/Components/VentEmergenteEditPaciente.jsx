@@ -23,9 +23,7 @@ export const VentEmergenteEditPaciente = ({
       styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
       destroyOnClose
     >
-      <div style={{ paddingTop: 16 }}>
-        <EditPaciente onCloseEdit={onClose} paciente={pacienteSelected} />
-      </div>
+      <EditPaciente onCloseEdit={onClose} paciente={pacienteSelected} />
     </Modal>
   );
 };

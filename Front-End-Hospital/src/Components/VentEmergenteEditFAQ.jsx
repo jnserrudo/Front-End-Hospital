@@ -19,9 +19,7 @@ export const VentEmergenteEditFAQ = ({ isOpen, faqSelected, onClose }) => {
       styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
       destroyOnClose
     >
-      <div style={{ paddingTop: 16 }}>
-        <EditFAQ faq={faqSelected} onCloseEdit={onClose} />
-      </div>
+      <EditFAQ faq={faqSelected} onCloseEdit={onClose} />
     </Modal>
   );
 };

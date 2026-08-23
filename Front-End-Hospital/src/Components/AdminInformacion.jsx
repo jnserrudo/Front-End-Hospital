@@ -1,12 +1,13 @@
 import React, { useContext, useState } from "react";
-import { Table, Button, Input } from "antd";
-import { PlusOutlined, SearchOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 
 import InformacionContext from "../Contexts/InformacionContext";
 import { VentEmergenteAddInformacion } from "./VentEmergenteAddInformacion";
 import { VentEmergenteEditInformacion } from "./VentEmergenteEditInformacion";
 import { inhabilitarInformacion } from "../services/informacion-services";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
+import { AdminEntityList } from "./AdminEntityList";
+
 export const AdminInformacion = () => {
   const {
     db = [],
@@ -27,53 +28,36 @@ export const AdminInformacion = () => {
   } = useContext(InformacionContext);
 
   const inhabilitarRegistro = async (id) => {
-    const result = await inhabilitarInformacion(id);
+    await inhabilitarInformacion(id);
   };
 
   const [informacionSearch, setInformacionSearch] = useState("");
 
   return (
-    <div className="admin-page-wrapper">
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <div className="admin-card-title">
-            <h3>Listado de Información</h3>
-            <span className="admin-badge">{db.length} en total</span>
-          </div>
-          <div className="admin-card-actions">
-            <Input
-              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
-              placeholder="Buscar información..."
-              value={informacionSearch}
-              onChange={(e) => {
-                setInformacionSearch(e.target.value);
-                handleSearch(e.target.value, db);
-              }}
-              allowClear
-            />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setShowVentEmergenteAddInformacion(true)}
-              loading={loadingAction}
-              disabled={loadingAction}
-            >
-              Agregar Información
-            </Button>
-          </div>
-        </div>
-
-        <Table scroll={{ x: 'max-content' }}
-          className="admin-table"
-          columns={columns}
-          pagination={{ position: ["bottomRight"], pageSize: 8 }}
-          dataSource={dbSearch.length > 0 ? dbSearch : db}
-          loading={loading}
-          rowKey="id"
-          size="middle"
-          locale={{ emptyText: "Sin registros" }}
-        />
-      </div>
+    <>
+      <AdminEntityList
+        title="Listado de Información"
+        count={db.length}
+        searchProps={{
+          placeholder: "Buscar información...",
+          value: informacionSearch,
+          onChange: (e) => {
+            setInformacionSearch(e.target.value);
+            handleSearch(e.target.value, db);
+          },
+        }}
+        addButton={{
+          label: "Agregar Información",
+          icon: <PlusOutlined />,
+          onClick: () => setShowVentEmergenteAddInformacion(true),
+          loading: loadingAction,
+          disabled: loadingAction,
+        }}
+        columns={columns}
+        dataSource={dbSearch.length > 0 ? dbSearch : db}
+        loading={loading}
+        rowKey="id"
+      />
 
       <VentEmergenteAddInformacion
         isOpen={showVentEmergenteAddInformacion}
@@ -92,6 +76,6 @@ export const AdminInformacion = () => {
         onClose={() => setShowVentEmergenteDelete(false)}
         handleSi={() => inhabilitarRegistro(idInformacion)}
       />
-    </div>
+    </>
   );
 };

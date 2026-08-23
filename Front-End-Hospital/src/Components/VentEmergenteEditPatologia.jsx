@@ -23,9 +23,7 @@ export const VentEmergenteEditPatologia = ({
       styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
       destroyOnClose
     >
-      <div style={{ paddingTop: 16 }}>
-        <EditPatologia onCloseEdit={onClose} patologia={patologiaSelected} />
-      </div>
+      <EditPatologia onCloseEdit={onClose} patologia={patologiaSelected} />
     </Modal>
   );
 };

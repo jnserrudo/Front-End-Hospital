@@ -11,7 +11,7 @@ export const Home = () => {
 
   return (
     <div className="login-page">
-      <Header/>
+      <Header hideMenu />
       <main className="main_home main_home--fullscreen">
         <img src="/fondo.jpg" className="img_fondo" alt="" onError={(e) => e.target.style.display = 'none'} />
         {/* {bandLogin?<Login/>:null}  */}

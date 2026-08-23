@@ -1,12 +1,13 @@
 import React, { useContext, useState } from "react";
-import { Table, Button, Input } from "antd";
-import { PlusOutlined, SearchOutlined, AppstoreOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 
 import CategoriaContext from "../Contexts/CategoriaContext";
 import { VentEmergenteAddCategoria } from "./VentEmergenteAddCategoria";
 import { VentEmergenteEditCategoria } from "./VentEmergenteEditCategoria";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { inhabilitarCategoria } from "../services/categoria-services";
+import { AdminEntityList } from "./AdminEntityList";
+
 export const AdminCategoria = () => {
   const {
     db,
@@ -27,53 +28,36 @@ export const AdminCategoria = () => {
   } = useContext(CategoriaContext);
 
   const inhabilitarRegistro = async (id) => {
-    const result = await inhabilitarCategoria(id);
+    await inhabilitarCategoria(id);
   };
 
   const [categoriaSearch, setCategoriaSearch] = useState("");
 
   return (
-    <div className="admin-page-wrapper">
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <div className="admin-card-title">
-            <h3>Listado de Categorías</h3>
-            <span className="admin-badge">{db.length} en total</span>
-          </div>
-          <div className="admin-card-actions">
-            <Input
-              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
-              placeholder="Buscar categoría..."
-              value={categoriaSearch}
-              onChange={(e) => {
-                setCategoriaSearch(e.target.value);
-                handleSearch(e.target.value);
-              }}
-              allowClear
-            />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setShowVentEmergenteAddCategoria(true)}
-              loading={loadingAction}
-              disabled={loadingAction}
-            >
-              Agregar Categoría
-            </Button>
-          </div>
-        </div>
-
-        <Table scroll={{ x: 'max-content' }}
-          className="admin-table"
-          columns={columns}
-          pagination={{ position: ["bottomRight"], pageSize: 8 }}
-          dataSource={dbSearch.length > 0 ? dbSearch : db}
-          loading={loading}
-          rowKey="id"
-          size="middle"
-          locale={{ emptyText: "Sin registros" }}
-        />
-      </div>
+    <>
+      <AdminEntityList
+        title="Listado de Categorías"
+        count={db.length}
+        searchProps={{
+          placeholder: "Buscar categoría...",
+          value: categoriaSearch,
+          onChange: (e) => {
+            setCategoriaSearch(e.target.value);
+            handleSearch(e.target.value);
+          },
+        }}
+        addButton={{
+          label: "Agregar Categoría",
+          icon: <PlusOutlined />,
+          onClick: () => setShowVentEmergenteAddCategoria(true),
+          loading: loadingAction,
+          disabled: loadingAction,
+        }}
+        columns={columns}
+        dataSource={dbSearch.length > 0 ? dbSearch : db}
+        loading={loading}
+        rowKey="id"
+      />
 
       <VentEmergenteAddCategoria
         isOpen={showVentEmergenteAddCategoria}
@@ -92,6 +76,6 @@ export const AdminCategoria = () => {
         onClose={() => setShowVentEmergenteDelete(false)}
         handleSi={() => inhabilitarRegistro(idCategoria)}
       />
-    </div>
+    </>
   );
 };

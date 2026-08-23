@@ -19,9 +19,7 @@ export const VentEmergenteEditCategoria = ({ isOpen, onClose, categoriaSelected 
       styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
       destroyOnClose
     >
-      <div style={{ paddingTop: 16 }}>
-        <EditCategoria onCloseEdit={onClose} categoria={categoriaSelected} />
-      </div>
+      <EditCategoria onCloseEdit={onClose} categoria={categoriaSelected} />
     </Modal>
   );
 };

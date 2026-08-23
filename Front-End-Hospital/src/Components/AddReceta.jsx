@@ -223,7 +223,7 @@ export const AddReceta = ({ onClosePadre }) => {
   };
 
   return (
-    <div className="form-container-receta">
+    <div className="form-container-receta modal-form-dense">
 
       <Tabs 
         activeKey={activeTab} 
@@ -315,92 +315,100 @@ export const AddReceta = ({ onClosePadre }) => {
 
           <Divider />
 
-          <div className="form-section">
-            <div className="form-section-title">Imagen</div>
-            <div className="form-field">
-              <label className="form-label">
-                Foto de la receta
-              </label>
-              
-              {localPreview && !imageError ? (
-                <div className="custom-image-preview-container">
-                  <img 
-                    src={localPreview} 
-                    alt={recetaToInsert?.nombre || "Foto de la receta"} 
-                    className="custom-image-preview"
-                    onError={() => setImageError(true)}
-                  />
-                  <div className="custom-image-overlay">
-                    <div className="custom-image-actions">
-                      <Upload
-                        accept="image/*"
-                        beforeUpload={beforeUpload}
-                        showUploadList={false}
-                        onChange={handleFileChange}
-                        fileList={fileList}
-                        maxCount={1}
-                      >
-                        <Button type="primary" icon={<UploadOutlined />}>Cambiar Imagen</Button>
-                      </Upload>
-                      <Button 
-                        danger 
-                        type="primary" 
-                        icon={<DeleteOutlined />} 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFileList([]);
-                          setLocalPreview(null);
-                          setImageError(false);
-                          handleChangeInputInsert({ target: { name: "urlFoto", value: "" } });
-                        }}
-                      >
-                        Eliminar Imagen
-                      </Button>
+          <div className="form-section form-receta-media-row">
+            <Row gutter={[16, 12]} align="top">
+              <Col xs={24} md={10}>
+                <div className="form-field">
+                  <label className="form-label">Foto de la receta</label>
+
+                  {localPreview && !imageError ? (
+                    <div className="custom-image-preview-container">
+                      <img
+                        src={localPreview}
+                        alt={recetaToInsert?.nombre || "Foto de la receta"}
+                        className="custom-image-preview"
+                        onError={() => setImageError(true)}
+                      />
+                      <div className="custom-image-overlay">
+                        <div className="custom-image-actions">
+                          <Upload
+                            accept="image/*"
+                            beforeUpload={beforeUpload}
+                            showUploadList={false}
+                            onChange={handleFileChange}
+                            fileList={fileList}
+                            maxCount={1}
+                          >
+                            <Button type="primary" icon={<UploadOutlined />}>
+                              Cambiar
+                            </Button>
+                          </Upload>
+                          <Button
+                            danger
+                            type="primary"
+                            icon={<DeleteOutlined />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFileList([]);
+                              setLocalPreview(null);
+                              setImageError(false);
+                              handleChangeInputInsert({
+                                target: { name: "urlFoto", value: "" },
+                              });
+                            }}
+                          >
+                            Eliminar
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <Upload
+                      accept="image/*"
+                      beforeUpload={beforeUpload}
+                      showUploadList={false}
+                      onChange={handleFileChange}
+                      fileList={fileList}
+                      maxCount={1}
+                    >
+                      <div className="custom-image-upload-dropzone">
+                        {imageError ? (
+                          <div className="custom-image-placeholder-error">
+                            <span className="placeholder-icon">
+                              <WarningOutlined
+                                style={{ color: "var(--danger)" }}
+                              />
+                            </span>
+                            <span className="placeholder-title">
+                              {recetaToInsert?.nombre || "Sin imagen"}
+                            </span>
+                            <span className="placeholder-subtitle">
+                              Subí otra imagen
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="custom-image-placeholder-empty">
+                            <span className="placeholder-icon">
+                              <InboxOutlined
+                                style={{ color: "var(--primary)" }}
+                              />
+                            </span>
+                            <span className="placeholder-title font-semibold">
+                              Subir foto
+                            </span>
+                            <span className="placeholder-subtitle">
+                              JPG, PNG, WEBP · máx 5MB
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </Upload>
+                  )}
                 </div>
-              ) : (
-                <Upload
-                  accept="image/*"
-                  beforeUpload={beforeUpload}
-                  showUploadList={false}
-                  onChange={handleFileChange}
-                  fileList={fileList}
-                  maxCount={1}
-                >
-                  <div className="custom-image-upload-dropzone">
-                    {imageError ? (
-                      <div className="custom-image-placeholder-error">
-                        <span className="placeholder-icon">
-                          <WarningOutlined style={{ color: 'var(--danger)' }} />
-                        </span>
-                        <span className="placeholder-title">{recetaToInsert?.nombre || "Sin imagen"}</span>
-                        <span className="placeholder-subtitle">Imagen no disponible localmente</span>
-                        <Button type="dashed" size="small" style={{ marginTop: 12 }}>Subir otra imagen</Button>
-                      </div>
-                    ) : (
-                      <div className="custom-image-placeholder-empty">
-                        <span className="placeholder-icon">
-                          <InboxOutlined style={{ color: 'var(--primary)' }} />
-                        </span>
-                        <span className="placeholder-title font-semibold">Subir foto de la receta</span>
-                        <span className="placeholder-subtitle">Formatos: JPG, PNG, WEBP. Máx 5MB</span>
-                      </div>
-                    )}
-                  </div>
-                </Upload>
-              )}
-              <div className="field-help">Formatos: JPG, PNG, WEBP. Max 5MB</div>
-            </div>
-          </div>
+              </Col>
 
-          <Divider />
-
-          <div className="form-section">
-            <div className="form-section-title">Clasificación</div>
-            
-            <Row gutter={[16, 16]}>
-              <Col xs={24} md={12}>
+              <Col xs={24} md={14}>
+                <div className="form-section-title">Clasificación</div>
                 <div className="form-field">
                   <label className="form-label">
                     Patologías <span className="required">*</span>
@@ -409,16 +417,19 @@ export const AddReceta = ({ onClosePadre }) => {
                     mode="multiple"
                     placeholder="Seleccione patologías"
                     value={recetaToInsert?.idPatologias || []}
-                    onChange={(value) => handleChangeSelectInsert({ target: { name: "idPatologias", value } })}
+                    onChange={(value) =>
+                      handleChangeSelectInsert({
+                        target: { name: "idPatologias", value },
+                      })
+                    }
                     options={patologiasxRecetasAdd}
                     maxTagCount="responsive"
                     className={errors.idPatologias ? "input-error" : ""}
                   />
-                  {errors.idPatologias && <div className="error-message"> {errors.idPatologias}</div>}
+                  {errors.idPatologias && (
+                    <div className="error-message"> {errors.idPatologias}</div>
+                  )}
                 </div>
-              </Col>
-
-              <Col xs={24} md={12}>
                 <div className="form-field">
                   <label className="form-label">
                     Categorías <span className="required">*</span>
@@ -427,12 +438,18 @@ export const AddReceta = ({ onClosePadre }) => {
                     mode="multiple"
                     placeholder="Seleccione categorías"
                     value={recetaToInsert?.idCategorias || []}
-                    onChange={(value) => handleChangeSelectCategoriasInsert({ target: { name: "idCategorias", value } })}
+                    onChange={(value) =>
+                      handleChangeSelectCategoriasInsert({
+                        target: { name: "idCategorias", value },
+                      })
+                    }
                     options={categoriasxRecetasAdd}
                     maxTagCount="responsive"
                     className={errors.idCategorias ? "input-error" : ""}
                   />
-                  {errors.idCategorias && <div className="error-message"> {errors.idCategorias}</div>}
+                  {errors.idCategorias && (
+                    <div className="error-message"> {errors.idCategorias}</div>
+                  )}
                 </div>
               </Col>
             </Row>

@@ -3,21 +3,15 @@ import { Header as CustomHeader } from "../Components/Header"; // Renombramos el
 import { Breadcrumb, Layout, Menu, theme } from "antd"; // Importamos los componentes necesarios de Ant Design
 import {
   HomeOutlined,
-  CoffeeOutlined,
-  ReadOutlined,
-  ThunderboltOutlined,
-  PictureOutlined,
   CalendarOutlined,
-  QuestionCircleOutlined,
   MessageOutlined,
   SettingOutlined,
-  BarChartOutlined,
-  SwapOutlined,
   MenuFoldOutlined,
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react"; // Importamos ChakraProvider para mantener los estilos de Chakra UI
 import { ListCard } from "../Components/ListCard";
+import { HospitalIcon } from "../Components/HospitalIcon";
 import { Ejercicio } from "./Ejercicio";
 import { Info } from "./Info";
 import { Recetas } from "./Recetas";
@@ -33,6 +27,7 @@ import { Calendario } from "./Calendario";
 import { FormularioFeedback } from "./FormularioFeedback";
 import { FAQProvider } from "../Contexts/FAQContext";
 import { CalendarioProvider } from "../Contexts/CalendarioContext";
+import { useIdleLogout } from "../hooks/useIdleLogout";
 
 const { Header, Content, Footer, Sider } = Layout; // Desestructuramos los componentes de Layout de Ant Design
 
@@ -46,32 +41,37 @@ function getItem(label, key, icon, children) {
   };
 }
 
+const menuIcon = (name) => (
+  <HospitalIcon name={name} size={20} className="sider-menu-icon" />
+);
+
 // Definimos los elementos del menú de Ant Design
 const items = [
   getItem("Inicio", "1", <HomeOutlined />),
-  getItem("Recetas", "2", <CoffeeOutlined />),
-  getItem("Informarse", "3", <ReadOutlined />),
-  getItem("Ejercitarse", "4", <ThunderboltOutlined />),
-  getItem("Infografías", "15", <PictureOutlined />),
+  getItem("Recetas", "2", menuIcon("recetas")),
+  getItem("Informarse", "3", menuIcon("consultaMedica")),
+  getItem("Ejercitarse", "4", menuIcon("videosEjercicio")),
+  getItem("Infografías", "15", menuIcon("platoNutricion")),
   getItem("Calendario", "16", <CalendarOutlined />),
-  getItem("FAQ", "17", <QuestionCircleOutlined />),
+  getItem("FAQ", "17", menuIcon("informacion")),
   getItem("Feedback", "18", <MessageOutlined />),
   getItem("Administración", "5", <SettingOutlined />, [
-    getItem("Patologia", "6"),
-    getItem("Recetas", "7"),
-    getItem("Informacion", "8"),
-    getItem("Ejercicio", "9"),
+    getItem("Patologia", "6", menuIcon("patolDiabetes")),
+    getItem("Recetas", "7", menuIcon("recetas")),
+    getItem("Informacion", "8", menuIcon("infoPrueba")),
+    getItem("Ejercicio", "9", menuIcon("rutinas")),
     getItem("Usuario", "10"),
-    getItem("Paciente", "11"),
+    getItem("Paciente", "11", menuIcon("fichaSalud")),
     getItem("Categorias", "12"),
-    getItem("Infografías", "19"),
-    getItem("FAQ", "20"),
-    getItem("Calendario", "21"),
-    getItem("Autoevaluaciones", "22"),
+    getItem("Infografías", "19", menuIcon("platoNutricion")),
+    getItem("FAQ", "20", menuIcon("informacion")),
+    getItem("Calendario", "21", <CalendarOutlined />),
+    getItem("Autoevaluaciones", "22", menuIcon("fichaSalud")),
   ]),
-  getItem("Tablas", "13", <BarChartOutlined />),
-  getItem("Conversor Un.Med.", "14", <SwapOutlined />),
+  getItem("Tablas", "13", menuIcon("tablasInfo")),
+  getItem("Conversor Un.Med.", "14", menuIcon("conversor")),
 ];
+
 
 // Estilos activos personalizados para Chakra UI
 const activeLabelStyles = {
@@ -186,38 +186,33 @@ export const MainApp = () => {
     };
   }, [navigate]);
   
-  // Efecto para validar el token
+  // Efecto para validar el token (estado UI)
   useEffect(() => {
     if (token) {
       setValidatedToken(token.exp * 1000 > Date.now());
     }
   }, [token]);
 
-  // Efecto para manejar la redirección si el token no es válido
-  useEffect(() => {
-    if (token) {
-      const isValid = token.exp * 1000 > Date.now();
-      setValidatedToken(isValid);
-
-      if (!isValid) {
-        navigate("/");
-        console.log('al login por invalido')
-      } else {
-        const timeoutId = setTimeout(() => {
-          navigate("/");
-          console.log('al login por timeoutid')
-        }, token.exp * 1000 - Date.now());
-
-        return () => clearTimeout(timeoutId);
-      }
-    }
-  }, [token, navigate]);
+  // Logout solo por inactividad (o JWT ya vencido al montar) — no por TTL fijo mientras hay uso
+  useIdleLogout({ token, enabled: Boolean(token) });
 
   useEffect(() => {
     if (window.innerWidth <= 768) {
       setCollapsed(true);
     }
   }, [selectedKey]);
+
+  // Colapsar sider al pasar a móvil / al rotar dispositivo
+  useEffect(() => {
+    const MOBILE_MAX = 1024;
+    const onResize = () => {
+      if (window.innerWidth <= MOBILE_MAX) {
+        setCollapsed(true);
+      }
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   return (
     <FAQProvider>
@@ -231,11 +226,16 @@ export const MainApp = () => {
           onCollapse={setCollapsed}
           collapsedWidth="0"
           trigger={null}
+          breakpoint="lg"
+          onBreakpoint={(broken) => {
+            if (broken) setCollapsed(true);
+          }}
           style={{
             background: "linear-gradient(180deg, #075985 0%, #0369a1 50%, #0284c7 100%)",
             position: "fixed",
             zIndex: 110,
-            height: "100vh",
+            height: "100%",
+            maxHeight: "100dvh",
             boxShadow: "4px 0 20px rgba(0,0,0,0.15)",
             display: "flex",
             flexDirection: "column",

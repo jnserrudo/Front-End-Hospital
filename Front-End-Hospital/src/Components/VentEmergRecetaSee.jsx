@@ -16,12 +16,13 @@ export const VentEmergenteRecetaSee = ({ isOpen, onClose, recetaSelected }) => {
       onCancel={onClose}
       footer={null}
       width={800}
-      styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
+      styles={{
+        header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 },
+        body: { paddingTop: 8 },
+      }}
       destroyOnClose
     >
-      <div style={{ paddingTop: 16 }}>
-        <RecetaSee receta={recetaSelected} />
-      </div>
+      <RecetaSee receta={recetaSelected} />
     </Modal>
   );
 };

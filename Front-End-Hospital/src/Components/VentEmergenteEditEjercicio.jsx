@@ -23,9 +23,7 @@ export const VentEmergenteEditEjercicio = ({
       styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
       destroyOnClose
     >
-      <div style={{ paddingTop: 16 }}>
-        <EditEjercicio onCloseEdit={onClose} ejercicio={ejercicioSelected} />
-      </div>
+      <EditEjercicio onCloseEdit={onClose} ejercicio={ejercicioSelected} />
     </Modal>
   );
 };

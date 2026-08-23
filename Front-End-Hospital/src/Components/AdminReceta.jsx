@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Table, Button, Input } from "antd";
-import { PlusOutlined, SearchOutlined, FileTextOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import RecetaContext from "../Contexts/RecetaContext";
 import { VentEmergenteAddReceta } from "./VentEmergenteAddReceta";
 import { VentEmergenteEditReceta } from "./VentEmergenteEditReceta";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { inhabilitarRecetas } from "../services/recetas-services";
+import { AdminEntityList } from "./AdminEntityList";
 
 export const AdminReceta = () => {
   const {
@@ -40,47 +40,30 @@ export const AdminReceta = () => {
   }, []);
 
   return (
-    <div className="admin-page-wrapper">
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <div className="admin-card-title">
-            <h3>Listado de Recetas</h3>
-            <span className="admin-badge">{db.length} en total</span>
-          </div>
-          <div className="admin-card-actions">
-            <Input
-              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
-              placeholder="Buscar receta..."
-              value={recetaSearch}
-              onChange={(e) => {
-                setRecetaSearch(e.target.value);
-                handleSearch(e.target.value, db);
-              }}
-              allowClear
-            />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setShowVentEmergenteAddReceta(true)}
-              loading={loadingAction}
-              disabled={loadingAction}
-            >
-              Agregar Receta
-            </Button>
-          </div>
-        </div>
-
-        <Table scroll={{ x: 'max-content' }}
-          className="admin-table"
-          columns={columns}
-          pagination={{ position: ["bottomRight"], pageSize: 8 }}
-          dataSource={dbSearch.length > 0 ? dbSearch : db}
-          loading={loading}
-          rowKey="id"
-          size="middle"
-          locale={{ emptyText: "Sin registros" }}
-        />
-      </div>
+    <>
+      <AdminEntityList
+        title="Listado de Recetas"
+        count={db.length}
+        searchProps={{
+          placeholder: "Buscar receta...",
+          value: recetaSearch,
+          onChange: (e) => {
+            setRecetaSearch(e.target.value);
+            handleSearch(e.target.value, db);
+          },
+        }}
+        addButton={{
+          label: "Agregar Receta",
+          icon: <PlusOutlined />,
+          onClick: () => setShowVentEmergenteAddReceta(true),
+          loading: loadingAction,
+          disabled: loadingAction,
+        }}
+        columns={columns}
+        dataSource={dbSearch.length > 0 ? dbSearch : db}
+        loading={loading}
+        rowKey="id"
+      />
 
       <VentEmergenteAddReceta
         isOpen={showVentEmergenteAddReceta}
@@ -97,6 +80,6 @@ export const AdminReceta = () => {
         onClose={() => setShowVentEmergenteDelete(false)}
         handleSi={() => inhabilitarRegistro(idReceta)}
       />
-    </div>
+    </>
   );
 };

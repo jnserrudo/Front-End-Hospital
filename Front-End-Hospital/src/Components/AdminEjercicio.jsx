@@ -1,12 +1,13 @@
 import React, { useContext, useState } from "react";
-import { Table, Button, Input } from "antd";
-import { PlusOutlined, SearchOutlined, ThunderboltOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 
 import EjercicioContext from "../Contexts/EjercicioContext";
 import { VentEmergenteAddEjercicio } from "./VentEmergenteAddEjercicio";
 import { VentEmergenteEditEjercicio } from "./VentEmergenteEditEjercicio";
 import { inhabilitarEjercicio } from "../services/ejercicio-services";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
+import { AdminEntityList } from "./AdminEntityList";
+
 export const AdminEjercicio = () => {
   const {
     db = [],
@@ -27,52 +28,35 @@ export const AdminEjercicio = () => {
   } = useContext(EjercicioContext);
 
   const inhabilitarRegistro = async (id) => {
-    const result = await inhabilitarEjercicio(id);
+    await inhabilitarEjercicio(id);
   };
   const [ejercicioSearch, setEjercicioSearch] = useState("");
 
   return (
-    <div className="admin-page-wrapper">
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <div className="admin-card-title">
-            <h3>Listado de Ejercicios</h3>
-            <span className="admin-badge">{db.length} en total</span>
-          </div>
-          <div className="admin-card-actions">
-            <Input
-              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
-              placeholder="Buscar ejercicio..."
-              value={ejercicioSearch}
-              onChange={(e) => {
-                setEjercicioSearch(e.target.value);
-                handleSearch(e.target.value, db);
-              }}
-              allowClear
-            />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setShowVentEmergenteAddEjercicio(true)}
-              loading={loadingAction}
-              disabled={loadingAction}
-            >
-              Agregar Ejercicio
-            </Button>
-          </div>
-        </div>
-
-        <Table scroll={{ x: 'max-content' }}
-          className="admin-table"
-          columns={columns}
-          pagination={{ position: ["bottomRight"], pageSize: 8 }}
-          dataSource={dbSearch.length > 0 ? dbSearch : db}
-          loading={loading}
-          rowKey="id"
-          size="middle"
-          locale={{ emptyText: "Sin registros" }}
-        />
-      </div>
+    <>
+      <AdminEntityList
+        title="Listado de Ejercicios"
+        count={db.length}
+        searchProps={{
+          placeholder: "Buscar ejercicio...",
+          value: ejercicioSearch,
+          onChange: (e) => {
+            setEjercicioSearch(e.target.value);
+            handleSearch(e.target.value, db);
+          },
+        }}
+        addButton={{
+          label: "Agregar Ejercicio",
+          icon: <PlusOutlined />,
+          onClick: () => setShowVentEmergenteAddEjercicio(true),
+          loading: loadingAction,
+          disabled: loadingAction,
+        }}
+        columns={columns}
+        dataSource={dbSearch.length > 0 ? dbSearch : db}
+        loading={loading}
+        rowKey="id"
+      />
 
       <VentEmergenteAddEjercicio
         isOpen={showVentEmergenteAddEjercicio}
@@ -91,6 +75,6 @@ export const AdminEjercicio = () => {
         onClose={() => setShowVentEmergenteDelete(false)}
         handleSi={() => inhabilitarRegistro(idEjercicio)}
       />
-    </div>
+    </>
   );
 };

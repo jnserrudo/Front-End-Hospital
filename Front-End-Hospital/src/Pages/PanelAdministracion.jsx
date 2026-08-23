@@ -12,6 +12,7 @@ import { AdminInfografia } from "../Components/AdminInfografia";
 import { AdminFAQ } from "../Components/AdminFAQ";
 import { AdminCalendario } from "../Components/AdminCalendario";
 import { AdminAutoevaluacion } from "../Components/AdminAutoevaluacion";
+import { PageHeader } from "../Components/PageHeader";
 
 const PANEL_LABELS = {
   "6": "Patologías",
@@ -45,92 +46,36 @@ export const PanelAdministracion = ({ selectedKey }) => {
   const label = PANEL_LABELS[selectedKey] || "Administración";
 
   return (
-    <div className="page-wrapper">
-      <div className="page-header">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: "var(--radius-md)",
-            background: "var(--primary-100)", display: "flex",
-            alignItems: "center", justifyContent: "center",
-            color: "var(--primary)", fontSize: 24,
-          }}>
-            <SettingOutlined />
-          </div>
-          <div>
-            <h2 className="page-title">Administración — {label}</h2>
-            <p className="page-subtitle">Gestión de registros del sistema</p>
-          </div>
-        </div>
-        <div className="page-title-bar" />
-      </div>
+    <div className="page-wrapper page-wrapper--admin">
+      <PageHeader
+        icon={<SettingOutlined />}
+        title={`Administración — ${label}`}
+        subtitle="Gestión de registros del sistema"
+      />
 
       {PANEL_HELP[selectedKey] && (
         <Alert
+          className="admin-help-alert"
           message="¿Cómo usar esta sección?"
           description={PANEL_HELP[selectedKey]}
           type="info"
           icon={<InfoCircleOutlined />}
           showIcon
           closable
-          style={{ marginBottom: 24, borderRadius: "var(--radius-md)" }}
         />
       )}
 
-      <div style={{
-        background: "white",
-        border: "1px solid var(--gray-200)",
-        borderRadius: "var(--radius-lg)",
-        padding: "1.5rem",
-        boxShadow: "var(--shadow)",
-        minHeight: 400,
-      }}>
-        {selectedKey === "6" && <AdminPatologia />}
-        {selectedKey === "7" && <AdminReceta />}
-        {selectedKey === "8" && <AdminInformacion />}
-        {selectedKey === "9" && <AdminEjercicio />}
-        {selectedKey === "10" && <AdminUsuario />}
-        {selectedKey === "11" && <AdminPaciente selectedKey={selectedKey} />}
-        {selectedKey === "12" && <AdminCategoria />}
-        {selectedKey === "19" && <AdminInfografia />}
-        {selectedKey === "20" && <AdminFAQ />}
-        {selectedKey === "21" && <AdminCalendario />}
-        {selectedKey === "22" && <AdminAutoevaluacion />}
-      </div>
+      {selectedKey === "6" && <AdminPatologia />}
+      {selectedKey === "7" && <AdminReceta />}
+      {selectedKey === "8" && <AdminInformacion />}
+      {selectedKey === "9" && <AdminEjercicio />}
+      {selectedKey === "10" && <AdminUsuario />}
+      {selectedKey === "11" && <AdminPaciente selectedKey={selectedKey} />}
+      {selectedKey === "12" && <AdminCategoria />}
+      {selectedKey === "19" && <AdminInfografia />}
+      {selectedKey === "20" && <AdminFAQ />}
+      {selectedKey === "21" && <AdminCalendario />}
+      {selectedKey === "22" && <AdminAutoevaluacion />}
     </div>
   );
 };
-
-{
-  /* <Tabs index={tabIndex}  onChange={handleTabsChange} position="relative" variant='enclosed'>
-        <TabList className="tablist" >
-          <Tab className="txt_tab" >Patologia</Tab>
-           <Tab className="txt_tab" >Paciente</Tab> 
-          <Tab className="txt_tab" >Recetas</Tab>
-          <Tab className="txt_tab" >Informacion</Tab>
-          <Tab className="txt_tab" >Ejercicio</Tab>
-          <Tab className="txt_tab" >Usuario</Tab>
-
-        </TabList>
-       
-        <TabPanels>
-          <TabPanel>
-            <AdminPatologia/>
-          </TabPanel>
-           <TabPanel>
-            <AdminPaciente/>
-          </TabPanel> 
-          <TabPanel>
-            <AdminReceta/>
-          </TabPanel>
-          <TabPanel>
-            <AdminInformacion/>
-          </TabPanel>
-          <TabPanel>
-            <AdminEjercicio/>
-          </TabPanel>
-          <TabPanel>
-            <AdminUsuario/>
-          </TabPanel>
-        </TabPanels>
-      </Tabs> */
-}

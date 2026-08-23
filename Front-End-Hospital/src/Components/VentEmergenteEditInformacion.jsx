@@ -19,9 +19,7 @@ export const VentEmergenteEditInformacion = ({ isOpen, onClose, informacionSelec
       styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
       destroyOnClose
     >
-      <div style={{ paddingTop: 16 }}>
-        <EditInformacion onCloseEdit={onClose} informacion={informacionSelected} />
-      </div>
+      <EditInformacion onCloseEdit={onClose} informacion={informacionSelected} />
     </Modal>
   );
 };

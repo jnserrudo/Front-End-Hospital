@@ -19,9 +19,7 @@ export const VentEmergenteAddPaciente = ({ isOpen, onClose }) => {
       styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
       destroyOnClose
     >
-      <div style={{ paddingTop: 16 }}>
-        <AddPaciente onClosePadre={onClose} />
-      </div>
+      <AddPaciente onClosePadre={onClose} />
     </Modal>
   );
 };

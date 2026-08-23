@@ -52,6 +52,7 @@ const handleEditUsuario=()=>{
       <Table
         className="tabla"
         columns={columns}
+        scroll={{ x: "max-content" }}
         /* pagination={{
           position: [top, bottom],
         }} */

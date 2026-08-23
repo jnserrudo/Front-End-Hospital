@@ -3,6 +3,7 @@ import { Calendar, Badge, Modal, Spin, Select, Tag, Descriptions, ConfigProvider
 import esES from "antd/locale/es_ES";
 import { CalendarOutlined, ClockCircleOutlined, TagOutlined, InfoCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { getAllEventos } from "../services/calendario-services";
+import { PageHeader } from "../Components/PageHeader";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
@@ -75,45 +76,34 @@ export const Calendario = ({ setSelectedKey }) => {
 
   return (
     <div className="page-wrapper">
-      <div className="page-header">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: "var(--radius-md)",
-            background: "var(--primary-100)", display: "flex",
-            alignItems: "center", justifyContent: "center",
-            color: "var(--primary)", fontSize: 24,
-          }}>
-            <CalendarOutlined />
-          </div>
-          <div>
-            <h2 className="page-title">Calendario de Eventos</h2>
-            <p className="page-subtitle">Actividades y eventos del hospital</p>
-          </div>
-        </div>
-        <div className="page-title-bar" />
-      </div>
+      <PageHeader
+        icon={<CalendarOutlined />}
+        title="Calendario de Eventos"
+        subtitle="Actividades y eventos del hospital"
+        actions={
+          isAdmin && setSelectedKey ? (
+            <Button
+              type="primary"
+              icon={<SettingOutlined />}
+              onClick={() => setSelectedKey("21")}
+              className="admin-action-btn"
+            >
+              <span className="btn-text">Administrar</span>
+            </Button>
+          ) : null
+        }
+      />
 
       <div className="filter-bar">
         <Select
           value={tipoFiltro}
           onChange={setTipoFiltro}
           options={TIPOS_FILTRO}
-          style={{ minWidth: 220 }}
+          style={{ flex: "1 1 160px", minWidth: 0, maxWidth: "100%" }}
         />
-        <span style={{ color: "var(--gray-400)", fontSize: 13 }}>
+        <span className="filter-bar-meta">
           {eventos.length} evento{eventos.length !== 1 ? "s" : ""} cargado{eventos.length !== 1 ? "s" : ""}
         </span>
-        {isAdmin && setSelectedKey && (
-          <Button
-            type="primary"
-            icon={<SettingOutlined />}
-            onClick={() => setSelectedKey("21")}
-            className="admin-action-btn"
-            size="large"
-          >
-            <span className="btn-text">Administrar</span>
-          </Button>
-        )}
       </div>
 
       <Alert
@@ -132,13 +122,7 @@ export const Calendario = ({ setSelectedKey }) => {
           <p style={{ marginTop: 16, color: "var(--gray-500)" }}>Cargando eventos...</p>
         </div>
       ) : (
-        <div style={{
-          background: "white",
-          border: "1px solid var(--gray-200)",
-          borderRadius: "var(--radius-lg)",
-          overflow: "hidden",
-          boxShadow: "var(--shadow)",
-        }}>
+        <div className="calendar-panel">
           <ConfigProvider locale={esES}>
             <Calendar cellRender={dateCellRender} />
           </ConfigProvider>
@@ -155,7 +139,7 @@ export const Calendario = ({ setSelectedKey }) => {
         open={modalVisible}
         onCancel={() => { setModalVisible(false); setSelectedEvento(null); }}
         footer={null}
-        width={560}
+        width="min(560px, 95vw)"
         styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
       >
         {selectedEvento && (

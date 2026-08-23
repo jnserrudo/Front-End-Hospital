@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
 import { Button, Alert } from 'antd';
 import { TablaNutricionalView } from './TablaNutricionalView';
-import { 
-  BarChartOutlined, 
-  FileOutlined, 
-  FileTextOutlined, 
-  DatabaseOutlined,
-  ArrowRightOutlined,
-  InfoCircleOutlined
-} from '@ant-design/icons';
+import { ArrowRightOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { HospitalIcon } from './HospitalIcon';
+import { PageHeader } from './PageHeader';
 
 export const TablasInformativas = () => {
   const [selectedTable, setSelectedTable] = useState(null);
@@ -19,7 +14,7 @@ export const TablasInformativas = () => {
       titulo: 'Vegetales',
       descripcion: 'Información nutricional completa de vegetales y verduras',
       filePath: '/Vegetales.xls',
-      icon: <FileTextOutlined />,
+      iconName: 'groupVegetales',
       color: 'var(--success)',
     },
     {
@@ -27,7 +22,7 @@ export const TablasInformativas = () => {
       titulo: 'Frutas',
       descripcion: 'Valores nutricionales de frutas frescas y secas',
       filePath: '/Frutas.xls',
-      icon: <FileOutlined />,
+      iconName: 'groupFrutas',
       color: 'var(--warning)',
     },
     {
@@ -35,7 +30,7 @@ export const TablasInformativas = () => {
       titulo: 'Pescados',
       descripcion: 'Composición nutricional de pescados y mariscos',
       filePath: '/Pescados.xls',
-      icon: <DatabaseOutlined />,
+      iconName: 'groupPescados',
       color: 'var(--info)',
     },
   ];
@@ -48,39 +43,18 @@ export const TablasInformativas = () => {
     setSelectedTable(null);
   };
 
-  // Si hay una tabla seleccionada, mostrar la vista fullscreen
   if (selectedTable) {
     return <TablaNutricionalView tabla={selectedTable} onVolver={handleCloseTable} />;
   }
 
   return (
     <div className="page-wrapper">
-      {/* Header */}
-      <div className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-3)' }}>
-          <div style={{
-            width: 56,
-            height: 56,
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--primary-100)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--primary)',
-            fontSize: 26,
-          }}>
-            <BarChartOutlined />
-          </div>
-          <div>
-            <h2 style={{ margin: 0, fontSize: 'var(--font-size-2xl)', fontWeight: 700 }}>
-              Tablas Nutricionales
-            </h2>
-            <p style={{ margin: 0, color: 'var(--gray-500)', fontSize: 'var(--font-size-base)' }}>
-              Consulta la información nutricional de diferentes alimentos
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<HospitalIcon name="tablasInfo" size={36} alt="Tablas nutricionales" />}
+        title="Tablas Nutricionales"
+        subtitle="Consulta la información nutricional de diferentes alimentos"
+        showBar={false}
+      />
 
       <Alert
         message="¿Cómo usar esta sección?"
@@ -92,7 +66,6 @@ export const TablasInformativas = () => {
         style={{ marginBottom: 24, borderRadius: "var(--radius-md)" }}
       />
 
-      {/* Grid de Cards */}
       <div className="tablas-grid">
         {tablas.map((tabla) => (
           <div
@@ -100,8 +73,8 @@ export const TablasInformativas = () => {
             className="tabla-card"
             onClick={() => handleOpenTable(tabla)}
           >
-            <div className="tabla-card-icon" style={{ backgroundColor: `${tabla.color}15`, color: tabla.color }}>
-              {tabla.icon}
+            <div className="tabla-card-icon" style={{ backgroundColor: `${tabla.color}15` }}>
+              <HospitalIcon name={tabla.iconName} size={40} alt={tabla.titulo} />
             </div>
             <h3>{tabla.titulo}</h3>
             <p>{tabla.descripcion}</p>

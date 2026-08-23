@@ -3,8 +3,9 @@ import { Select, Input, Alert, Tabs, Button, Empty } from "antd";
 import { ListVideos } from "../Components/ListVideos";
 import InformacionContext from "../Contexts/InformacionContext";
 import { entorno, getMediaUrl } from "../services/config";
-import { SearchOutlined, ReadOutlined, InfoCircleOutlined, FilePdfOutlined, ExportOutlined, SettingOutlined } from "@ant-design/icons";
+import { SearchOutlined, InfoCircleOutlined, FilePdfOutlined, ExportOutlined, SettingOutlined } from "@ant-design/icons";
 import { getAllInformacions } from "../services/informacion-services";
+import { HospitalIcon } from "../Components/HospitalIcon";
 export const Info = ({ setSelectedKey }) => {
   //esta vble videos sera reemplazada por un listado de videos que ser iran cargando con sus URLs en la BD
   const [videos, setVideos] = useState([]);
@@ -184,12 +185,30 @@ export const Info = ({ setSelectedKey }) => {
           width: 56, height: 56, borderRadius: "var(--radius-md)",
           background: "var(--primary-100)", display: "flex",
           alignItems: "center", justifyContent: "center",
-          color: "var(--primary)", fontSize: 26, flexShrink: 0,
+          flexShrink: 0,
         }}>
-          <ReadOutlined />
+          <HospitalIcon name="consultaMedica" size={36} alt="Información" />
         </div>
         <div className="cont_sel_recetas">
-          <p className="titulo_see">Información Saludable</p>
+          <div className="page-header-top">
+            <div className="page-header-main">
+              <div className="page-header-text">
+                <p className="titulo_see">Información Saludable</p>
+              </div>
+            </div>
+            {isAdmin && setSelectedKey && (
+              <div className="page-header-actions">
+                <Button
+                  type="primary"
+                  icon={<SettingOutlined />}
+                  onClick={() => setSelectedKey("8")}
+                  className="admin-action-btn"
+                >
+                  <span className="btn-text">Administrar</span>
+                </Button>
+              </div>
+            )}
+          </div>
           <div className="filters-row-premium">
             <Input
               prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
@@ -200,26 +219,13 @@ export const Info = ({ setSelectedKey }) => {
                 handleSearch(e.target.value, videos);
               }}
               allowClear
-              size="large"
             />
             <Select
               className="select_recetas"
               name="idCategorias"
               {...sharedPropsCategorias}
               onChange={handleChangeSelectCategoriasFiltrar}
-              size="large"
             />
-            {isAdmin && setSelectedKey && (
-              <Button
-                type="primary"
-                icon={<SettingOutlined />}
-                onClick={() => setSelectedKey("9")}
-                className="admin-action-btn"
-                size="large"
-              >
-                <span className="btn-text">Administrar</span>
-              </Button>
-            )}
           </div>
         </div>
       </nav>
@@ -230,10 +236,10 @@ export const Info = ({ setSelectedKey }) => {
         icon={<InfoCircleOutlined />}
         showIcon
         closable
-        style={{ margin: "16px 24px", borderRadius: "var(--radius-md)" }}
+        className="page-alert-inset"
       />
 
-      <div style={{ padding: "0 24px" }}>
+      <div className="page-content-inset">
         <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)} type="card" style={{ marginBottom: 16 }}>
           <Tabs.TabPane tab="Videos y Podcasts" key="1">
             <div className="cont_recetas">

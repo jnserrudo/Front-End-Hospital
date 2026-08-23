@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
-import { Table, Button, Tabs, Spin, Pagination, Select, ConfigProvider } from 'antd';
+import { Table, Button, Tabs, Spin, Select, ConfigProvider } from 'antd';
 import esES from "antd/locale/es_ES";
 import { ArrowLeftOutlined, FileTextOutlined } from '@ant-design/icons';
+import { ListFooter } from './ListFooter';
 
 const { TabPane } = Tabs;
 
@@ -212,55 +213,60 @@ export const TablaNutricionalView = ({ tabla, onVolver }) => {
     });
   }, [headers, categorias, activeTab]);
 
-  // Datos paginados
+  const totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, pageSize, data.length]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const handlePageChange = (page, size) => {
+    setCurrentPage(page);
+    if (size !== pageSize) {
+      setPageSize(size);
+    }
+  };
+
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return data.slice(start, start + pageSize);
   }, [data, currentPage, pageSize]);
 
-  // Verificar si es mobile
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Renderizar tabs o select según el dispositivo
+  // Renderizar tabs o select según ancho (ambos en DOM, CSS elige)
   const renderTabs = () => {
     const tabItems = categoriasConDatos.map(([categoria, indices]) => ({
       key: categoria,
       label: getCategoriaLabel(categoria, indices.length),
     }));
 
-    if (isMobile) {
-      return (
-        <div style={{ padding: '12px 24px', background: 'var(--gray-50)', borderBottom: '1px solid var(--gray-200)' }}>
+    return (
+      <>
+        <div className="tabla-tabs-mobile">
           <Select
             value={activeTab}
             onChange={setActiveTab}
-            style={{ width: '100%' }}
-            options={tabItems.map(item => ({ value: item.key, label: item.label }))}
-            size="large"
+            style={{ width: "100%" }}
+            options={tabItems.map((item) => ({ value: item.key, label: item.label }))}
           />
         </div>
-      );
-    }
-
-    return (
-      <div style={{ background: 'var(--gray-50)', borderBottom: '1px solid var(--gray-200)' }}>
-        <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
-          type="card"
-          style={{ padding: '0 24px' }}
-          items={tabItems.map(item => ({
-            key: item.key,
-            label: item.label,
-          }))}
-        />
-      </div>
+        <div className="tabla-tabs-desktop">
+          <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            type="card"
+            style={{ padding: "0 24px" }}
+            items={tabItems.map((item) => ({
+              key: item.key,
+              label: item.label,
+            }))}
+          />
+        </div>
+      </>
     );
   };
 
@@ -320,37 +326,77 @@ export const TablaNutricionalView = ({ tabla, onVolver }) => {
         </div>
 
         {/* Tabs */}
-        {renderTabs()}
+        <div className="tabla-tabs-bar">{renderTabs()}</div>
 
         {/* Content */}
-        <div className="tabla-fullscreen-content">
-          <div className="tabla-fullscreen-table-wrapper">
-            <Table
-              columns={columns}
-              dataSource={paginatedData}
-              pagination={false}
-              size="small"
-              bordered
-              scroll={{ x: 'max-content', y: 'calc(100vh - 280px)' }}
-              rowClassName={(_, index) => index % 2 === 0 ? 'tabla-row-even' : 'tabla-row-odd'}
-            />
+        <div className="tabla-fullscreen-content tabla-fullscreen-content--responsive list-shell">
+          <div className="list-shell-body">
+            <div className="tabla-list-mobile">
+              <div className="admin-entity-cards-wrap">
+                <div className="admin-entity-cards tabla-nutricional-cards">
+                  {paginatedData.map((row) => {
+                    const titleCol =
+                      columns.find((c) => c.fixed === "left" && c.dataIndex === 1) ||
+                      columns[0];
+                    const title =
+                      titleCol?.render?.(row[titleCol.dataIndex]) ??
+                      row[titleCol?.dataIndex] ??
+                      "—";
+                    const detailCols = columns.filter((c) => c.key !== titleCol?.key);
+
+                    return (
+                      <article
+                        className="admin-entity-card admin-entity-card--compact"
+                        key={row.key}
+                      >
+                        <div className="admin-entity-card-top">
+                          <h4 className="admin-entity-card-title">{title}</h4>
+                        </div>
+                        <div className="admin-entity-card-fields">
+                          {detailCols.map((col) => (
+                            <div className="admin-entity-card-field" key={col.key}>
+                              <span className="admin-entity-card-field-label">
+                                {col.title}
+                              </span>
+                              <div className="admin-entity-card-field-value">
+                                {col.render
+                                  ? col.render(row[col.dataIndex])
+                                  : row[col.dataIndex] ?? "—"}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="tabla-list-desktop tabla-fullscreen-table-wrapper">
+              <Table
+                columns={columns}
+                dataSource={paginatedData}
+                pagination={false}
+                size="small"
+                bordered
+                tableLayout="fixed"
+                scroll={{ x: "max(100%, 640px)", y: "calc(100vh - 320px)" }}
+                rowClassName={(_, index) =>
+                  index % 2 === 0 ? "tabla-row-even" : "tabla-row-odd"
+                }
+              />
+            </div>
           </div>
 
-          {/* Pagination */}
-          <div className="tabla-fullscreen-pagination">
-            <span className="tabla-pagination-info">
-              Mostrando {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, data.length)} de {data.length} alimentos
-            </span>
-            <Pagination
-              current={currentPage}
-              pageSize={pageSize}
-              total={data.length}
-              onChange={setCurrentPage}
-              showSizeChanger
-              pageSizeOptions={[10, 25, 50, 100]}
-              onShowSizeChange={(_, size) => { setPageSize(size); setCurrentPage(1); }}
-            />
-          </div>
+          <ListFooter
+            total={data.length}
+            current={currentPage}
+            pageSize={pageSize}
+            onChange={handlePageChange}
+            pageSizeOptions={[10, 25, 50, 100]}
+            itemLabel="alimentos"
+          />
         </div>
       </div>
     </ConfigProvider>

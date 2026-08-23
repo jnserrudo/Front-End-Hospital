@@ -6,6 +6,7 @@ import RecetaContext from "../Contexts/RecetaContext";
 import { getAllPatologias } from "../services/patologia-services";
 import { getRecetaByPatologia } from "../services/recetas-services";
 import { entorno, getMediaUrl } from "../services/config";
+import { HospitalIcon } from "../Components/HospitalIcon";
 import "../style.css";
 
 export const Recetas = ({ setSelectedKey }) => {
@@ -80,7 +81,26 @@ export const Recetas = ({ setSelectedKey }) => {
   return (
     <div className="recetas-page">
       <div className="recetas-header">
-        <h1 className="recetas-title">Recetas Saludables</h1>
+        <div className="page-header-top" style={{ marginBottom: 12 }}>
+          <div className="page-header-main">
+            <HospitalIcon name="recetas" size={40} alt="Recetas" />
+            <div className="page-header-text">
+              <h1 className="recetas-title" style={{ margin: 0 }}>Recetas Saludables</h1>
+            </div>
+          </div>
+          {isAdmin && setSelectedKey && (
+            <div className="page-header-actions">
+              <Button
+                type="primary"
+                icon={<SettingOutlined />}
+                onClick={() => setSelectedKey("7")}
+                className="admin-action-btn"
+              >
+                <span className="btn-text">Administrar</span>
+              </Button>
+            </div>
+          )}
+        </div>
         <div className="recetas-filters">
           <Input
             placeholder="Buscar receta..."
@@ -92,26 +112,13 @@ export const Recetas = ({ setSelectedKey }) => {
             }}
             allowClear
             className="recetas-search"
-            size="large"
           />
           <Select
             className="recetas-filter"
             name="idCategorias"
             {...sharedPropsCategorias}
             onChange={handleChangeSelectCategoriasFiltrar}
-            size="large"
           />
-          {isAdmin && setSelectedKey && (
-            <Button
-              type="primary"
-              icon={<SettingOutlined />}
-              onClick={() => setSelectedKey("7")}
-              className="admin-action-btn"
-              size="large"
-            >
-              <span className="btn-text">Administrar</span>
-            </Button>
-          )}
         </div>
       </div>
 

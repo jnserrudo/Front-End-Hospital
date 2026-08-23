@@ -48,12 +48,12 @@ export const RecetaSee = ({ receta }) => {
         )}
       </div>
 
-      <Row gutter={[24, 24]}>
+      <Row gutter={[16, 12]}>
         <Col xs={24} md={10}>
            <div className="receta-see-image-container-minimal">
              {!receta?.urlFoto || imageError ? (
                <div className="receta-see-image-placeholder">
-                 <PictureOutlined style={{ fontSize: 48, color: 'var(--gray-400)' }} />
+                 <PictureOutlined style={{ fontSize: 36, color: 'var(--gray-400)' }} />
                  <span>Sin imagen</span>
                </div>
              ) : (

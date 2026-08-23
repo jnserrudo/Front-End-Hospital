@@ -3,6 +3,8 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ConfigProvider } from "antd";
+import esES from "antd/locale/es_ES";
 import { Home } from "./Pages/Home";
 import { PageNotFound } from "./Pages/PageNotFound";
 import { Login } from "./Pages/Login";
@@ -19,7 +21,7 @@ function App() {
   const [count, setCount] = useState(0);
 
   return (
-    <>
+    <ConfigProvider locale={esES}>
       <PacienteProvider>
         <CategoriaProvider>
           <InformacionProvider>
@@ -43,7 +45,7 @@ function App() {
           </InformacionProvider>
         </CategoriaProvider>
       </PacienteProvider>
-    </>
+    </ConfigProvider>
   );
 }
 

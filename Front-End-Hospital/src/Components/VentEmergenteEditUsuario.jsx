@@ -23,9 +23,7 @@ export const VentEmergenteEditUsuario = ({
       styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
       destroyOnClose
     >
-      <div style={{ paddingTop: 16 }}>
-        <EditUsuario onCloseEdit={onClose} usuario={usuarioSelected} />
-      </div>
+      <EditUsuario onCloseEdit={onClose} usuario={usuarioSelected} />
     </Modal>
   );
 };

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Input, Select, Modal, Tabs, Tag, Empty } from "antd";
+import { Button, Input, Select, Modal, Tabs, Tag, Empty } from "antd";
 import { SearchOutlined, EyeOutlined, PrinterOutlined, BarChartOutlined } from "@ant-design/icons";
 import { entorno } from "../services/config";
+import { AdminEntityList } from "./AdminEntityList";
 
 export const AdminAutoevaluacion = () => {
   const [db, setDb] = useState([]);
@@ -468,74 +469,60 @@ export const AdminAutoevaluacion = () => {
   };
 
   return (
-    <div className="admin-page-wrapper">
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <div className="admin-card-title">
-            <h3>Autoevaluaciones Clínicas</h3>
-            <span className="admin-badge">{filteredData.length} en total</span>
-          </div>
-        </div>
+    <>
+      <AdminEntityList
+        title="Autoevaluaciones Clínicas"
+        count={filteredData.length}
+        extraFilters={
+          <>
+            <Input
+              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
+              placeholder="Buscar por Paciente o DNI..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              allowClear
+            />
 
-        {/* Fila de Filtros */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
-          <Input
-            prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
-            placeholder="Buscar por Paciente o DNI..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            style={{ width: 250 }}
-            allowClear
-          />
+            <Select
+              placeholder="Filtrar por Profesional"
+              value={profesionalId}
+              onChange={(val) => setProfesionalId(val)}
+              allowClear
+            >
+              {profesionales.map((p) => (
+                <Select.Option key={p.id} value={p.id}>
+                  {p.nombre} {p.apellido}
+                </Select.Option>
+              ))}
+            </Select>
 
-          <Select
-            placeholder="Filtrar por Profesional"
-            value={profesionalId}
-            onChange={(val) => setProfesionalId(val)}
-            style={{ width: 220 }}
-            allowClear
-          >
-            {profesionales.map((p) => (
-              <Select.Option key={p.id} value={p.id}>
-                {p.nombre} {p.apellido}
-              </Select.Option>
-            ))}
-          </Select>
+            <Select
+              placeholder="Filtrar por Tipo"
+              value={tipo}
+              onChange={(val) => setTipo(val)}
+              allowClear
+            >
+              <Select.Option value="general">Autoevaluación General</Select.Option>
+              <Select.Option value="ejercicio">Ejercicio Específico</Select.Option>
+            </Select>
 
-          <Select
-            placeholder="Filtrar por Tipo"
-            value={tipo}
-            onChange={(val) => setTipo(val)}
-            style={{ width: 160 }}
-            allowClear
-          >
-            <Select.Option value="general">Autoevaluación General</Select.Option>
-            <Select.Option value="ejercicio">Ejercicio Específico</Select.Option>
-          </Select>
-
-          <Select
-            placeholder="Estado de Alerta"
-            value={alerta}
-            onChange={(val) => setAlerta(val)}
-            style={{ width: 180 }}
-            allowClear
-          >
-            <Select.Option value="alerta">Alertas Críticas</Select.Option>
-            <Select.Option value="normal">Estado Normal</Select.Option>
-          </Select>
-        </div>
-
-        <Table scroll={{ x: 'max-content' }}
-          className="admin-table"
-          columns={columns}
-          pagination={{ position: ["bottomRight"], pageSize: 8 }}
-          dataSource={filteredData}
-          loading={loading}
-          rowKey="id"
-          size="middle"
-          locale={{ emptyText: "Sin autoevaluaciones registradas" }}
-        />
-      </div>
+            <Select
+              placeholder="Estado de Alerta"
+              value={alerta}
+              onChange={(val) => setAlerta(val)}
+              allowClear
+            >
+              <Select.Option value="alerta">Alertas Críticas</Select.Option>
+              <Select.Option value="normal">Estado Normal</Select.Option>
+            </Select>
+          </>
+        }
+        columns={columns}
+        dataSource={filteredData}
+        loading={loading}
+        rowKey="id"
+        emptyText="Sin autoevaluaciones registradas"
+      />
 
       <Modal
         title={
@@ -583,6 +570,6 @@ export const AdminAutoevaluacion = () => {
           </div>
         )}
       </Modal>
-    </div>
+    </>
   );
 };

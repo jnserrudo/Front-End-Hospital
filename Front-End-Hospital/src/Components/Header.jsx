@@ -11,10 +11,11 @@ const ROLES = {
   3: "Paciente"
 };
 
-export const Header = ({ setSelectedKey, collapsed, setCollapsed }) => {
+export const Header = ({ setSelectedKey, collapsed, setCollapsed, hideMenu = false }) => {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState("");
   const [rol, setRol] = useState("");
+  const canToggleMenu = typeof setCollapsed === "function" && !hideMenu;
 
   useEffect(() => {
     const usuarioFromStorage = localStorage.getItem("usuario");
@@ -56,12 +57,16 @@ export const Header = ({ setSelectedKey, collapsed, setCollapsed }) => {
   return (
     <div className="header">
       <div className="header-brand">
-        <div 
-          className="menu-toggle-btn" 
-          onClick={() => setCollapsed(!collapsed)}
-        >
-          <MenuOutlined style={{ fontSize: '20px', color: 'white' }} />
-        </div>
+        {canToggleMenu && (
+          <div
+            className="menu-toggle-btn"
+            onClick={() => setCollapsed(!collapsed)}
+            role="button"
+            aria-label={collapsed ? "Abrir menú" : "Cerrar menú"}
+          >
+            <MenuOutlined style={{ fontSize: '20px', color: 'white' }} />
+          </div>
+        )}
         <img
           className="logo_hospital"
           onClick={() => setSelectedKey("1")}

@@ -9,6 +9,7 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import { insertFeedback } from "../services/feedback-services";
+import { PageHeader } from "../Components/PageHeader";
 
 const { TextArea } = Input;
 
@@ -43,26 +44,12 @@ export const FormularioFeedback = () => {
   };
 
   return (
-    <div className="page-wrapper" style={{ maxWidth: 700 }}>
-      <div className="page-header">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: "var(--radius-md)",
-            background: "var(--primary-100)", display: "flex",
-            alignItems: "center", justifyContent: "center",
-            color: "var(--primary)", fontSize: 24,
-          }}>
-            <MessageOutlined />
-          </div>
-          <div>
-            <h2 className="page-title">Envíanos tu Feedback</h2>
-            <p className="page-subtitle">
-              Tu opinión es muy importante para nosotros
-            </p>
-          </div>
-        </div>
-        <div className="page-title-bar" />
-      </div>
+    <div className="page-wrapper" style={{ maxWidth: 700, width: "100%" }}>
+      <PageHeader
+        icon={<MessageOutlined />}
+        title="Envíanos tu Feedback"
+        subtitle="Tu opinión es muy importante para nosotros"
+      />
 
       <Alert
         message="¿Cómo usar esta sección?"
@@ -91,8 +78,11 @@ export const FormularioFeedback = () => {
         background: "white",
         border: "1px solid var(--gray-200)",
         borderRadius: "var(--radius-lg)",
-        padding: "2rem",
+        padding: "clamp(1rem, 4vw, 2rem)",
         boxShadow: "var(--shadow)",
+        width: "100%",
+        maxWidth: "100%",
+        boxSizing: "border-box",
       }}>
         <Form
           form={form}
@@ -100,7 +90,7 @@ export const FormularioFeedback = () => {
           onFinish={handleSubmit}
           initialValues={{ calificacion: 5 }}
         >
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div className="feedback-form-grid">
             <Form.Item
               label="Nombre completo"
               name="nombre"

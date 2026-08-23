@@ -19,13 +19,14 @@ export const VentEmergenteEditReceta = ({
       open={isOpen}
       onCancel={onClose}
       footer={null}
-      width={700}
-      styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
+      width={720}
+      styles={{
+        header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 },
+        body: { paddingTop: 8 },
+      }}
       destroyOnClose
     >
-      <div style={{ paddingTop: 16 }}>
-        <EditReceta onCloseEdit={onClose} receta={recetaSelected} />
-      </div>
+      <EditReceta onCloseEdit={onClose} receta={recetaSelected} />
     </Modal>
   );
 };

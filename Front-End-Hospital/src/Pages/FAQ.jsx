@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Collapse, Input, Select, Spin, Tag, Empty, Alert, Button } from "antd";
-import { QuestionCircleOutlined, SearchOutlined, InfoCircleOutlined, SettingOutlined } from "@ant-design/icons";
+import { SearchOutlined, InfoCircleOutlined, SettingOutlined } from "@ant-design/icons";
 import { getAllFAQs, getFAQsByCategoria } from "../services/faq-services";
+import { HospitalIcon } from "../Components/HospitalIcon";
+import { PageHeader } from "../Components/PageHeader";
 
 const { Panel } = Collapse;
 
@@ -64,23 +66,23 @@ export const FAQ = ({ setSelectedKey }) => {
 
   return (
     <div className="page-wrapper">
-      <div className="page-header">
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: "var(--radius-md)",
-            background: "var(--primary-100)", display: "flex",
-            alignItems: "center", justifyContent: "center",
-            color: "var(--primary)", fontSize: 24,
-          }}>
-            <QuestionCircleOutlined />
-          </div>
-          <div>
-            <h2 className="page-title">Preguntas Frecuentes</h2>
-            <p className="page-subtitle">Encontrá respuestas a las dudas más comunes</p>
-          </div>
-        </div>
-        <div className="page-title-bar" />
-      </div>
+      <PageHeader
+        icon={<HospitalIcon name="informacion" size={32} alt="FAQ" />}
+        title="Preguntas Frecuentes"
+        subtitle="Encontrá respuestas a las dudas más comunes"
+        actions={
+          isAdmin && setSelectedKey ? (
+            <Button
+              type="primary"
+              icon={<SettingOutlined />}
+              onClick={() => setSelectedKey("20")}
+              className="admin-action-btn"
+            >
+              <span className="btn-text">Administrar</span>
+            </Button>
+          ) : null
+        }
+      />
 
       <div className="filter-bar">
         <Input
@@ -88,26 +90,15 @@ export const FAQ = ({ setSelectedKey }) => {
           placeholder="Buscar pregunta o respuesta..."
           value={busqueda}
           onChange={(e) => handleBusqueda(e.target.value)}
-          style={{ flex: 1, minWidth: 200 }}
+          style={{ flex: 1, minWidth: 0 }}
           allowClear
         />
         <Select
           value={categoriaSeleccionada}
           onChange={handleCategoriaChange}
           options={CATEGORIAS}
-          style={{ minWidth: 200 }}
+          style={{ flex: "1 1 140px", minWidth: 0, maxWidth: "100%" }}
         />
-        {isAdmin && setSelectedKey && (
-          <Button
-            type="primary"
-            icon={<SettingOutlined />}
-            onClick={() => setSelectedKey("20")}
-            className="admin-action-btn"
-            size="large"
-          >
-            <span className="btn-text">Administrar</span>
-          </Button>
-        )}
       </div>
 
       <Alert

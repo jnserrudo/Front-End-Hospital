@@ -19,9 +19,7 @@ export const VentEmergenteAddUsuario = ({ isOpen, onClose }) => {
       styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
       destroyOnClose
     >
-      <div style={{ paddingTop: 16 }}>
-        <AddUsuario />
-      </div>
+      <AddUsuario />
     </Modal>
   );
 };

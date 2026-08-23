@@ -1,10 +1,10 @@
 import React, { useContext, useState } from "react";
-import { Table, Button, Input } from "antd";
-import { PlusOutlined, SearchOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import FAQContext from "../Contexts/FAQContext";
 import { VentEmergenteAddFAQ } from "./VentEmergenteAddFAQ";
 import { VentEmergenteEditFAQ } from "./VentEmergenteEditFAQ";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
+import { AdminEntityList } from "./AdminEntityList";
 
 export const AdminFAQ = () => {
   const {
@@ -29,47 +29,30 @@ export const AdminFAQ = () => {
   const [faqSearch, setFaqSearch] = useState("");
 
   return (
-    <div className="admin-page-wrapper">
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <div className="admin-card-title">
-            <h3>Listado de Preguntas Frecuentes</h3>
-            <span className="admin-badge">{db.length} en total</span>
-          </div>
-          <div className="admin-card-actions">
-            <Input
-              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
-              placeholder="Buscar pregunta..."
-              value={faqSearch}
-              onChange={(e) => {
-                setFaqSearch(e.target.value);
-                handleSearch(e.target.value);
-              }}
-              allowClear
-            />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setShowVentEmergenteAddFAQ(true)}
-              loading={loadingAction}
-              disabled={loadingAction}
-            >
-              Agregar Pregunta
-            </Button>
-          </div>
-        </div>
-
-        <Table scroll={{ x: 'max-content' }}
-          className="admin-table"
-          columns={columns}
-          pagination={{ position: ["bottomRight"], pageSize: 8 }}
-          dataSource={dbSearch.length > 0 ? dbSearch : db}
-          loading={loading}
-          rowKey="id"
-          size="middle"
-          locale={{ emptyText: "Sin registros" }}
-        />
-      </div>
+    <>
+      <AdminEntityList
+        title="Listado de Preguntas Frecuentes"
+        count={db.length}
+        searchProps={{
+          placeholder: "Buscar pregunta...",
+          value: faqSearch,
+          onChange: (e) => {
+            setFaqSearch(e.target.value);
+            handleSearch(e.target.value);
+          },
+        }}
+        addButton={{
+          label: "Agregar Pregunta",
+          icon: <PlusOutlined />,
+          onClick: () => setShowVentEmergenteAddFAQ(true),
+          loading: loadingAction,
+          disabled: loadingAction,
+        }}
+        columns={columns}
+        dataSource={dbSearch.length > 0 ? dbSearch : db}
+        loading={loading}
+        rowKey="id"
+      />
 
       <VentEmergenteAddFAQ
         isOpen={showVentEmergenteAddFAQ}
@@ -88,7 +71,7 @@ export const AdminFAQ = () => {
         onClose={() => setShowVentEmergenteDelete(false)}
         handleSi={() => inhabilitarFAQ(idFAQ)}
       />
-    </div>
+    </>
   );
 };
 

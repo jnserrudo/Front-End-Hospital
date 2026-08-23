@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button as AntButton, Space, Popconfirm, message, Tag, Input as AntInput } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined, PictureOutlined } from "@ant-design/icons";
-import { Button, Input, FormControl, InputGroup, InputRightElement } from "@chakra-ui/react";
+import { Button as AntButton, Space, Popconfirm, message, Tag } from "antd";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { getAllInfografias, disableInfografia } from "../services/infografia-services";
 import { VentEmergenteAddInfografia } from "./VentEmergenteAddInfografia";
 import { VentEmergenteEditInfografia } from "./VentEmergenteEditInfografia";
+import { AdminEntityList } from "./AdminEntityList";
 
 export const AdminInfografia = () => {
   const [infografias, setInfografias] = useState([]);
@@ -61,40 +61,33 @@ export const AdminInfografia = () => {
       title: "Título",
       dataIndex: "titulo",
       key: "titulo",
-      width: "25%",
     },
     {
       title: "Categoría",
       dataIndex: "categoria",
       key: "categoria",
-      width: "15%",
       render: (categoria) => <Tag color="blue">{categoria}</Tag>,
     },
     {
       title: "Tipo",
       dataIndex: "tipoArchivo",
       key: "tipoArchivo",
-      width: "10%",
       render: (tipo) => <Tag color={tipo === "imagen" ? "green" : "orange"}>{tipo}</Tag>,
     },
     {
       title: "Almacenamiento",
       dataIndex: "tipoAlmacenamiento",
       key: "tipoAlmacenamiento",
-      width: "15%",
       render: (tipo) => <Tag color={tipo === "local" ? "purple" : "cyan"}>{tipo}</Tag>,
     },
     {
       title: "Descripción",
       dataIndex: "descripcion",
       key: "descripcion",
-      width: "25%",
-      ellipsis: true,
     },
     {
       title: "Acciones",
       key: "acciones",
-      width: "10%",
       render: (_, record) => (
         <Space>
           <AntButton
@@ -117,41 +110,25 @@ export const AdminInfografia = () => {
   ];
 
   return (
-    <div className="admin-page-wrapper">
-      <div className="admin-card">
-        <div className="admin-card-header">
-          <div className="admin-card-title">
-            <h3>Listado de Infografías</h3>
-            <span className="admin-badge">{infografias.length} en total</span>
-          </div>
-          <div className="admin-card-actions">
-            <AntInput
-              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
-              placeholder="Buscar por título o categoría..."
-              value={searchText}
-              onChange={(e) => handleSearch(e.target.value)}
-              allowClear
-            />
-            <AntButton
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setShowAdd(true)}
-            >
-              Agregar Infografía
-            </AntButton>
-          </div>
-        </div>
-
-        <Table scroll={{ x: 'max-content' }}
-            className="admin-table"
-            columns={columns}
-            dataSource={infografiasFiltradas}
-            loading={loading}
-            rowKey="id"
-            pagination={{ position: ["bottomRight"], pageSize: 8 }}
-            locale={{ emptyText: "Sin registros" }}
-          />
-      </div>
+    <>
+      <AdminEntityList
+        title="Listado de Infografías"
+        count={infografias.length}
+        searchProps={{
+          placeholder: "Buscar por título o categoría...",
+          value: searchText,
+          onChange: (e) => handleSearch(e.target.value),
+        }}
+        addButton={{
+          label: "Agregar Infografía",
+          icon: <PlusOutlined />,
+          onClick: () => setShowAdd(true),
+        }}
+        columns={columns}
+        dataSource={infografiasFiltradas}
+        loading={loading}
+        rowKey="id"
+      />
 
       {showAdd && (
         <VentEmergenteAddInfografia
@@ -174,6 +151,6 @@ export const AdminInfografia = () => {
           infografia={selectedInfografia}
         />
       )}
-    </div>
+    </>
   );
 };

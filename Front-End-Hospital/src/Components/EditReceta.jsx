@@ -233,7 +233,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
   }
 
   return (
-    <div className="form-container-receta">
+    <div className="form-container-receta modal-form-dense">
 
       <Tabs 
         activeKey={activeTab} 
@@ -325,93 +325,100 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
 
           <Divider />
 
-          <div className="form-section">
-            <div className="form-section-title">Imagen</div>
-            
-            <div className="form-field">
-              <label className="form-label">
-                Foto de la receta
-              </label>
-              
-              {localPreview && !imageError ? (
-                <div className="custom-image-preview-container">
-                  <img 
-                    src={localPreview} 
-                    alt={receta?.nombre || "Foto de la receta"} 
-                    className="custom-image-preview"
-                    onError={() => setImageError(true)}
-                  />
-                  <div className="custom-image-overlay">
-                    <div className="custom-image-actions">
-                      <Upload
-                        accept="image/*"
-                        beforeUpload={beforeUpload}
-                        showUploadList={false}
-                        onChange={handleFileChange}
-                        fileList={fileList}
-                        maxCount={1}
-                      >
-                        <Button type="primary" icon={<UploadOutlined />}>Cambiar Imagen</Button>
-                      </Upload>
-                      <Button 
-                        danger 
-                        type="primary" 
-                        icon={<DeleteOutlined />} 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFileList([]);
-                          setLocalPreview(null);
-                          setImageError(false);
-                          handleChangeInput({ target: { name: "urlFoto", value: "" } });
-                        }}
-                      >
-                        Eliminar Imagen
-                      </Button>
+          <div className="form-section form-receta-media-row">
+            <Row gutter={[16, 12]} align="top">
+              <Col xs={24} md={10}>
+                <div className="form-field">
+                  <label className="form-label">Foto de la receta</label>
+
+                  {localPreview && !imageError ? (
+                    <div className="custom-image-preview-container">
+                      <img
+                        src={localPreview}
+                        alt={receta?.nombre || "Foto de la receta"}
+                        className="custom-image-preview"
+                        onError={() => setImageError(true)}
+                      />
+                      <div className="custom-image-overlay">
+                        <div className="custom-image-actions">
+                          <Upload
+                            accept="image/*"
+                            beforeUpload={beforeUpload}
+                            showUploadList={false}
+                            onChange={handleFileChange}
+                            fileList={fileList}
+                            maxCount={1}
+                          >
+                            <Button type="primary" icon={<UploadOutlined />}>
+                              Cambiar
+                            </Button>
+                          </Upload>
+                          <Button
+                            danger
+                            type="primary"
+                            icon={<DeleteOutlined />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFileList([]);
+                              setLocalPreview(null);
+                              setImageError(false);
+                              handleChangeInput({
+                                target: { name: "urlFoto", value: "" },
+                              });
+                            }}
+                          >
+                            Eliminar
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <Upload
+                      accept="image/*"
+                      beforeUpload={beforeUpload}
+                      showUploadList={false}
+                      onChange={handleFileChange}
+                      fileList={fileList}
+                      maxCount={1}
+                    >
+                      <div className="custom-image-upload-dropzone">
+                        {imageError ? (
+                          <div className="custom-image-placeholder-error">
+                            <span className="placeholder-icon">
+                              <WarningOutlined
+                                style={{ color: "var(--danger)" }}
+                              />
+                            </span>
+                            <span className="placeholder-title">
+                              {receta?.nombre || "Sin imagen"}
+                            </span>
+                            <span className="placeholder-subtitle">
+                              Subí otra imagen
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="custom-image-placeholder-empty">
+                            <span className="placeholder-icon">
+                              <InboxOutlined
+                                style={{ color: "var(--primary)" }}
+                              />
+                            </span>
+                            <span className="placeholder-title font-semibold">
+                              Subir foto
+                            </span>
+                            <span className="placeholder-subtitle">
+                              JPG, PNG, WEBP · máx 5MB
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </Upload>
+                  )}
                 </div>
-              ) : (
-                <Upload
-                  accept="image/*"
-                  beforeUpload={beforeUpload}
-                  showUploadList={false}
-                  onChange={handleFileChange}
-                  fileList={fileList}
-                  maxCount={1}
-                >
-                  <div className="custom-image-upload-dropzone">
-                    {imageError ? (
-                      <div className="custom-image-placeholder-error">
-                        <span className="placeholder-icon">
-                          <WarningOutlined style={{ color: 'var(--danger)' }} />
-                        </span>
-                        <span className="placeholder-title">{receta?.nombre || "Sin imagen"}</span>
-                        <span className="placeholder-subtitle">Imagen no disponible localmente</span>
-                        <Button type="dashed" size="small" style={{ marginTop: 12 }}>Subir otra imagen</Button>
-                      </div>
-                    ) : (
-                      <div className="custom-image-placeholder-empty">
-                        <span className="placeholder-icon">
-                          <InboxOutlined style={{ color: 'var(--primary)' }} />
-                        </span>
-                        <span className="placeholder-title font-semibold">Subir foto de la receta</span>
-                        <span className="placeholder-subtitle">Formatos: JPG, PNG, WEBP. Máx 5MB</span>
-                      </div>
-                    )}
-                  </div>
-                </Upload>
-              )}
-              <div className="field-help">Formatos: JPG, PNG, WEBP. Max 5MB</div>
-            </div>
-          </div>
+              </Col>
 
-          <Divider />
-
-          <div className="form-section">
-            <div className="form-section-title">Clasificación</div>
-            
-            <Row gutter={[16, 16]}>
-              <Col xs={24} md={12}>
+              <Col xs={24} md={14}>
+                <div className="form-section-title">Clasificación</div>
                 <div className="form-field">
                   <label className="form-label">
                     Patologías <span className="required">*</span>
@@ -421,15 +428,21 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
                     placeholder="Seleccione patologías"
                     value={selectedPatologias}
                     onChange={(value) => {
-                      handleChangeSelect({ target: { name: "idPatologias", value } });
+                      handleChangeSelect({
+                        target: { name: "idPatologias", value },
+                      });
                       setSelectedPatologias(value);
                     }}
                     options={[
-                      ...(patologiasxRecetasEdit?.patologiasAsociadas || []).map((p) => ({
+                      ...(
+                        patologiasxRecetasEdit?.patologiasAsociadas || []
+                      ).map((p) => ({
                         label: p.nombre,
                         value: p.id,
                       })),
-                      ...(patologiasxRecetasEdit?.patologiasNoAsociadas || []).map((p) => ({
+                      ...(
+                        patologiasxRecetasEdit?.patologiasNoAsociadas || []
+                      ).map((p) => ({
                         label: p.nombre,
                         value: p.id,
                       })),
@@ -437,11 +450,10 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
                     maxTagCount="responsive"
                     className={errors.idPatologias ? "input-error" : ""}
                   />
-                  {errors.idPatologias && <div className="error-message"> {errors.idPatologias}</div>}
+                  {errors.idPatologias && (
+                    <div className="error-message"> {errors.idPatologias}</div>
+                  )}
                 </div>
-              </Col>
-
-              <Col xs={24} md={12}>
                 <div className="form-field">
                   <label className="form-label">
                     Categorías <span className="required">*</span>
@@ -451,15 +463,21 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
                     placeholder="Seleccione categorías"
                     value={selectedCategorias}
                     onChange={(value) => {
-                      handleChangeSelectCategorias({ target: { name: "idCategorias", value } });
+                      handleChangeSelectCategorias({
+                        target: { name: "idCategorias", value },
+                      });
                       setSelectedCategorias(value);
                     }}
                     options={[
-                      ...(categoriasxRecetasEdit?.categoriasAsociadas || []).map((c) => ({
+                      ...(
+                        categoriasxRecetasEdit?.categoriasAsociadas || []
+                      ).map((c) => ({
                         label: c.nombre,
                         value: c.id,
                       })),
-                      ...(categoriasxRecetasEdit?.categoriasNoAsociadas || []).map((c) => ({
+                      ...(
+                        categoriasxRecetasEdit?.categoriasNoAsociadas || []
+                      ).map((c) => ({
                         label: c.nombre,
                         value: c.id,
                       })),
@@ -467,7 +485,9 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
                     maxTagCount="responsive"
                     className={errors.idCategorias ? "input-error" : ""}
                   />
-                  {errors.idCategorias && <div className="error-message"> {errors.idCategorias}</div>}
+                  {errors.idCategorias && (
+                    <div className="error-message"> {errors.idCategorias}</div>
+                  )}
                 </div>
               </Col>
             </Row>

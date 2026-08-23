@@ -3,8 +3,6 @@ import {
   Input,
   Select,
   Button,
-  Card,
-  Typography,
   Row,
   Col,
   Divider,
@@ -13,13 +11,12 @@ import {
 } from "antd";
 import {
   SwapOutlined,
-  CalculatorOutlined,
   InfoCircleOutlined,
   TableOutlined,
 } from "@ant-design/icons";
+import { HospitalIcon } from "./HospitalIcon";
 
 const { Option } = Select;
-const { Title, Text } = Typography;
 
 export const ConversionUnidades = () => {
   const [categoria, setCategoria] = useState("masa");
@@ -104,7 +101,7 @@ export const ConversionUnidades = () => {
   }, [valor, unidadOrigen, unidadDestino, categoria]);
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px" }}>
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px", width: "100%", boxSizing: "border-box" }}>
       <nav className="nav_recetas">
         <div
           style={{
@@ -115,15 +112,17 @@ export const ConversionUnidades = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "var(--primary)",
-            fontSize: 26,
             flexShrink: 0,
           }}
         >
-          <CalculatorOutlined />
+          <HospitalIcon name="conversor" size={36} alt="Conversor" />
         </div>
         <div className="cont_sel_recetas">
-          <p className="titulo_see">Conversor de Unidades</p>
+          <div className="page-header-main">
+            <div className="page-header-text">
+              <p className="titulo_see">Conversor de Unidades</p>
+            </div>
+          </div>
         </div>
       </nav>
 
@@ -268,24 +267,41 @@ export const ConversionUnidades = () => {
               Medidas Domésticas Comunes (Nutrición)
             </div>
 
-            <table className="domestic-table">
-              <thead>
-                <tr>
-                  <th>Medida Casera</th>
-                  <th>Equivalencia Sugerida</th>
-                </tr>
-              </thead>
-              <tbody>
-                {medidasDomesticas.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.medida}</td>
-                    <td>
-                      <strong>{item.equiv}</strong>
-                    </td>
+            <div className="list-summary-bar domestic-measures-summary">
+              <span>{medidasDomesticas.length} medidas</span>
+            </div>
+
+            <div className="domestic-measures-cards">
+              {medidasDomesticas.map((item, index) => (
+                <div className="domestic-measure-card domestic-measure-card--compact" key={index}>
+                  <div className="domestic-measure-card-medida">{item.medida}</div>
+                  <div className="domestic-measure-card-equiv">
+                    <strong>{item.equiv}</strong>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="domestic-table-wrap">
+              <table className="domestic-table">
+                <thead>
+                  <tr>
+                    <th>Medida Casera</th>
+                    <th>Equivalencia Sugerida</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {medidasDomesticas.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.medida}</td>
+                      <td>
+                        <strong>{item.equiv}</strong>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </Col>
       </Row>
