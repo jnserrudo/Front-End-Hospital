@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Header as CustomHeader } from "../Components/Header"; // Renombramos el componente Header para evitar conflictos
-import { Breadcrumb, Layout, Menu, theme } from "antd"; // Importamos los componentes necesarios de Ant Design
+import { Layout, Menu, theme } from "antd";
 import {
   HomeOutlined,
   CalendarOutlined,
   MessageOutlined,
   SettingOutlined,
   MenuFoldOutlined,
+  UserOutlined,
+  TagsOutlined,
+  CommentOutlined,
 } from "@ant-design/icons";
-import toast from "react-hot-toast";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react"; // Importamos ChakraProvider para mantener los estilos de Chakra UI
 import { ListCard } from "../Components/ListCard";
 import { HospitalIcon } from "../Components/HospitalIcon";
@@ -27,9 +29,9 @@ import { Calendario } from "./Calendario";
 import { FormularioFeedback } from "./FormularioFeedback";
 import { FAQProvider } from "../Contexts/FAQContext";
 import { CalendarioProvider } from "../Contexts/CalendarioContext";
-import { useIdleLogout } from "../hooks/useIdleLogout";
+import { getRol, ROLES } from "../services/session";
 
-const { Header, Content, Footer, Sider } = Layout; // Desestructuramos los componentes de Layout de Ant Design
+const { Content, Sider } = Layout;
 
 // Función para crear elementos del menú de Ant Design
 function getItem(label, key, icon, children) {
@@ -45,66 +47,81 @@ const menuIcon = (name) => (
   <HospitalIcon name={name} size={20} className="sider-menu-icon" />
 );
 
-// Definimos los elementos del menú de Ant Design
-const items = [
-  getItem("Inicio", "1", <HomeOutlined />),
-  getItem("Recetas", "2", menuIcon("recetas")),
-  getItem("Informarse", "3", menuIcon("consultaMedica")),
-  getItem("Ejercitarse", "4", menuIcon("videosEjercicio")),
-  getItem("Infografías", "15", menuIcon("platoNutricion")),
-  getItem("Calendario", "16", <CalendarOutlined />),
-  getItem("FAQ", "17", menuIcon("informacion")),
-  getItem("Feedback", "18", <MessageOutlined />),
-  getItem("Administración", "5", <SettingOutlined />, [
-    getItem("Patologia", "6", menuIcon("patolDiabetes")),
-    getItem("Recetas", "7", menuIcon("recetas")),
-    getItem("Informacion", "8", menuIcon("infoPrueba")),
-    getItem("Ejercicio", "9", menuIcon("rutinas")),
-    getItem("Usuario", "10"),
-    getItem("Paciente", "11", menuIcon("fichaSalud")),
-    getItem("Categorias", "12"),
-    getItem("Infografías", "19", menuIcon("platoNutricion")),
-    getItem("FAQ", "20", menuIcon("informacion")),
-    getItem("Calendario", "21", <CalendarOutlined />),
-    getItem("Autoevaluaciones", "22", menuIcon("fichaSalud")),
-  ]),
-  getItem("Tablas", "13", menuIcon("tablasInfo")),
-  getItem("Conversor Un.Med.", "14", menuIcon("conversor")),
+// Secciones de Administración y qué roles pueden verlas (el backend aplica los mismos permisos).
+const ADMIN_ITEMS = [
+  { key: "6", label: "Patologías", icon: menuIcon("patolDiabetes"), roles: [ROLES.ADMIN] },
+  { key: "7", label: "Recetas", icon: menuIcon("recetas"), roles: [ROLES.ADMIN, ROLES.PROFESIONAL] },
+  { key: "8", label: "Información", icon: menuIcon("infoPrueba"), roles: [ROLES.ADMIN, ROLES.PROFESIONAL] },
+  { key: "9", label: "Ejercicios", icon: menuIcon("rutinas"), roles: [ROLES.ADMIN, ROLES.PROFESIONAL] },
+  { key: "10", label: "Usuarios", icon: <UserOutlined />, roles: [ROLES.ADMIN] },
+  { key: "11", label: "Pacientes", icon: menuIcon("fichaSalud"), roles: [ROLES.ADMIN, ROLES.PROFESIONAL] },
+  { key: "12", label: "Categorías", icon: <TagsOutlined />, roles: [ROLES.ADMIN] },
+  { key: "19", label: "Infografías", icon: menuIcon("platoNutricion"), roles: [ROLES.ADMIN, ROLES.PROFESIONAL] },
+  { key: "20", label: "Preguntas frecuentes", icon: menuIcon("informacion"), roles: [ROLES.ADMIN, ROLES.PROFESIONAL] },
+  { key: "21", label: "Calendario", icon: <CalendarOutlined />, roles: [ROLES.ADMIN, ROLES.PROFESIONAL] },
+  { key: "22", label: "Autoevaluaciones", icon: menuIcon("fichaSalud"), roles: [ROLES.ADMIN, ROLES.PROFESIONAL] },
+  { key: "23", label: "Comentarios", icon: <CommentOutlined />, roles: [ROLES.ADMIN] },
 ];
 
+export const adminKeysForRol = (rol) => ADMIN_ITEMS.filter((i) => i.roles.includes(rol)).map((i) => i.key);
 
-// Estilos activos personalizados para Chakra UI
-const activeLabelStyles = {
-  transform: "scale(0.85) translateY(-24px)",
+// El menú se arma según el rol: el paciente no ve Administración.
+const buildItems = (rol) => {
+  const adminChildren = ADMIN_ITEMS.filter((i) => i.roles.includes(rol)).map((i) => getItem(i.label, i.key, i.icon));
+  return [
+    getItem("Inicio", "1", <HomeOutlined />),
+    getItem("Recetas", "2", menuIcon("recetas")),
+    getItem("Informarse", "3", menuIcon("consultaMedica")),
+    getItem("Ejercitarse", "4", menuIcon("videosEjercicio")),
+    getItem("Infografías", "15", menuIcon("platoNutricion")),
+    getItem("Calendario", "16", <CalendarOutlined />),
+    getItem("Preguntas frecuentes", "17", menuIcon("informacion")),
+    getItem("Feedback", "18", <MessageOutlined />),
+    ...(adminChildren.length > 0 ? [getItem("Administración", "5", <SettingOutlined />, adminChildren)] : []),
+    getItem("Tablas nutricionales", "13", menuIcon("tablasInfo")),
+    getItem("Conversor de unidades", "14", menuIcon("conversor")),
+  ];
 };
 
-// Extendemos el tema de Chakra UI para incluir los estilos personalizados
+
+// Tema de Chakra UI (formularios heredados): mismo azul que el resto de la app
+// para que «Guardar» / «Editar» se vean igual que los botones de Ant Design.
 const customTheme = extendTheme({
+  colors: {
+    blue: {
+      50: "#f0f9ff",
+      100: "#e0f2fe",
+      200: "#bae6fd",
+      300: "#7dd3fc",
+      400: "#38bdf8",
+      500: "#0369a1",
+      600: "#075985",
+      700: "#0c4a6e",
+      800: "#0c4a6e",
+      900: "#082f49",
+    },
+  },
   components: {
+    // Variante «floating» de los formularios heredados: la etiqueta va arriba del campo,
+    // sin fondo ni posición absoluta, para que nunca tape lo que está encima.
     Form: {
       variants: {
         floating: {
           container: {
-            _focusWithin: {
-              label: {
-                ...activeLabelStyles,
-              },
-            },
-            "input:not(:placeholder-shown) + label, .chakra-select__wrapper + label, textarea:not(:placeholder-shown) ~ label":
-              {
-                ...activeLabelStyles,
-              },
+            display: "flex",
+            flexDirection: "column",
             label: {
-              top: 0,
-              left: 0,
-              zIndex: 2,
-              position: "absolute",
-              backgroundColor: "white",
-              pointerEvents: "none",
-              mx: 3,
-              px: 1,
-              my: 2,
-              transformOrigin: "left top",
+              order: -1,
+              position: "static",
+              transform: "none",
+              backgroundColor: "transparent",
+              pointerEvents: "auto",
+              m: 0,
+              mb: "6px",
+              px: 0,
+              fontSize: "sm",
+              fontWeight: 600,
+              color: "gray.700",
             },
           },
         },
@@ -114,10 +131,9 @@ const customTheme = extendTheme({
 });
 
 export const MainApp = () => {
-  const [collapsed, setCollapsed] = useState(window.innerWidth <= 768); // Estado para manejar la colapsabilidad del Sider
-  const [selectedKey, setSelectedKey] = useState("1"); // Estado para manejar la clave seleccionada del menú
-  const [token, setToken] = useState(null); // Estado para almacenar el token JWT
-  const [validatedToken, setValidatedToken] = useState(false); // Estado para manejar la validación del token
+  const [collapsed, setCollapsed] = useState(window.innerWidth < 992); // Estado para manejar la colapsabilidad del Sider
+  const [selectedKey, setSelectedKey] = useState("1"); // Sección visible (el menú la refleja)
+  const [openKeys, setOpenKeys] = useState([]); // Submenús abiertos (Administración)
   const navigate = useNavigate(); // Hook para la navegación
 
   // Agregar clase al body cuando el sidebar está abierto
@@ -130,48 +146,22 @@ export const MainApp = () => {
   }, [collapsed]);
 
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer },
   } = theme.useToken(); // Usamos el tema de Ant Design para obtener tokens de estilo
 
   // Manejador de clics del menú para actualizar la clave seleccionada
   const handleMenuClick = (e) => {
     setSelectedKey(e.key);
+    // En celular y tablet el menú se cierra al tocar cualquier opción (también la actual).
+    if (window.innerWidth < 992) setCollapsed(true);
   };
 
-  // Función para parsear el token JWT
-  const parseJwt = (token) => {
-    if (!token) return null;
-    try {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(
-        window
-          .atob(base64)
-          .split("")
-          .map((c) => {
-            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-          })
-          .join("")
-      );
-      return JSON.parse(jsonPayload);
-    } catch (error) {
-      console.error("Failed to parse token", error);
-      return null;
-    }
-  };
+  const rol = getRol();
+  const items = buildItems(rol);
+  const allowedAdminKeys = adminKeysForRol(rol);
 
-  // Efecto para obtener el token del local storage y parsearlo
-  useEffect(() => {
-    const tokenFromStorage = localStorage.getItem("token");
-    const parsedToken = parseJwt(tokenFromStorage);
-    setToken(parsedToken);
-  }, []);
-
-  
- 
   useEffect(() => {
     const handlePopState = (event) => {
-      console.log('Evento popstate detectado', event,window.location.pathname);
       if (window.location.pathname === '/hospital') {
         setSelectedKey('1')
         //navigate('/hospital'); // Redirige a la ruta deseada
@@ -186,25 +176,21 @@ export const MainApp = () => {
     };
   }, [navigate]);
   
-  // Efecto para validar el token (estado UI)
   useEffect(() => {
-    if (token) {
-      setValidatedToken(token.exp * 1000 > Date.now());
-    }
-  }, [token]);
-
-  // Logout solo por inactividad (o JWT ya vencido al montar) — no por TTL fijo mientras hay uso
-  useIdleLogout({ token, enabled: Boolean(token) });
-
-  useEffect(() => {
-    if (window.innerWidth <= 768) {
+    // En celular y tablet el menú se cierra solo al elegir una sección.
+    if (window.innerWidth < 992) {
       setCollapsed(true);
     }
+    // Si se entra a una sección de Administración (p. ej. con «Administrar»), abrimos ese submenú.
+    if (allowedAdminKeys.includes(selectedKey)) {
+      setOpenKeys((k) => (k.includes("5") ? k : [...k, "5"]));
+    }
+    window.scrollTo({ top: 0 });
   }, [selectedKey]);
 
   // Colapsar sider al pasar a móvil / al rotar dispositivo
   useEffect(() => {
-    const MOBILE_MAX = 1024;
+    const MOBILE_MAX = 991;
     const onResize = () => {
       if (window.innerWidth <= MOBILE_MAX) {
         setCollapsed(true);
@@ -250,14 +236,16 @@ export const MainApp = () => {
             gap: 10,
             flexShrink: 0,
           }}>
-            <img src="/logoOñativia.png" alt="" style={{ width: 32, height: 32, objectFit: "contain" }} onError={(e) => e.target.style.display = 'none'} />
-            <span style={{ color: "white", fontWeight: 700, fontSize: 14, letterSpacing: "0.02em" }}>
-              Oñativia
+            <img src="/logo-onativia.png" alt="" style={{ width: 32, height: 32, objectFit: "contain" }} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+            <span style={{ color: "white", fontWeight: 700, fontSize: 13, letterSpacing: "0.02em", lineHeight: 1.2 }}>
+              Hospital Dr. Arturo Oñativia
             </span>
           </div>
           <Menu
             theme="dark"
-            defaultSelectedKeys={["1"]}
+            selectedKeys={[selectedKey]}
+            openKeys={openKeys}
+            onOpenChange={setOpenKeys}
             mode="inline"
             className="sider-menu"
             style={{
@@ -287,8 +275,6 @@ export const MainApp = () => {
           />
         )}
         <Layout className="main-layout">
-          {/* <Header style={{ margin:'1rem', padding: 0, background: colorBgContainer }}>
-          </Header> */}
           <CustomHeader 
             setSelectedKey={setSelectedKey} 
             collapsed={collapsed} 
@@ -297,10 +283,6 @@ export const MainApp = () => {
           <Content
             className={`content-main ${selectedKey === "1" ? "content-main--home" : ""}`}
           >
-            {/* <Breadcrumb style={{ margin: '16px 0' }}>
-              <Breadcrumb.Item>App</Breadcrumb.Item>
-              <Breadcrumb.Item>{items.find(item => item.key === selectedKey)?.label}</Breadcrumb.Item> 
-            </Breadcrumb> */}
             {/* Muestra la sección actual */}
             <div
               style={{
@@ -323,18 +305,14 @@ export const MainApp = () => {
               {selectedKey === "15" && <Infografias setSelectedKey={setSelectedKey} />}
               {selectedKey === "16" && <Calendario setSelectedKey={setSelectedKey} />}
               {selectedKey === "17" && <FAQ setSelectedKey={setSelectedKey} />}
-              {selectedKey === "18" && <FormularioFeedback />}
-              {+selectedKey >= 6 && +selectedKey <= 22 && selectedKey !== "13" && selectedKey !== "14" && selectedKey !== "15" && selectedKey !== "16" && selectedKey !== "17" && selectedKey !== "18" && localStorage.getItem("rol") != 3 && (
+              {selectedKey === "18" && <FormularioFeedback setSelectedKey={setSelectedKey} />}
+              {allowedAdminKeys.includes(selectedKey) && (
                 <PanelAdministracion key={selectedKey} selectedKey={selectedKey} />
               )}
               {selectedKey === "13"   && <TablasInformativas />}
               {selectedKey === "14"   && <ConversionUnidades/>}
             </div>
             <FooterHospital setSelectedKey={setSelectedKey} isHome={selectedKey === "1"} />
-
-            {/* <Footer style={{ textAlign: "center" }}>
-              <FooterHospital />
-            </Footer> */}
           </Content>
         </Layout>
       </Layout>
@@ -343,188 +321,3 @@ export const MainApp = () => {
     </FAQProvider>
   );
 };
-
-/* import React, { useEffect, useState } from "react";
-import { Header } from "../Components/Header";
-import {
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  TabIndicator,
-  extendTheme
-} from "@chakra-ui/react";
-import toast, { Toaster } from "react-hot-toast";
-
-import "../style.css";
-import { Nav } from "../Components/Nav";
-import { ListCard } from "../Components/ListCard";
-import { Ejercicio } from "./Ejercicio";
-import { Info } from "./Info";
-import { Recetas } from "./Recetas";
-import { Administracion } from "./Administracion";
-import { PanelAdministracion } from "./PanelAdministracion";
-
-import { ChakraProvider } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-
-
-
-const activeLabelStyles = {
-  transform: "scale(0.85) translateY(-24px)",
-};
-
-export const theme = extendTheme({
-  components: {
-    Form: {
-      variants: {
-        floating: {
-          container: {
-            _focusWithin: {
-              label: {
-                ...activeLabelStyles,
-              },
-            },
-            "input:not(:placeholder-shown) + label, .chakra-select__wrapper + label, textarea:not(:placeholder-shown) ~ label": {
-              ...activeLabelStyles,
-            },
-            label: {
-              top: 0,
-              left: 0,
-              zIndex: 2,
-              position: "absolute",
-              backgroundColor: "white",
-              pointerEvents: "none",
-              mx: 3,
-              px: 1,
-              my: 2,
-              transformOrigin: "left top",
-            },
-          },
-        },
-      },
-    },
-  },
-});
-
-
-export const MainApp = () => {
-  const [tabIndex, setTabIndex] = useState(0);
-  const [token, setToken] = useState(null)
-  const [validatedToken, setValidatedToken] = useState(false)
-
-  const navigate = useNavigate()
-  const handleTabsChange = (index) => {
-    setTabIndex(index);
-  };
-
-  //buscar siempre en local storage el jwt token, si no esta okey o no esta, manda de nuevo al login
-  const parseJwt = (token) => {
-    if (!token) return null;
-    try {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(
-        window
-          .atob(base64)
-          .split("")
-          .map((c) => {
-            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-          })
-          .join("")
-      );
-      return JSON.parse(jsonPayload);
-    } catch (error) {
-      console.error("Failed to parse token", error);
-      return null;
-    }
-  };
-
-
-  useEffect(() => {
-    const tokenFromStorage = localStorage.getItem('token');
-    const parsedToken = parseJwt(tokenFromStorage);
-    setToken(parsedToken);
-    
-  }, []);
-
-  useEffect(()=>{
-    
-    if(token){
-      setValidatedToken(token.exp*1000>Date.now())
-      toast.success('Logeado con exito!',{
-        duration: 3000,
-      })
-    }
-  },[token])
-
-
-  
-  useEffect(() => {
-    if (token) {
-      const isValid = token.exp * 1000 > Date.now();
-      setValidatedToken(isValid);
-
-      if (!isValid) {
-        navigate('/');
-      } else {
-        // Set a timeout to automatically navigate to '/' when the token expires
-        const timeoutId = setTimeout(() => {
-          navigate('/');
-        }, token.exp * 1000 - Date.now());
-
-        return () => clearTimeout(timeoutId); // Cleanup on unmount
-      }
-    }
-  }, [token, navigate]);
-  let admin = true;
-  return (
-    <div>
-            <Toaster position="top-center" reverseOrder={false} />
-
-      <Header />
-
-      <Nav bandLogin={false} bandHospital={true} />
-      <ChakraProvider theme={theme} >
-        <Tabs
-          index={tabIndex}
-          onChange={handleTabsChange}
-          position="relative"
-          variant="enclosed"
-        >
-          <TabList className="tablist">
-            <Tab className="txt_tab">Inicio</Tab>
-            <Tab className="txt_tab">Recetas</Tab>
-            <Tab className="txt_tab">Informarse</Tab>
-            <Tab className="txt_tab">Ejercitarse</Tab>
-            {admin ? <Tab className="txt_tab">Administración</Tab> : null}
-          </TabList>
-          
-          <TabPanels>
-            <TabPanel>
-              <main className="main_home">
-                <img src="/fondo.jpg" className="img_fondo" alt="" onError={(e) => e.target.style.display = 'none'} />
-
-                <ListCard setTabIndex={setTabIndex} />
-              </main>
-            </TabPanel>
-            <TabPanel>
-              <Recetas />
-            </TabPanel>
-            <TabPanel>
-              <Info />
-            </TabPanel>
-            <TabPanel>
-              <Ejercicio />
-            </TabPanel>
-            <TabPanel>
-              {localStorage.getItem("rol") != 3 ? <PanelAdministracion /> : null}
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </ChakraProvider>
-    </div>
-  );
-};
- */

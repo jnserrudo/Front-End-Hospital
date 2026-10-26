@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import RecetaContext from "../Contexts/RecetaContext";
 import { VentEmergenteAddReceta } from "./VentEmergenteAddReceta";
@@ -6,6 +6,8 @@ import { VentEmergenteEditReceta } from "./VentEmergenteEditReceta";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { inhabilitarRecetas } from "../services/recetas-services";
 import { AdminEntityList } from "./AdminEntityList";
+import { filterBySearch } from "../utils/search";
+import { notify } from "../ui/notify";
 
 export const AdminReceta = () => {
   const {
@@ -25,6 +27,7 @@ export const AdminReceta = () => {
     setShowVentEmergenteDelete,
     loading,
     loadingAction,
+    recargar,
   } = useContext(RecetaContext);
 
   const [recetaSearch, setRecetaSearch] = useState("");
@@ -39,28 +42,32 @@ export const AdminReceta = () => {
     }
   }, []);
 
+  const lista = useMemo(() => filterBySearch(db || [], recetaSearch), [db, recetaSearch]);
+  const itemNombre = (db || []).find((x) => x.id === idReceta)?.nombre || "seleccionada";
+
   return (
     <>
       <AdminEntityList
         title="Listado de Recetas"
-        count={db.length}
+        count={db?.length || 0}
         searchProps={{
           placeholder: "Buscar receta...",
           value: recetaSearch,
           onChange: (e) => {
             setRecetaSearch(e.target.value);
-            handleSearch(e.target.value, db);
           },
         }}
         addButton={{
-          label: "Agregar Receta",
+          label: "Agregar receta",
           icon: <PlusOutlined />,
           onClick: () => setShowVentEmergenteAddReceta(true),
           loading: loadingAction,
           disabled: loadingAction,
         }}
         columns={columns}
-        dataSource={dbSearch.length > 0 ? dbSearch : db}
+        dataSource={lista}
+        loadingText="Cargando recetas…"
+        estado={{ entidad: "recetas", singular: "receta", articulo: "la", onRestored: () => recargar?.() }}
         loading={loading}
         rowKey="id"
       />
@@ -75,10 +82,18 @@ export const AdminReceta = () => {
         onClose={handleCloseVentEmergenteEditReceta}
       />
       <VentEmergConfirmacion
-        mje={"¿Está seguro de eliminar este registro?"}
+        title={`¿Deshabilitar la receta «${itemNombre}»?`}
+        mje={"Deja de mostrarse en la sección Recetas para todos los pacientes. Los datos no se borran y se puede volver a habilitar desde el filtro «Deshabilitados»."}
+        confirmText="Deshabilitar"
+        danger
+        errorFallback="No pudimos deshabilitar la receta"
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
-        handleSi={() => inhabilitarRegistro(idReceta)}
+        handleSi={async () => {
+          const nombreItem = itemNombre;
+          await inhabilitarRegistro(idReceta);
+          notify.success(`Receta «${nombreItem}» deshabilitada. Ya no se muestra en la app.`);
+        }}
       />
     </>
   );

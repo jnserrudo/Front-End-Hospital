@@ -1,10 +1,12 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import CalendarioContext from "../Contexts/CalendarioContext";
 import { VentEmergenteAddEvento } from "./VentEmergenteAddEvento";
 import { VentEmergenteEditEvento } from "./VentEmergenteEditEvento";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { AdminEntityList } from "./AdminEntityList";
+import { filterBySearch } from "../utils/search";
+import { notify } from "../ui/notify";
 
 export const AdminCalendario = () => {
   const {
@@ -24,32 +26,37 @@ export const AdminCalendario = () => {
     loading = false,
     loadingAction = false,
     inhabilitarEvento,
+    recargar,
   } = useContext(CalendarioContext);
 
   const [eventoSearch, setEventoSearch] = useState("");
+
+  const lista = useMemo(() => filterBySearch(db || [], eventoSearch), [db, eventoSearch]);
+  const itemNombre = (db || []).find((x) => x.id === idEvento)?.titulo || "seleccionado";
 
   return (
     <>
       <AdminEntityList
         title="Listado de Eventos"
-        count={db.length}
+        count={db?.length || 0}
         searchProps={{
           placeholder: "Buscar evento...",
           value: eventoSearch,
           onChange: (e) => {
             setEventoSearch(e.target.value);
-            handleSearch(e.target.value);
           },
         }}
         addButton={{
-          label: "Agregar Evento",
+          label: "Agregar evento",
           icon: <PlusOutlined />,
           onClick: () => setShowVentEmergenteAddEvento(true),
           loading: loadingAction,
           disabled: loadingAction,
         }}
         columns={columns}
-        dataSource={dbSearch.length > 0 ? dbSearch : db}
+        dataSource={lista}
+        loadingText="Cargando eventos…"
+        estado={{ entidad: "calendario", singular: "evento", articulo: "el", onRestored: () => recargar?.() }}
         loading={loading}
         rowKey="id"
       />
@@ -66,10 +73,18 @@ export const AdminCalendario = () => {
       />
 
       <VentEmergConfirmacion
-        mje={"¿Está seguro de eliminar este evento?"}
+        title={`¿Deshabilitar el evento «${itemNombre}»?`}
+        mje={"Deja de mostrarse en el calendario para todos. Los datos no se borran y se puede volver a habilitar desde el filtro «Deshabilitados»."}
+        confirmText="Deshabilitar"
+        danger
+        errorFallback="No pudimos deshabilitar el evento"
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
-        handleSi={() => inhabilitarEvento(idEvento)}
+        handleSi={async () => {
+          const nombreItem = itemNombre;
+          await inhabilitarEvento(idEvento);
+          notify.success(`Evento «${nombreItem}» deshabilitado. Ya no se muestra en la app.`);
+        }}
       />
     </>
   );

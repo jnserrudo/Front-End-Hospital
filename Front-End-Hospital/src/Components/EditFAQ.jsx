@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
+import { ModoLecturaNota } from "./ModoLecturaNota";
 import { Button, FormControl, FormLabel, Grid, GridItem, Textarea } from "@chakra-ui/react";
 import { Input } from "@chakra-ui/react";
 import { Select, Space } from "antd";
@@ -17,10 +18,6 @@ export const EditFAQ = ({ faq, onCloseEdit }) => {
   const [bandEdit, setBandEdit] = useState(false);
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] = useState(false);
 
-  if (!faq) {
-    return null;
-  }
-
   const handleConfirmar = () => {
     if (bandEdit) {
       setShowVentEmergenteConfirmacion(true);
@@ -31,8 +28,13 @@ export const EditFAQ = ({ faq, onCloseEdit }) => {
     setBandEdit(true);
   }, [faq]);
 
+  if (!faq) {
+    return null;
+  }
+
   return (
     <div className="form_edit_receta">
+      <ModoLecturaNota editando={bandEdit} />
       <Grid
         className="grid_chackra"
         templateColumns={{ base: "1fr", md: "repeat(auto-fit, minmax(300px, 1fr))" }}
@@ -73,8 +75,8 @@ export const EditFAQ = ({ faq, onCloseEdit }) => {
             <Select
               style={{ width: "100%" }}
               options={CATEGORIAS}
-              placeholder="Seleccione una categoría"
-              value={faq?.categoria || undefined}
+              placeholder="Elegí una categoría"
+              value={faq?.categoria ? String(faq.categoria).toLowerCase() : undefined}
               onChange={handleChangeSelectCategoria}
               disabled={!bandEdit}
             />
@@ -89,13 +91,16 @@ export const EditFAQ = ({ faq, onCloseEdit }) => {
             width="100%"
             mt={4}
           >
-            Actualizar Pregunta
+            Guardar cambios
           </Button>
         </GridItem>
       </Grid>
 
       <VentEmergConfirmacion
-        mje="¿Está seguro de actualizar esta pregunta?"
+        title={`¿Guardar los cambios de la pregunta «${faq?.pregunta || ""}»?`}
+        mje="Se va a mostrar actualizada en Preguntas frecuentes."
+        confirmText="Guardar cambios"
+        errorFallback="No pudimos guardar los cambios"
         isOpen={showVentEmergenteConfirmacion}
         onClose={() => setShowVentEmergenteConfirmacion(false)}
         handleSi={async () => {

@@ -9,7 +9,7 @@ export const VentEmergenteEditEvento = ({ isOpen, eventoSelected, onClose }) => 
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <EditOutlined style={{ color: "var(--primary)" }} />
-          <span>Editar Evento</span>
+          <span>Editar evento{eventoSelected?.titulo ? `: ${eventoSelected.titulo}` : ""}</span>
         </div>
       }
       open={isOpen}

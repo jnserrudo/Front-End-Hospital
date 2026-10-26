@@ -13,7 +13,7 @@ export const VentEmergenteEditReceta = ({
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <EditOutlined style={{ color: "var(--primary)" }} />
-          <span>Editar Receta</span>
+          <span>Editar receta{recetaSelected?.nombre ? `: ${recetaSelected.nombre}` : ""}</span>
         </div>
       }
       open={isOpen}

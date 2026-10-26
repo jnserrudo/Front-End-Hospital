@@ -1,11 +1,15 @@
+import { ImagenSegura } from "../Components/MediaNoDisponible";
 import React, { useContext, useEffect, useState } from "react";
-import { Select, Input, Alert, Tabs, Button, Empty } from "antd";
+import { Select, Input, Tabs, Button, Empty } from "antd";
 import { ListVideos } from "../Components/ListVideos";
 import InformacionContext from "../Contexts/InformacionContext";
-import { entorno, getMediaUrl } from "../services/config";
-import { SearchOutlined, InfoCircleOutlined, FilePdfOutlined, ExportOutlined, SettingOutlined } from "@ant-design/icons";
+import { getMediaUrl } from "../services/config";
+import { SearchOutlined, FilePdfOutlined, ExportOutlined } from "@ant-design/icons";
 import { getAllInformacions } from "../services/informacion-services";
 import { HospitalIcon } from "../Components/HospitalIcon";
+import { PageHeader } from "../Components/PageHeader";
+import { SectionHelp } from "../Components/SectionHelp";
+import { AdminShortcut } from "../Components/AdminShortcut";
 export const Info = ({ setSelectedKey }) => {
   //esta vble videos sera reemplazada por un listado de videos que ser iran cargando con sus URLs en la BD
   const [videos, setVideos] = useState([]);
@@ -14,9 +18,6 @@ export const Info = ({ setSelectedKey }) => {
   const [videosSearch, setVideosSearch] = useState("");
   const [activeTab, setActiveTab] = useState("1");
   
-  // Verificar si el usuario es administrador o profesional
-  const rol = localStorage.getItem("rol");
-  const isAdmin = rol === "1" || rol === "2" || rol === 1 || rol === 2 || parseInt(rol) === 1 || parseInt(rol) === 2;
   const {
     db,
     dbSearch,
@@ -26,7 +27,6 @@ export const Info = ({ setSelectedKey }) => {
     handleChangeSelectInformacionFiltrar,
     handleChangeSelectCategoriasFiltrar,
   } = useContext(InformacionContext);
-  console.log(db);
 
   const sharedProps = {
     mode: "multiple",
@@ -34,7 +34,7 @@ export const Info = ({ setSelectedKey }) => {
       width: "100%",
     },
     options: patologiasxInformacionAdd,
-    placeholder: "Seleccione una Patología",
+    placeholder: "Elegí una patología",
     maxTagCount: "responsive",
   };
 
@@ -44,7 +44,7 @@ export const Info = ({ setSelectedKey }) => {
       width: "100%",
     },
     options: categoriasxInformacionAdd,
-    placeholder: "Seleccione una Categoría",
+    placeholder: "Filtrar por categoría",
     maxTagCount: "responsive",
   };
 
@@ -145,13 +145,10 @@ export const Info = ({ setSelectedKey }) => {
                     <span style={{ fontSize: 12, color: "#92400e", fontWeight: 600 }}>Guía de Patología (PDF)</span>
                   </div>
                 ) : (
-                  <img
-                    src={v.urlInfografia ? getUrl(v) : "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY0NzQ4YiIgc3Ryb2tlLXdpZHRoPSIxLjUiPjxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIaIiBoZWlnaHQ9IjE4IiByeD0iMiIgcnk9IjIiLz48Y2lyY2xlIGN4PSI4LjUiIGN5PSI4LjUiIHI9IjEuNSIvPjxwb2x5bGluZSBwb2ludHM9IjIxIDE1IDE2IDEwIDUgMjEiLz48L3N2Zz4="}
+                  <ImagenSegura
+                    src={v.urlInfografia ? getUrl(v) : ""}
                     alt={v.nombre}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    onError={(e) => {
-                      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY0NzQ4YiIgc3Ryb2tlLXdpZHRoPSIxLjUiPjxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIi8+PGNpcmNsZSBjeD0iOC41IiBjeT0iOC41IiByPSIxLjUiLz48cG9seWxpbmUgcG9pbnRzPSIyMSAxNSAxNiAxMCA1IDIxIi8+PC9zdmc+';
-                    }}
                   />
                 )}
               </div>
@@ -179,80 +176,64 @@ export const Info = ({ setSelectedKey }) => {
   };
 
   return (
-    <div>
-      <nav className="nav_recetas">
-        <div style={{
-          width: 56, height: 56, borderRadius: "var(--radius-md)",
-          background: "var(--primary-100)", display: "flex",
-          alignItems: "center", justifyContent: "center",
-          flexShrink: 0,
-        }}>
-          <HospitalIcon name="consultaMedica" size={36} alt="Información" />
-        </div>
-        <div className="cont_sel_recetas">
-          <div className="page-header-top">
-            <div className="page-header-main">
-              <div className="page-header-text">
-                <p className="titulo_see">Información Saludable</p>
-              </div>
-            </div>
-            {isAdmin && setSelectedKey && (
-              <div className="page-header-actions">
-                <Button
-                  type="primary"
-                  icon={<SettingOutlined />}
-                  onClick={() => setSelectedKey("8")}
-                  className="admin-action-btn"
-                >
-                  <span className="btn-text">Administrar</span>
-                </Button>
-              </div>
-            )}
-          </div>
-          <div className="filters-row-premium">
-            <Input
-              prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
-              placeholder="Buscar información..."
-              value={videosSearch}
-              onChange={(e) => {
-                setVideosSearch(e.target.value);
-                handleSearch(e.target.value, videos);
-              }}
-              allowClear
-            />
-            <Select
-              className="select_recetas"
-              name="idCategorias"
-              {...sharedPropsCategorias}
-              onChange={handleChangeSelectCategoriasFiltrar}
-            />
-          </div>
-        </div>
-      </nav>
-      <Alert
-        message="¿Cómo usar esta sección?"
-        description="Encuentra videos educativos, podcasts e infografías de interés sobre salud y patologías. Usa los filtros de categoría y busca palabras clave."
-        type="info"
-        icon={<InfoCircleOutlined />}
-        showIcon
-        closable
-        className="page-alert-inset"
+    <div className="page-wrapper">
+      <PageHeader
+        icon={<HospitalIcon name="consultaMedica" size={32} alt="" />}
+        title="Información saludable"
+        subtitle="Videos, podcasts y guías del equipo de salud para entender mejor tu tratamiento"
+        actions={<AdminShortcut adminKey="8" setSelectedKey={setSelectedKey} />}
       />
 
-      <div className="page-content-inset">
-        <Tabs activeKey={activeTab} onChange={(key) => setActiveTab(key)} type="card" style={{ marginBottom: 16 }}>
-          <Tabs.TabPane tab="Videos y Podcasts" key="1">
-            <div className="cont_recetas">
-              <ListVideos videos={videoItems} />
-            </div>
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Infografías y Guías" key="2">
-            <div className="cont_recetas">
-              {renderInfografias(infografiaItems)}
-            </div>
-          </Tabs.TabPane>
-        </Tabs>
+      <div className="filter-bar">
+        <Input
+          prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
+          placeholder="Buscar por título o tema..."
+          value={videosSearch}
+          onChange={(e) => {
+            setVideosSearch(e.target.value);
+            handleSearch(e.target.value, videos);
+          }}
+          allowClear
+        />
+        <Select
+          name="idCategorias"
+          {...sharedPropsCategorias}
+          style={{ flex: "1 1 200px", minWidth: 0 }}
+          allowClear
+          notFoundContent="Todavía no hay categorías cargadas"
+          onChange={handleChangeSelectCategoriasFiltrar}
+        />
       </div>
+
+      <SectionHelp>
+        Acá vas a encontrar material educativo preparado por el equipo del hospital para que conozcas mejor tu
+        patología y cómo cuidarte. En «Videos y podcasts» podés reproducirlos acá mismo; en «Infografías y guías»
+        podés abrir o descargar los documentos. Buscá por palabra clave o filtrá por categoría.
+      </SectionHelp>
+
+      <Tabs
+        activeKey={activeTab}
+        onChange={(key) => setActiveTab(key)}
+        type="card"
+        className="tabs-contenido"
+        style={{ marginBottom: 16 }}
+        items={[
+          {
+            key: "1",
+            label: <><span className="tab-largo">Videos y podcasts</span><span className="tab-corto">Videos</span></>,
+            children: (
+              <div className="cont_recetas">
+                <ListVideos videos={videoItems} />
+              </div>
+            ),
+          },
+          {
+            key: "2",
+            label: <><span className="tab-largo">Infografías y guías</span><span className="tab-corto">Infografías</span></>,
+            children: <div className="cont_recetas">{renderInfografias(infografiaItems)}</div>,
+          },
+        ]}
+      />
     </div>
   );
 };

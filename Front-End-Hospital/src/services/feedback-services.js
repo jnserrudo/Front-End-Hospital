@@ -23,6 +23,7 @@ export const getFeedbackById = async (id) => {
 };
 
 export const insertFeedback = async (feedback) => {
+  // Si falla, el interceptor lanza un ApiError con un mensaje amigable.
   const response = await fetch(entorno + "/feedback", {
     method: "POST",
     headers: {
@@ -30,8 +31,7 @@ export const insertFeedback = async (feedback) => {
     },
     body: JSON.stringify(feedback),
   });
-  const data = await response.json();
-  return data;
+  return response.json();
 };
 
 export const markFeedbackAsRead = async (id) => {

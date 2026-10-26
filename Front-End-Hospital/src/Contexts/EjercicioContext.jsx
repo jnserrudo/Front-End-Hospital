@@ -1,5 +1,7 @@
+import { RowActions } from "../Components/RowActions";
 import React, { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { notify } from "../ui/notify";
 import {
   getAllEjercicios,
   getAllEjerciciosFiltro,
@@ -11,7 +13,7 @@ import {
   insertEjercicio,
   updateEjercicio,
 } from "../services/ejercicio-services";
-import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DragOutlined, DeleteOutlined, StopOutlined } from "@ant-design/icons";
 const EjercicioContext = createContext();
 export const EjercicioProvider = ({ children }) => {
   const [db, setDb] = useState([]);
@@ -33,7 +35,7 @@ export const EjercicioProvider = ({ children }) => {
   const [bandLoader, setBandLoader] = useState(false);
 
   // Estados de loading
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // true: evita mostrar «vacío» antes de cargar
   const [loadingAction, setLoadingAction] = useState(false);
 
   const [patologiasxEjercicioAdd, setPatologiasxEjercicioAdd] = useState([]);
@@ -217,12 +219,11 @@ export const EjercicioProvider = ({ children }) => {
       console.log("se esta por actualizar este ejercicio: ", ejercicio);
       const update = await updateEjercicio(ejercicio);
       console.log("update: ", update);
-      toast.success("Ejercicio actualizado exitosamente");
+      notify.success(`Ejercicio «${ejercicio?.nombre || ""}» actualizado. Los pacientes ya ven los cambios.`);
       await getallEjercicios();
       handleCloseVentEmergenteEditEjercicio();
     } catch (error) {
       console.error("Error al actualizar ejercicio:", error);
-      toast.error("Error al actualizar ejercicio");
       throw error;
     } finally {
       setLoadingAction(false);
@@ -372,7 +373,7 @@ export const EjercicioProvider = ({ children }) => {
       align: "start",
     },
     {
-      title: "Descripcion",
+      title: "Descripción",
       dataIndex: "descripcion",
       align: "start",
     },
@@ -382,20 +383,12 @@ export const EjercicioProvider = ({ children }) => {
       key: "acciones",
       align: "center",
       render: (_, record) => (
-        <div className="cont_acciones">
-          {/* <EditOutlined
-            className="icon_accion"
-            onClick={(e) => handleEditEjercicio(record)}
-          /> */}
-          <DragOutlined
-            className="icon_accion"
-            onClick={(e) => handleEditEjercicio(record)}
-          />
-          <DeleteOutlined
-            className="icon_accion"
-            onClick={(e) => handleDelete(record)}
-          />
-        </div>
+        <RowActions
+          actions={[
+            { key: "edit", label: "Ver detalle y editar", icon: <EditOutlined />, onClick: () => handleEditEjercicio(record) },
+            { key: "off", label: "Deshabilitar", icon: <StopOutlined />, danger: true, onClick: () => handleDelete(record) },
+          ]}
+        />
       ),
     },
   ];
@@ -407,17 +400,18 @@ export const EjercicioProvider = ({ children }) => {
       try {
         console.log(" se esta por insertar el ejercicio: ", dataToInsert);
         await addEjercicio(dataToInsert);
-        toast.success("Ejercicio creado exitosamente");
+        notify.success(`Ejercicio «${dataToInsert?.nombre || ""}» creado. Ya aparece en la sección Ejercicios.`);
         await getallEjercicios();
         handleCloseVentEmergenteConfEjercicio();
         handleCloseVentEmergenteAddEjercicio();
       } catch (error) {
         console.error("Error al crear ejercicio:", error);
-        toast.error("Error al crear ejercicio");
         throw error;
       } finally {
         setLoadingAction(false);
       }
+    } else {
+      throw new Error("Faltan datos obligatorios: completá los campos marcados y volvé a intentar.");
     }
   };
   const addEjercicio = async (ejercicio) => {
@@ -441,7 +435,7 @@ export const EjercicioProvider = ({ children }) => {
       setDb(ejercicios);
     } catch (error) {
       console.error("Error al cargar ejercicios:", error);
-      toast.error("Error al cargar ejercicios");
+      notify.error(error, "No pudimos cargar ejercicios");
     } finally {
       setLoading(false);
     }
@@ -465,6 +459,7 @@ export const EjercicioProvider = ({ children }) => {
   }, [ejercicioToInsert]);
 
   let data = {
+    recargar: getallEjercicios,
     db: db,
     columns: columns,
     ejercicioSelected: ejercicioSelected,

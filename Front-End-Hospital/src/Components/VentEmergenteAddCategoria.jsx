@@ -9,7 +9,7 @@ export const VentEmergenteAddCategoria = ({ isOpen, onClose }) => {
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <PlusOutlined style={{ color: "var(--primary)" }} />
-          <span>Agregar Categoría</span>
+          <span>Agregar categoría</span>
         </div>
       }
       open={isOpen}

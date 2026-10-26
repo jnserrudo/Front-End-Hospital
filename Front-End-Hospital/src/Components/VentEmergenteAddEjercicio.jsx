@@ -9,7 +9,7 @@ export const VentEmergenteAddEjercicio = ({ isOpen, onClose }) => {
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <PlusOutlined style={{ color: "var(--primary)" }} />
-          <span>Agregar Ejercicio</span>
+          <span>Agregar ejercicio</span>
         </div>
       }
       open={isOpen}

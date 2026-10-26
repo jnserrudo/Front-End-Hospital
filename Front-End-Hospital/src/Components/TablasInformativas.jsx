@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Button, Alert } from 'antd';
+import { Button } from 'antd';
 import { TablaNutricionalView } from './TablaNutricionalView';
-import { ArrowRightOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined } from '@ant-design/icons';
 import { HospitalIcon } from './HospitalIcon';
 import { PageHeader } from './PageHeader';
+import { SectionHelp } from './SectionHelp';
 
 export const TablasInformativas = () => {
   const [selectedTable, setSelectedTable] = useState(null);
@@ -50,21 +51,16 @@ export const TablasInformativas = () => {
   return (
     <div className="page-wrapper">
       <PageHeader
-        icon={<HospitalIcon name="tablasInfo" size={36} alt="Tablas nutricionales" />}
-        title="Tablas Nutricionales"
-        subtitle="Consulta la información nutricional de diferentes alimentos"
-        showBar={false}
+        icon={<HospitalIcon name="tablasInfo" size={32} alt="" />}
+        title="Tablas nutricionales"
+        subtitle="Consultá la información nutricional de distintos alimentos"
       />
 
-      <Alert
-        message="¿Cómo usar esta sección?"
-        description="Consulta tablas nutricionales de alimentos. Haz clic en una categoría para ver información detallada sobre calorías, proteínas, carbohidratos y otros nutrientes."
-        type="info"
-        icon={<InfoCircleOutlined />}
-        showIcon
-        closable
-        style={{ marginBottom: 24, borderRadius: "var(--radius-md)" }}
-      />
+      <SectionHelp>
+        Estas tablas muestran cuántas calorías, proteínas, carbohidratos, grasas y otros nutrientes tiene cada
+        alimento, para que puedas armar tus comidas siguiendo las indicaciones de tu plan. Tocá un grupo de alimentos
+        para ver su tabla completa.
+      </SectionHelp>
 
       <div className="tablas-grid">
         {tablas.map((tabla) => (

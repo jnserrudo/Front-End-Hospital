@@ -1,102 +1,158 @@
-import { useEffect, useState } from "react";
-import { Button, Input, Select, Modal, Tabs, Tag, Empty } from "antd";
-import { SearchOutlined, EyeOutlined, PrinterOutlined, BarChartOutlined } from "@ant-design/icons";
-import { entorno } from "../services/config";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Alert, Button, DatePicker, Input, Modal, Select, Skeleton, Tabs, Tag, Empty } from "antd";
+import { SearchOutlined, EyeOutlined, PrinterOutlined, BarChartOutlined, CheckCircleOutlined, ReloadOutlined, EditOutlined } from "@ant-design/icons";
 import { AdminEntityList } from "./AdminEntityList";
+import { RowActions } from "./RowActions";
+import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
+import { apiFetch, friendlyMessage } from "../services/http";
+import { getSession } from "../services/session";
+import { notify } from "../ui/notify";
+import {
+  OBSERVACIONES,
+  RespuestasAutoevaluacion,
+  formatFechaHora,
+  nombreProfesional,
+  nombreTipo,
+  parseRespuestas,
+  preguntasVisibles,
+} from "../utils/autoevaluacion";
+
+const { RangePicker } = DatePicker;
+
+const escapeHtml = (v) =>
+  String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+const nombrePaciente = (a) => {
+  const u = a?.paciente?.usuario;
+  return u ? `${u.nombre} ${u.apellido}` : "Paciente sin cuenta vinculada";
+};
 
 export const AdminAutoevaluacion = () => {
+  const yo = getSession();
   const [db, setDb] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [profesionales, setProfesionales] = useState([]);
-  const [selectedRecord, setSelectedRecord] = useState(null);
-  const [isDetailVisible, setIsDetailVisible] = useState(false);
-  const [activeTabKey, setActiveTabKey] = useState("1");
+  const [patologias, setPatologias] = useState([]);
 
-  // Filtros
+  // Filtros (fecha, patología, profesional, tipo y estado los resuelve el servidor)
   const [busqueda, setBusqueda] = useState("");
   const [profesionalId, setProfesionalId] = useState(null);
   const [tipo, setTipo] = useState(null);
   const [alerta, setAlerta] = useState(null);
+  const [estado, setEstado] = useState(null);
+  const [patologiaId, setPatologiaId] = useState(null);
+  const [rango, setRango] = useState(null);
 
-  // Cargar datos
-  const fetchAutoevaluaciones = async () => {
+  // Detalle
+  const [detalle, setDetalle] = useState(null);
+  const [historial, setHistorial] = useState(null);
+  const [devolucion, setDevolucion] = useState("");
+  const [editandoDevolucion, setEditandoDevolucion] = useState(false);
+  const [confirmarRevision, setConfirmarRevision] = useState(false);
+
+  const query = useMemo(() => {
+    const q = new URLSearchParams();
+    if (profesionalId) q.set("profesionalId", profesionalId);
+    if (tipo) q.set("tipo", tipo);
+    if (estado !== null && estado !== undefined) q.set("revisada", estado);
+    if (patologiaId) q.set("patologiaId", patologiaId);
+    if (rango?.[0]) q.set("desde", rango[0].format("YYYY-MM-DD"));
+    if (rango?.[1]) q.set("hasta", rango[1].format("YYYY-MM-DD"));
+    return q.toString();
+  }, [profesionalId, tipo, estado, patologiaId, rango]);
+
+  const cargar = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
-      const res = await fetch(`${entorno}/autoevaluaciones`);
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setDb(data);
-      }
+      const data = await apiFetch(`/autoevaluaciones${query ? `?${query}` : ""}`);
+      setDb(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Error al cargar autoevaluaciones", err);
+      if (err) err.notified = true;
+      setError(friendlyMessage(err, "No pudimos cargar las autoevaluaciones"));
+      setDb([]);
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchProfesionales = async () => {
-    try {
-      const res = await fetch(`${entorno}/usuarios/profesionales/lista`);
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setProfesionales(data);
-      }
-    } catch (err) {
-      console.error("Error al cargar profesionales", err);
-    }
-  };
+  }, [query]);
 
   useEffect(() => {
-    fetchAutoevaluaciones();
-    fetchProfesionales();
+    cargar();
+  }, [cargar]);
+
+  useEffect(() => {
+    apiFetch("/usuarios/profesionales/lista")
+      .then((d) => Array.isArray(d) && setProfesionales(d))
+      .catch((err) => err && (err.notified = true));
+    apiFetch("/patologias")
+      .then((d) => Array.isArray(d) && setPatologias(d))
+      .catch((err) => err && (err.notified = true));
   }, []);
 
-  const handleOpenDetail = (record) => {
-    setSelectedRecord(record);
-    setActiveTabKey("1");
-    setIsDetailVisible(true);
-  };
-
-  // Helper para verificar alertas clínicas
-  const checkClinicalAlert = (record) => {
-    let respuestas = {};
+  const abrirDetalle = async (record) => {
+    setDetalle(record);
+    setDevolucion(record.devolucion || "");
+    setEditandoDevolucion(record.revisada !== 1);
+    setHistorial(null);
     try {
-      respuestas = typeof record.respuestas === "string" ? JSON.parse(record.respuestas) : record.respuestas;
-    } catch (e) {
-      return false;
+      const h = await apiFetch(`/autoevaluaciones?pacienteId=${record.pacienteId}&tipo=ejercicio`);
+      setHistorial(Array.isArray(h) ? h : []);
+    } catch (err) {
+      if (err) err.notified = true;
+      setHistorial([]);
     }
-    const eva = respuestas.PainEVA !== undefined ? Number(respuestas.PainEVA) : 0;
-    const tieneSintomasAlarma = respuestas.AlarmSymptoms && respuestas.AlarmSymptoms.length > 0;
-    return (respuestas.PainPresent === "Sí" && eva >= 7) || tieneSintomasAlarma;
   };
 
-  // Filtrado del lado del cliente
+  const guardarRevision = async () => {
+    const actualizada = await apiFetch(`/autoevaluaciones/${detalle.id}/revision`, {
+      method: "PUT",
+      body: { devolucion },
+    });
+    const quien = nombrePaciente(actualizada);
+    const avisoEmail = {
+      enviado: ` y le avisamos por email a ${quien}`,
+      sin_email: `. ${quien} no tiene email cargado: va a ver la devolución cuando entre a la app`,
+      fallo: ". No pudimos mandarle el email ahora, pero va a ver la devolución cuando entre a la app",
+      sin_cambios: "",
+      sin_devolucion: "",
+    }[actualizada.email] ?? "";
+    const base = actualizada.devolucion
+      ? `Guardamos tu devolución para ${quien}`
+      : `Autoevaluación de ${quien} marcada como revisada`;
+    if (actualizada.email === "fallo" || actualizada.email === "sin_email") notify.warning(`${base}${avisoEmail}.`);
+    else notify.success(`${base}${avisoEmail}.`);
+    setDb((prev) => prev.map((a) => (a.id === actualizada.id ? actualizada : a)));
+    setDetalle(actualizada);
+    setEditandoDevolucion(false);
+  };
+
+  const texto = busqueda.trim().toLowerCase();
   const filteredData = db.filter((item) => {
-    const pacienteNombre = `${item.paciente?.usuario?.nombre || ""} ${item.paciente?.usuario?.apellido || ""}`.toLowerCase();
-    const pacienteDni = String(item.paciente?.usuario?.dni || "");
-    const matchBusqueda = pacienteNombre.includes(busqueda.toLowerCase()) || pacienteDni.includes(busqueda);
-
-    const matchProfesional = !profesionalId || item.profesionalId === profesionalId;
-    const matchTipo = !tipo || item.tipo === tipo;
-
-    const esAlerta = checkClinicalAlert(item);
-    const matchAlerta = !alerta || (alerta === "alerta" && esAlerta) || (alerta === "normal" && !esAlerta);
-
-    return matchBusqueda && matchProfesional && matchTipo && matchAlerta;
+    const u = item.paciente?.usuario;
+    const matchBusqueda =
+      !texto || `${u?.nombre || ""} ${u?.apellido || ""}`.toLowerCase().includes(texto) || String(u?.dni || "").includes(texto);
+    const matchAlerta = !alerta || (alerta === "alerta" && item.alerta) || (alerta === "normal" && !item.alerta);
+    return matchBusqueda && matchAlerta;
   });
+
+  const hayFiltros = Boolean(busqueda || profesionalId || tipo || alerta || estado !== null || patologiaId || rango);
+  const limpiarFiltros = () => {
+    setBusqueda("");
+    setProfesionalId(null);
+    setTipo(null);
+    setAlerta(null);
+    setEstado(null);
+    setPatologiaId(null);
+    setRango(null);
+  };
 
   const columns = [
     {
       title: "Fecha",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (text) => new Date(text).toLocaleString("es-AR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
+      render: (text) => formatFechaHora(text),
       sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
       defaultSortOrder: "descend",
     },
@@ -107,234 +163,81 @@ export const AdminAutoevaluacion = () => {
         const u = record.paciente?.usuario;
         return u ? (
           <div>
-            <div style={{ fontWeight: 600 }}>{u.nombre} {u.apellido}</div>
+            <div style={{ fontWeight: 600 }}>
+              {u.nombre} {u.apellido}
+            </div>
             <div style={{ fontSize: 12, color: "var(--gray-500)" }}>DNI: {u.dni}</div>
           </div>
-        ) : "Paciente no especificado";
+        ) : (
+          "Paciente sin cuenta vinculada"
+        );
       },
     },
     {
-      title: "Tipo",
-      dataIndex: "tipo",
+      title: "Patologías",
+      key: "patologias",
+      render: (_, r) =>
+        r.patologias?.length ? r.patologias.map((p) => <Tag key={p.id}>{p.nombre}</Tag>) : <span style={{ color: "var(--gray-500)" }}>Sin patologías</span>,
+    },
+    {
+      title: "Autoevaluación",
       key: "tipo",
-      render: (text) => (
-        <Tag color={text === "general" ? "blue" : "purple"}>
-          {text === "general" ? "General" : "Ejercicio"}
-        </Tag>
+      render: (_, r) => (
+        <div>
+          <Tag color={r.tipo === "general" ? "blue" : "purple"}>{r.tipo === "general" ? "General" : "Ejercicio"}</Tag>
+          {r.tipo === "ejercicio" && <div style={{ fontSize: 12, marginTop: 4 }}>{r.ejercicio?.nombre || "(ejercicio dado de baja)"}</div>}
+        </div>
       ),
     },
     {
-      title: "Ejercicio / Rutina",
-      key: "ejercicio",
-      render: (_, record) => record.ejercicio?.nombre || "N/A",
-    },
-    {
-      title: "Médico / Kinesiólogo",
+      title: "Enviada a",
       key: "profesional",
-      render: (_, record) => {
-        const p = record.profesional;
-        return p ? `${p.nombre} ${p.apellido}` : "Sin asignar";
-      },
+      render: (_, record) => (record.profesional ? nombreProfesional(record.profesional) : "Equipo de salud"),
     },
     {
-      title: "Dolor (EVA) / Fatiga (Borg)",
-      key: "scores",
-      render: (_, record) => {
-        let respuestas = {};
-        try {
-          respuestas = typeof record.respuestas === "string" ? JSON.parse(record.respuestas) : record.respuestas;
-        } catch (e) {
-          console.warn("Error parsing JSON:", e);
-        }
-        
-        if (record.tipo === "general") {
-          return <span style={{ color: "var(--gray-400)" }}>N/A</span>;
-        }
-
-        const eva = respuestas.PainEVA !== undefined ? respuestas.PainEVA : "N/A";
-        const borg = respuestas.BorgScale !== undefined ? respuestas.BorgScale : "N/A";
-        
-        return (
-          <div>
-            <div>EVA: <span style={{ fontWeight: 600, color: eva >= 7 ? "var(--red-600)" : "inherit" }}>{eva}/10</span></div>
-            <div>Borg: <span style={{ fontWeight: 600 }}>{borg}/10</span></div>
-          </div>
-        );
-      },
+      title: "Estado",
+      key: "estado",
+      render: (_, r) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-start" }}>
+          {r.revisada === 1 ? <Tag color="green">Revisada</Tag> : <Tag color="gold">Sin revisar</Tag>}
+          {r.alerta && <Tag color="error">Atender primero</Tag>}
+        </div>
+      ),
     },
     {
-      title: "Estado Alerta",
-      key: "alerta",
-      align: "center",
-      render: (_, record) => {
-        const esAlerta = checkClinicalAlert(record);
-        return esAlerta ? (
-          <Tag color="error">ALERTA CRÍTICA</Tag>
-        ) : (
-          <Tag color="success">Normal</Tag>
-        );
-      },
-    },
-    {
-      title: "Acción",
+      title: "Acciones",
       key: "accion",
       align: "center",
       render: (_, record) => (
-        <Button
-          type="primary"
-          ghost
-          icon={<EyeOutlined />}
-          onClick={() => handleOpenDetail(record)}
-        >
-          Ver Detalle
-        </Button>
+        <RowActions
+          actions={[
+            { key: "ver", label: "Ver detalle y revisar", icon: <EyeOutlined />, onClick: () => abrirDetalle(record) },
+          ]}
+        />
       ),
     },
   ];
 
-  // Helper para renderizar respuestas formateadas
-  const renderDetailFields = (record) => {
-    if (!record) return null;
-    let respuestas = {};
-    try {
-      respuestas = typeof record.respuestas === "string" ? JSON.parse(record.respuestas) : record.respuestas;
-    } catch (e) {
-      return <div style={{ color: "var(--red-500)" }}>Error al formatear respuestas del paciente.</div>;
-    }
-
-    const itemStyle = {
-      padding: "12px 16px",
-      borderBottom: "1px solid var(--gray-100)",
-      display: "flex",
-      flexDirection: "column",
-      gap: 4,
-    };
-
-    if (record.tipo === "general") {
-      return (
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Frecuencia Semanal de Deporte</span>
-            <span style={{ fontWeight: 600 }}>{respuestas.FrecuenciaSemanal || "No especificado"}</span>
-          </div>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Duración Promedio de Sesiones</span>
-            <span style={{ fontWeight: 600 }}>{respuestas.DuracionPromedio || "No especificado"}</span>
-          </div>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Actividades Físicas Habituales</span>
-            <div>
-              {Array.isArray(respuestas.TipoActividades) && respuestas.TipoActividades.length > 0 ? (
-                respuestas.TipoActividades.map((act, i) => <Tag key={i} color="blue">{act}</Tag>)
-              ) : (
-                "Ninguna especificada"
-              )}
-            </div>
-          </div>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Aptitud Física Percibida</span>
-            <span style={{ fontWeight: 600 }}>{respuestas.AptitudFisica ? `${respuestas.AptitudFisica} de 5 estrellas` : "No calificado"}</span>
-          </div>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Dificultades / Barreras</span>
-            <div>
-              {Array.isArray(respuestas.BarrerasEjercicio) && respuestas.BarrerasEjercicio.length > 0 ? (
-                respuestas.BarrerasEjercicio.map((barr, i) => <Tag key={i} color="orange">{barr}</Tag>)
-              ) : (
-                "Ninguna especificada"
-              )}
-            </div>
-          </div>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Objetivos de Salud</span>
-            <div>
-              {Array.isArray(respuestas.ObjetivosSalud) && respuestas.ObjetivosSalud.length > 0 ? (
-                respuestas.ObjetivosSalud.map((obj, i) => <Tag key={i} color="green">{obj}</Tag>)
-              ) : (
-                "Ninguno especificado"
-              )}
-            </div>
-          </div>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Observaciones</span>
-            <p style={{ margin: 0, whiteSpace: "pre-line" }}>{respuestas.Observaciones || "Sin observaciones adicionales."}</p>
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Ejercicio Evaluado</span>
-            <span style={{ fontWeight: 600 }}>{record.ejercicio?.nombre || "No especificado"}</span>
-          </div>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Nivel de Esfuerzo Percibido (Borg)</span>
-            <span style={{ fontWeight: 600 }}>{respuestas.BorgScale}/10</span>
-          </div>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>¿Experimentó Dolor?</span>
-            <span style={{ fontWeight: 600, color: respuestas.PainPresent === "Sí" ? "var(--red-500)" : "inherit" }}>
-              {respuestas.PainPresent || "No especificado"}
-            </span>
-          </div>
-          {respuestas.PainPresent === "Sí" && (
-            <div style={itemStyle}>
-              <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Intensidad del Dolor (EVA)</span>
-              <span style={{ fontWeight: 600, color: respuestas.PainEVA >= 7 ? "var(--red-600)" : "inherit" }}>
-                {respuestas.PainEVA}/10
-              </span>
-            </div>
-          )}
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Síntomas de Alarma</span>
-            <div>
-              {Array.isArray(respuestas.AlarmSymptoms) && respuestas.AlarmSymptoms.length > 0 ? (
-                respuestas.AlarmSymptoms.map((sint, i) => <Tag key={i} color="error">{sint}</Tag>)
-              ) : (
-                <Tag color="success">Ninguno</Tag>
-              )}
-            </div>
-          </div>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Ejecución del Ejercicio</span>
-            <span style={{ fontWeight: 600 }}>{respuestas.ExecutionQuality || "No especificada"}</span>
-          </div>
-          <div style={itemStyle}>
-            <span style={{ fontSize: 12, color: "var(--gray-500)", textTransform: "uppercase" }}>Observaciones</span>
-            <p style={{ margin: 0, whiteSpace: "pre-line" }}>{respuestas.Observaciones || "Sin observaciones adicionales."}</p>
-          </div>
-        </div>
-      );
-    }
-  };
-
   // Renderizador de gráfico evolutivo SVG sin librerías externas
   const renderEvolutionChart = () => {
-    if (!selectedRecord) return null;
-    const patientEvals = db
-      .filter((item) => item.pacienteId === selectedRecord.pacienteId && item.tipo === "ejercicio")
-      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    if (!detalle) return null;
+    if (historial === null) return <Skeleton active paragraph={{ rows: 4 }} />;
+    const patientEvals = [...historial].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
     if (patientEvals.length < 2) {
       return (
         <Empty
-          description="Se necesitan al menos 2 autoevaluaciones de ejercicios para graficar la evolución kinesiológica temporal."
+          description="Para ver la evolución hacen falta al menos 2 autoevaluaciones de ejercicios de este paciente."
           style={{ margin: "48px 0" }}
         />
       );
     }
 
     const mappedPoints = patientEvals.map((e, index) => {
-      let resp = {};
-      try {
-        resp = typeof e.respuestas === "string" ? JSON.parse(e.respuestas) : e.respuestas;
-      } catch (err) {
-        console.warn("Error parsing JSON:", err);
-      }
+      const resp = parseRespuestas(e.respuestas);
       const eva = resp.PainEVA !== undefined ? Number(resp.PainEVA) : 0;
       const borg = resp.BorgScale !== undefined ? Number(resp.BorgScale) : 0;
-      const date = new Date(e.createdAt).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" });
+      const date = new Date(e.createdAt).toLocaleDateString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", day: "2-digit", month: "2-digit" });
       return {
         x: 50 + (patientEvals.length > 1 ? (index / (patientEvals.length - 1)) * 420 : 0),
         y_eva: 185 - (eva / 10) * 150,
@@ -361,7 +264,7 @@ export const AdminAutoevaluacion = () => {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#f59e0b" }} />
-            <span style={{ fontSize: 12, fontWeight: 500 }}>Fatiga (Borg)</span>
+            <span style={{ fontSize: 12, fontWeight: 500 }}>Esfuerzo (Borg)</span>
           </div>
         </div>
         <div style={{ position: "relative", width: "100%", maxWidth: 500, background: "#fafafa", borderRadius: 8, padding: 8, border: "1px solid #e5e7eb" }}>
@@ -396,7 +299,7 @@ export const AdminAutoevaluacion = () => {
           </svg>
         </div>
         <span style={{ fontSize: 11, color: "var(--gray-400)", marginTop: 16 }}>
-          Gráfico ordenado de manera cronológica (izquierda a derecha)
+          De la más vieja (izquierda) a la más reciente (derecha). Solo autoevaluaciones de ejercicios.
         </span>
       </div>
     );
@@ -404,172 +307,283 @@ export const AdminAutoevaluacion = () => {
 
   const handlePrint = () => {
     const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-
-    let respuestas = {};
-    try {
-      respuestas = typeof selectedRecord.respuestas === "string" ? JSON.parse(selectedRecord.respuestas) : selectedRecord.respuestas;
-    } catch (e) {
-      console.warn("Error parsing JSON:", e);
+    if (!printWindow) {
+      notify.error("Tu navegador bloqueó la ventana de impresión. Permití las ventanas emergentes para este sitio e intentá de nuevo.");
+      return;
     }
-
-    const pacienteNombre = `${selectedRecord.paciente?.usuario?.nombre || ""} ${selectedRecord.paciente?.usuario?.apellido || ""}`;
-    const pacienteDni = selectedRecord.paciente?.usuario?.dni || "";
-    const profesionalNombre = selectedRecord.profesional ? `${selectedRecord.profesional.nombre} ${selectedRecord.profesional.apellido}` : "Sin asignar";
-    const fecha = new Date(selectedRecord.createdAt).toLocaleString("es-AR");
-
-    const contentHtml = `
-      <html>
-        <head>
-          <title>Reporte de Autoevaluación Clínica</title>
-          <style>
-            body { font-family: sans-serif; padding: 40px; color: #333; }
-            h1 { color: #0284c7; border-bottom: 2px solid #0284c7; padding-bottom: 8px; }
-            .meta { margin-bottom: 24px; line-height: 1.6; }
-            .meta strong { color: #0369a1; }
-            .fields { border-collapse: collapse; width: 100%; margin-top: 20px; }
-            .fields th, .fields td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
-            .fields th { background: #f8fafc; font-weight: bold; width: 40%; }
-          </style>
-        </head>
-        <body>
-          <h1>Reporte de Autoevaluación Clínica</h1>
-          <div class="meta">
-            <p><strong>Paciente:</strong> ${pacienteNombre} (DNI: ${pacienteDni})</p>
-            <p><strong>Profesional a Cargo:</strong> ${profesionalNombre}</p>
-            <p><strong>Fecha de Envío:</strong> ${fecha}</p>
-            <p><strong>Tipo:</strong> ${selectedRecord.tipo === "general" ? "Autoevaluación General" : "Autoevaluación de Ejercicio"}</p>
-          </div>
-          <table class="fields">
-            ${selectedRecord.tipo === "general" ? `
-              <tr><th>Frecuencia Semanal</th><td>${respuestas.FrecuenciaSemanal || "N/A"}</td></tr>
-              <tr><th>Duración de Sesiones</th><td>${respuestas.DuracionPromedio || "N/A"}</td></tr>
-              <tr><th>Actividades Habituales</th><td>${Array.isArray(respuestas.TipoActividades) ? respuestas.TipoActividades.join(", ") : "N/A"}</td></tr>
-              <tr><th>Aptitud Percibida</th><td>${respuestas.AptitudFisica || "N/A"} / 5</td></tr>
-              <tr><th>Barreras o Limitaciones</th><td>${Array.isArray(respuestas.BarrerasEjercicio) ? respuestas.BarrerasEjercicio.join(", ") : "N/A"}</td></tr>
-              <tr><th>Objetivos de Salud</th><td>${Array.isArray(respuestas.ObjetivosSalud) ? respuestas.ObjetivosSalud.join(", ") : "N/A"}</td></tr>
-              <tr><th>Observaciones</th><td>${respuestas.Observaciones || "Sin observaciones."}</td></tr>
-            ` : `
-              <tr><th>Ejercicio</th><td>${selectedRecord.ejercicio?.nombre || "N/A"}</td></tr>
-              <tr><th>Esfuerzo Borg</th><td>${respuestas.BorgScale || "N/A"} / 10</td></tr>
-              <tr><th>¿Presentó dolor?</th><td>${respuestas.PainPresent || "N/A"}</td></tr>
-              ${respuestas.PainPresent === "Sí" ? `<tr><th>Intensidad EVA</th><td>${respuestas.PainEVA || "N/A"} / 10</td></tr>` : ""}
-              <tr><th>Síntomas de Alarma</th><td>${Array.isArray(respuestas.AlarmSymptoms) ? respuestas.AlarmSymptoms.join(", ") : "Ninguno"}</td></tr>
-              <tr><th>Técnica</th><td>${respuestas.ExecutionQuality || "N/A"}</td></tr>
-              <tr><th>Observaciones</th><td>${respuestas.Observaciones || "Sin observaciones."}</td></tr>
-            `}
-          </table>
-        </body>
-      </html>
-    `;
-
-    printWindow.document.write(contentHtml);
+    const r = parseRespuestas(detalle.respuestas);
+    const u = detalle.paciente?.usuario;
+    const filas = [...preguntasVisibles(detalle.tipo, r), OBSERVACIONES]
+      .map((p) => {
+        const v = r[p.name];
+        const txt = Array.isArray(v) ? (v.length ? v.join(", ") : "Ninguno") : v === undefined || v === "" ? "Sin respuesta" : v;
+        return `<tr><th>${escapeHtml(p.label)}</th><td>${escapeHtml(txt)}</td></tr>`;
+      })
+      .join("");
+    const html = `<html><head><title>Autoevaluación</title><style>
+      body{font-family:sans-serif;padding:40px;color:#333} h1{color:#0369a1;border-bottom:2px solid #0369a1;padding-bottom:8px}
+      .meta{margin-bottom:24px;line-height:1.6} .meta strong{color:#0369a1}
+      table{border-collapse:collapse;width:100%;margin-top:20px} th,td{border:1px solid #e2e8f0;padding:10px;text-align:left;vertical-align:top}
+      th{background:#f8fafc;width:45%}</style></head><body>
+      <h1>Autoevaluación del paciente</h1>
+      <div class="meta">
+        <p><strong>Paciente:</strong> ${escapeHtml(u ? `${u.nombre} ${u.apellido}` : "Sin cuenta vinculada")} (DNI: ${escapeHtml(u?.dni ?? "—")})</p>
+        <p><strong>Patologías:</strong> ${escapeHtml((detalle.patologias || []).map((p) => p.nombre).join(", ") || "Sin patologías")}</p>
+        <p><strong>Enviada a:</strong> ${escapeHtml(detalle.profesional ? nombreProfesional(detalle.profesional) : "Equipo de salud")}</p>
+        <p><strong>Fecha:</strong> ${escapeHtml(formatFechaHora(detalle.createdAt))}</p>
+        <p><strong>Tipo:</strong> ${escapeHtml(nombreTipo(detalle))}</p>
+        <p><strong>Estado:</strong> ${detalle.revisada === 1 ? `Revisada por ${escapeHtml(detalle.revisadaPorNombre || "")} el ${escapeHtml(formatFechaHora(detalle.revisadaAt))}` : "Sin revisar"}</p>
+        ${detalle.devolucion ? `<p><strong>Devolución:</strong> ${escapeHtml(detalle.devolucion)}</p>` : ""}
+      </div>
+      <table>${filas}</table></body></html>`;
+    printWindow.document.write(html);
     printWindow.document.close();
     printWindow.print();
   };
 
+  const revisionPanel = detalle && (
+    <div style={{ marginTop: 16, padding: 12, border: "1px solid var(--gray-200)", borderRadius: 8, background: "var(--gray-50)" }}>
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>Devolución al paciente</div>
+      {detalle.revisada === 1 && !editandoDevolucion ? (
+        <>
+          <Alert
+            type="success"
+            showIcon
+            message={`Revisada por ${detalle.revisadaPorNombre || "el equipo"} el ${formatFechaHora(detalle.revisadaAt)}`}
+            description={detalle.devolucion ? detalle.devolucion : "Se marcó como revisada sin comentarios."}
+          />
+          <Button style={{ marginTop: 8 }} icon={<EditOutlined />} onClick={() => setEditandoDevolucion(true)}>
+            Cambiar devolución
+          </Button>
+        </>
+      ) : (
+        <>
+          <Input.TextArea
+            rows={3}
+            maxLength={1000}
+            showCount
+            value={devolucion}
+            onChange={(e) => setDevolucion(e.target.value)}
+            placeholder="Opcional. Por ejemplo: «Bajá la intensidad esta semana y consultanos si el dolor sigue»."
+          />
+          <div style={{ fontSize: 12, color: "var(--gray-500)", margin: "6px 0 8px" }}>
+            El paciente ve esta devolución en «Ejercitarse › Mis autoevaluaciones» y, si tiene email cargado, le avisamos por correo.
+          </div>
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+            {detalle.revisada === 1 && (
+              <Button
+                onClick={() => {
+                  setDevolucion(detalle.devolucion || "");
+                  setEditandoDevolucion(false);
+                }}
+              >
+                Cancelar
+              </Button>
+            )}
+            <Button type="primary" icon={<CheckCircleOutlined />} onClick={() => setConfirmarRevision(true)}>
+              {detalle.revisada === 1 ? "Guardar devolución" : "Marcar como revisada"}
+            </Button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
   return (
     <>
+      {error && (
+        <Alert
+          type="error"
+          showIcon
+          style={{ marginBottom: 12 }}
+          message={error}
+          action={
+            <Button size="small" icon={<ReloadOutlined />} onClick={cargar}>
+              Reintentar
+            </Button>
+          }
+        />
+      )}
       <AdminEntityList
-        title="Autoevaluaciones Clínicas"
+        title="Autoevaluaciones de pacientes"
         count={filteredData.length}
         extraFilters={
           <>
             <Input
               prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
-              placeholder="Buscar por Paciente o DNI..."
+              placeholder="Buscar paciente por nombre o DNI"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               allowClear
             />
-
+            <RangePicker
+              value={rango}
+              onChange={setRango}
+              format="DD/MM/YYYY"
+              placeholder={["Desde", "Hasta"]}
+              allowEmpty={[true, true]}
+            />
             <Select
-              placeholder="Filtrar por Profesional"
+              placeholder="Patología"
+              value={patologiaId}
+              onChange={setPatologiaId}
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              options={patologias.map((p) => ({ value: p.id, label: p.nombre }))}
+              notFoundContent="No hay patologías cargadas"
+            />
+            <Select
+              placeholder="Enviada a"
               value={profesionalId}
-              onChange={(val) => setProfesionalId(val)}
+              onChange={setProfesionalId}
               allowClear
-            >
-              {profesionales.map((p) => (
-                <Select.Option key={p.id} value={p.id}>
-                  {p.nombre} {p.apellido}
-                </Select.Option>
-              ))}
-            </Select>
-
+              title={profesionales.length === 0 ? "Todavía no hay profesionales con cuenta: todas llegan al «Equipo de salud»" : undefined}
+              dropdownRender={(menu) => (
+                <>
+                  {menu}
+                  {profesionales.length === 0 && (
+                    <div style={{ padding: "8px 12px", fontSize: 12, color: "var(--gray-500)", borderTop: "1px solid var(--gray-200)", whiteSpace: "normal" }}>
+                      Todavía no hay profesionales con cuenta. Un administrador los crea en Administración › Usuarios con el rol «Profesional de salud».
+                    </div>
+                  )}
+                </>
+              )}
+              options={[
+                ...(yo?.id && profesionales.some((p) => p.id === +yo.id) ? [{ value: String(yo.id), label: "Enviadas a mí" }] : []),
+                { value: "sin", label: "Equipo de salud (sin profesional)" },
+                ...profesionales.filter((p) => p.id !== +yo?.id).map((p) => ({ value: String(p.id), label: nombreProfesional(p) })),
+              ]}
+            />
             <Select
-              placeholder="Filtrar por Tipo"
+              placeholder="Tipo"
               value={tipo}
-              onChange={(val) => setTipo(val)}
+              onChange={setTipo}
               allowClear
-            >
-              <Select.Option value="general">Autoevaluación General</Select.Option>
-              <Select.Option value="ejercicio">Ejercicio Específico</Select.Option>
-            </Select>
-
+              options={[
+                { value: "general", label: "General" },
+                { value: "ejercicio", label: "De un ejercicio" },
+              ]}
+            />
             <Select
-              placeholder="Estado de Alerta"
-              value={alerta}
-              onChange={(val) => setAlerta(val)}
+              placeholder="Estado"
+              value={estado}
+              onChange={(v) => setEstado(v ?? null)}
               allowClear
-            >
-              <Select.Option value="alerta">Alertas Críticas</Select.Option>
-              <Select.Option value="normal">Estado Normal</Select.Option>
-            </Select>
+              options={[
+                { value: "0", label: "Sin revisar" },
+                { value: "1", label: "Revisadas" },
+              ]}
+            />
+            <Select
+              placeholder="Alertas"
+              value={alerta}
+              onChange={setAlerta}
+              allowClear
+              options={[
+                { value: "alerta", label: "Con alerta (atender primero)" },
+                { value: "normal", label: "Sin alertas" },
+              ]}
+            />
+            {hayFiltros && <Button onClick={limpiarFiltros}>Limpiar filtros</Button>}
           </>
         }
         columns={columns}
         dataSource={filteredData}
         loading={loading}
         rowKey="id"
-        emptyText="Sin autoevaluaciones registradas"
+        emptyText={
+          error
+            ? "No pudimos cargar la lista"
+            : hayFiltros
+            ? "Ninguna autoevaluación coincide con los filtros. Probá quitando alguno."
+            : "Todavía no llegó ninguna autoevaluación. Aparecen acá cuando un paciente la envía desde «Ejercitarse»."
+        }
       />
 
       <Modal
-        title={
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingRight: 32 }}>
-            <span>Detalle Clínico de Autoevaluación</span>
-            <Button icon={<PrinterOutlined />} onClick={handlePrint} type="dashed">
-              Imprimir Reporte
-            </Button>
-          </div>
-        }
-        open={isDetailVisible}
-        onCancel={() => setIsDetailVisible(false)}
-        footer={null}
-        width={550}
+        title={detalle ? `Autoevaluación de ${nombrePaciente(detalle)}` : ""}
+        open={Boolean(detalle)}
+        onCancel={() => setDetalle(null)}
+        footer={[
+          <Button key="print" icon={<PrinterOutlined />} onClick={handlePrint}>
+            Imprimir
+          </Button>,
+          <Button key="close" onClick={() => setDetalle(null)}>
+            Cerrar
+          </Button>,
+        ]}
+        width={720}
         destroyOnClose
       >
-        {selectedRecord && (
-          <div style={{ paddingTop: 12 }}>
-            <div style={{ marginBottom: 16, background: "var(--gray-50)", padding: 12, borderRadius: 8, border: "1px solid var(--gray-100)" }}>
+        {detalle && (
+          <div style={{ paddingTop: 4 }}>
+            <div style={{ marginBottom: 12, background: "var(--gray-50)", padding: 12, borderRadius: 8, border: "1px solid var(--gray-100)" }}>
               <div style={{ fontWeight: 600, fontSize: 15 }}>
-                {selectedRecord.paciente?.usuario?.nombre} {selectedRecord.paciente?.usuario?.apellido}
+                {nombrePaciente(detalle)} {detalle.alerta && <Tag color="error" style={{ marginLeft: 6 }}>Atender primero</Tag>}
               </div>
-              <div style={{ fontSize: 13, color: "var(--gray-500)", marginTop: 4 }}>
-                DNI: {selectedRecord.paciente?.usuario?.dni} | Fecha: {new Date(selectedRecord.createdAt).toLocaleString("es-AR")}
+              <div style={{ fontSize: 13, color: "var(--gray-600)", marginTop: 4 }}>
+                DNI: {detalle.paciente?.usuario?.dni ?? "—"} · {nombreTipo(detalle)} · Enviada el {formatFechaHora(detalle.createdAt)} a{" "}
+                {detalle.profesional ? nombreProfesional(detalle.profesional) : "el equipo de salud"}
+              </div>
+              <div style={{ marginTop: 6 }}>
+                {(detalle.patologias || []).length
+                  ? detalle.patologias.map((p) => <Tag key={p.id}>{p.nombre}</Tag>)
+                  : <span style={{ fontSize: 12, color: "var(--gray-500)" }}>Sin patologías asignadas</span>}
               </div>
             </div>
-
-            <Tabs activeKey={activeTabKey} onChange={(key) => setActiveTabKey(key)}>
-              <Tabs.TabPane tab="Respuestas del Formulario" key="1">
-                {renderDetailFields(selectedRecord)}
-              </Tabs.TabPane>
-              {selectedRecord.tipo === "ejercicio" && (
-                <Tabs.TabPane
-                  tab={
+            <Alert
+              type="info"
+              showIcon
+              style={{ marginBottom: 12 }}
+              message="Solo lectura"
+              description="Estas son las respuestas tal como las envió el paciente y no se pueden modificar. Si hace falta, dejale una devolución abajo."
+            />
+            <Tabs
+              defaultActiveKey="1"
+              items={[
+                {
+                  key: "1",
+                  label: "Respuestas",
+                  children: <RespuestasAutoevaluacion tipo={detalle.tipo} respuestas={detalle.respuestas} />,
+                },
+                {
+                  key: "2",
+                  label: (
                     <span>
-                      <BarChartOutlined /> Evolución Temporal
+                      <BarChartOutlined /> Evolución
                     </span>
-                  }
-                  key="2"
-                >
-                  {renderEvolutionChart()}
-                </Tabs.TabPane>
-              )}
-            </Tabs>
+                  ),
+                  children: renderEvolutionChart(),
+                },
+              ]}
+            />
+            {revisionPanel}
           </div>
         )}
       </Modal>
+
+      <VentEmergConfirmacion
+        isOpen={confirmarRevision}
+        onClose={() => setConfirmarRevision(false)}
+        title={
+          detalle?.revisada === 1
+            ? `¿Guardar la nueva devolución para ${nombrePaciente(detalle)}?`
+            : `¿Marcar como revisada la autoevaluación de ${nombrePaciente(detalle)}?`
+        }
+        mje={
+          devolucion.trim()
+            ? `${nombrePaciente(detalle)} va a ver el estado «Revisada» y tu devolución en su historial de autoevaluaciones. ${
+                detalle?.paciente?.usuario?.tieneEmail
+                  ? "Además le vamos a avisar por email."
+                  : "No tiene email cargado, así que no le llega aviso por correo: la va a ver cuando entre a la app."
+              }`
+            : "El paciente va a ver el estado «Revisada» en su historial. No escribiste devolución: si querés dejarle un comentario, cancelá y escribilo."
+        }
+        confirmText={detalle?.revisada === 1 ? "Guardar devolución" : "Marcar como revisada"}
+        errorFallback="No pudimos guardar la revisión"
+        handleSi={guardarRevision}
+      />
     </>
   );
 };

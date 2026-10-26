@@ -9,7 +9,7 @@ export const VentEmergenteAddPatologia = ({ isOpen, onClose }) => {
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <PlusOutlined style={{ color: "var(--primary)" }} />
-          <span>Agregar Patología</span>
+          <span>Agregar patología</span>
         </div>
       }
       open={isOpen}

@@ -1,12 +1,14 @@
+import { RowActions } from "../Components/RowActions";
 import React, { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { notify } from "../ui/notify";
 import {
   getAllPatologias,
   getPatologiaById,
   insertPatologia,
   updatePatologia,
 } from "../services/patologia-services";
-import { EditOutlined, DragOutlined ,DeleteOutlined} from "@ant-design/icons";
+import { EditOutlined, DragOutlined ,DeleteOutlined, StopOutlined } from "@ant-design/icons";
 const PatologiaContext = createContext();
 export const PatologiaProvider = ({ children }) => {
   const [db, setDb] = useState([]);
@@ -27,7 +29,7 @@ export const PatologiaProvider = ({ children }) => {
   const [bandLoader, setBandLoader] = useState(false)
 
   // Estados de loading
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // true: evita mostrar «vacío» antes de cargar
   const [loadingAction, setLoadingAction] = useState(false);
 
   const validationsForm = (form) => {
@@ -148,12 +150,12 @@ export const PatologiaProvider = ({ children }) => {
       console.log("se esta por actualizar este patologia: ",patologia)
       const update=await updatePatologia(patologia)
       console.log("update: ",update)
-      toast.success("Patología actualizada exitosamente");
+      notify.success(`Patología «${patologia?.nombre || ""}» actualizada.`);
       await getallPatologias();
       handleCloseVentEmergenteEditPatologia();
     } catch (error) {
       console.error("Error al actualizar patología:", error);
-      toast.error("Error al actualizar patología");
+      throw error;
     } finally {
       setLoadingAction(false);
     }
@@ -196,7 +198,7 @@ export const PatologiaProvider = ({ children }) => {
       align: "start",
     },
     {
-      title: "Descripcion",
+      title: "Descripción",
       dataIndex: "descripcion",
       align: "start",
     },
@@ -206,20 +208,12 @@ export const PatologiaProvider = ({ children }) => {
       key: "acciones",
       align: "center",
       render: (_, record) => (
-        <div className="cont_acciones">
-          {/* <EditOutlined
-            className="icon_accion"
-            onClick={(e) => handleEditPatologia(record)}
-          /> */}
-          <DragOutlined
-            className="icon_accion"
-            onClick={(e) => handleEditPatologia(record)}
-          />
-          <DeleteOutlined
-            className="icon_accion"
-            onClick={(e) => handleDelete(record)} />
-        
-        </div>
+        <RowActions
+          actions={[
+            { key: "edit", label: "Ver detalle y editar", icon: <EditOutlined />, onClick: () => handleEditPatologia(record) },
+            { key: "off", label: "Deshabilitar", icon: <StopOutlined />, danger: true, onClick: () => handleDelete(record) },
+          ]}
+        />
       ),
     },
   ];
@@ -230,16 +224,18 @@ export const PatologiaProvider = ({ children }) => {
       try {
         console.log(" se esta por insertar el patologia: ", patologiaToInsert)
         await addPatologia(patologiaToInsert);
-        toast.success("Patología creada exitosamente");
+        notify.success(`Patología «${patologiaToInsert?.nombre || ""}» creada. Ya se puede asignar a pacientes y contenidos.`);
         await getallPatologias();
         handleCloseVentEmergenteConfPatologia()
         handleCloseVentEmergenteAddPatologia()
       } catch (error) {
         console.error("Error al crear patología:", error);
-        toast.error("Error al crear patología");
+        throw error;
       } finally {
         setLoadingAction(false);
       }
+    } else {
+      throw new Error("Faltan datos obligatorios: completá los campos marcados y volvé a intentar.");
     }
   };
   const addPatologia = async (patologia) => {
@@ -259,7 +255,7 @@ export const PatologiaProvider = ({ children }) => {
       setDb(patologias);
     } catch (error) {
       console.error("Error al cargar patologías:", error);
-      toast.error("Error al cargar las patologías");
+      notify.error(error, "No pudimos cargar las patologías");
     } finally {
       setLoading(false);
     }
@@ -284,6 +280,7 @@ export const PatologiaProvider = ({ children }) => {
   }, [patologiaToInsert]);
 
   let data = {
+    recargar: getallPatologias,
     db: db,
     columns: columns,
     patologiaSelected: patologiaSelected,

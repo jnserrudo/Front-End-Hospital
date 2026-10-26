@@ -18,12 +18,20 @@ export const AdminCellText = ({ children, lines = 1, className = "" }) => {
 
   return (
     <Tooltip title={text.length > 48 ? text : undefined} placement="topLeft">
-      <Typography.Text
-        ellipsis={{ rows: lines }}
-        className={`admin-cell-text ${className}`.trim()}
-      >
-        {text}
-      </Typography.Text>
+      {lines > 1 ? (
+        // Text no admite «rows»: para varias líneas usamos Paragraph.
+        <Typography.Paragraph
+          ellipsis={{ rows: lines }}
+          className={`admin-cell-text ${className}`.trim()}
+          style={{ marginBottom: 0 }}
+        >
+          {text}
+        </Typography.Paragraph>
+      ) : (
+        <Typography.Text ellipsis className={`admin-cell-text ${className}`.trim()}>
+          {text}
+        </Typography.Text>
+      )}
     </Tooltip>
   );
 };

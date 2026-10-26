@@ -9,7 +9,7 @@ export const VentEmergenteAddReceta = ({ isOpen, onClose }) => {
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <PlusOutlined style={{ color: "var(--primary)" }} />
-          <span>Agregar Receta</span>
+          <span>Agregar receta</span>
         </div>
       }
       open={isOpen}

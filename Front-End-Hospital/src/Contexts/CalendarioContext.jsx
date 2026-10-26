@@ -1,5 +1,7 @@
+import { RowActions } from "../Components/RowActions";
 import React, { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { notify } from "../ui/notify";
 import {
   getAllEventos,
   getEventoById,
@@ -7,7 +9,7 @@ import {
   updateEvento,
   disableEvento,
 } from "../services/calendario-services";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, StopOutlined } from "@ant-design/icons";
 
 const CalendarioContext = createContext();
 
@@ -25,7 +27,7 @@ export const CalendarioProvider = ({ children }) => {
   const [bandInsert, setBandInsert] = useState(false);
   const [showVentEmergenteConfEvento, setShowVentEmergenteConfEvento] = useState(false);
   const [bandLoader, setBandLoader] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // true: evita mostrar «vacío» antes de cargar
   const [loadingAction, setLoadingAction] = useState(false);
 
   const validationsForm = (form) => {
@@ -115,14 +117,13 @@ export const CalendarioProvider = ({ children }) => {
       console.log("Resultado de updateEvento:", result);
       
       // Si handleResponse no lanzó error, la operación fue exitosa
-      toast.success("Evento actualizado exitosamente");
+      notify.success(`Evento «${evento?.titulo || ""}» actualizado.`);
       
       // Recargar datos para mostrar los cambios
       await getallEventos();
       handleCloseVentEmergenteEditEvento();
     } catch (error) {
       console.error("Error al actualizar evento:", error);
-      toast.error(error.message || "Error al actualizar evento");
       throw error;
     } finally {
       setLoadingAction(false);
@@ -135,14 +136,13 @@ export const CalendarioProvider = ({ children }) => {
       console.log("Resultado de insertEvento:", result);
       
       // Si handleResponse no lanzó error, la operación fue exitosa
-      toast.success("Evento agregado exitosamente");
+      notify.success(`Evento «${eventoToInsert?.titulo || ""}» agregado al calendario.`);
       
       // Recargar datos para mostrar el nuevo evento
       await getallEventos();
       handleCloseVentEmergenteAddEvento();
     } catch (error) {
       console.error("Error al agregar evento:", error);
-      toast.error(error.message || "Error al agregar evento");
       throw error;
     }
   };
@@ -153,22 +153,25 @@ export const CalendarioProvider = ({ children }) => {
       console.log("Resultado de disableEvento:", result);
       
       // Si handleResponse no lanzó error, la operación fue exitosa
-      toast.success("Evento eliminado exitosamente");
       
       // Recargar datos para actualizar la lista
       await getallEventos();
     } catch (error) {
       console.error("Error al eliminar evento:", error);
-      toast.error(error.message || "Error al eliminar evento");
       throw error;
     }
   };
 
   const getallEventos = async () => {
     setLoading(true);
-    const data = await getAllEventos();
-    setDb(data);
-    setLoading(false);
+    try {
+      const data = await getAllEventos();
+      setDb(Array.isArray(data) ? data : []);
+    } catch (error) {
+      notify.error(error, "No pudimos cargar la lista");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -220,22 +223,20 @@ export const CalendarioProvider = ({ children }) => {
     {
       title: "Acciones",
       key: "acciones",
+      align: "center",
       render: (_, record) => (
-        <div style={{ display: "flex", gap: 8 }}>
-          <EditOutlined
-            style={{ color: "var(--primary)", cursor: "pointer" }}
-            onClick={() => handleEditEvento(record)}
-          />
-          <DeleteOutlined
-            style={{ color: "var(--danger)", cursor: "pointer" }}
-            onClick={() => handleDelete(record)}
-          />
-        </div>
+        <RowActions
+          actions={[
+            { key: "edit", label: "Editar", icon: <EditOutlined />, onClick: () => handleEditEvento(record) },
+            { key: "off", label: "Deshabilitar", icon: <StopOutlined />, danger: true, onClick: () => handleDelete(record) },
+          ]}
+        />
       ),
     },
   ];
 
   const data = {
+    recargar: getallEventos,
     db,
     dbSearch,
     eventoSelected,

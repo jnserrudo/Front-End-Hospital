@@ -1,33 +1,30 @@
 import React, { useEffect, useState } from "react";
 import "../style.css";
-import { EnvironmentOutlined, PhoneOutlined, LogoutOutlined, UserOutlined, MenuOutlined } from "@ant-design/icons";
+import { EnvironmentOutlined, PhoneOutlined, LogoutOutlined, MenuOutlined, IdcardOutlined } from "@ant-design/icons";
 import { Dropdown } from "antd";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-
-const ROLES = {
-  1: "Administrador",
-  2: "Profesional",
-  3: "Paciente"
-};
+import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
+import { MisDatosModal } from "./MisDatosModal";
+import { clearSession, getSession, ROL_LABEL } from "../services/session";
 
 export const Header = ({ setSelectedKey, collapsed, setCollapsed, hideMenu = false }) => {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState("");
   const [rol, setRol] = useState("");
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const [misDatos, setMisDatos] = useState(false);
   const canToggleMenu = typeof setCollapsed === "function" && !hideMenu;
 
   useEffect(() => {
-    const usuarioFromStorage = localStorage.getItem("usuario");
-    const rolFromStorage = localStorage.getItem("rol");
-    setUsuario(usuarioFromStorage || "");
-    setRol(rolFromStorage ? ROLES[rolFromStorage] || "Usuario" : "");
+    const session = getSession();
+    setUsuario(session?.usuario || "");
+    setRol(session?.rol ? ROL_LABEL[session.rol] || "Usuario" : "");
   }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    toast.dismiss();
-    navigate("/");
+  const handleLogout = async () => {
+    clearSession();
+    localStorage.setItem("sessionEvent", JSON.stringify({ type: "logout", motivo: "logout", at: Date.now() }));
+    navigate("/login?motivo=logout", { replace: true });
   };
 
   const getInitial = (name) => {
@@ -47,10 +44,16 @@ export const Header = ({ setSelectedKey, collapsed, setCollapsed, hideMenu = fal
     },
     { type: 'divider' },
     {
+      key: 'mis-datos',
+      icon: <IdcardOutlined />,
+      label: 'Mis datos y contraseña',
+      onClick: () => setMisDatos(true)
+    },
+    {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: 'Cerrar Sesión',
-      onClick: handleLogout
+      label: 'Cerrar sesión',
+      onClick: () => setConfirmLogout(true)
     }
   ];
 
@@ -70,15 +73,14 @@ export const Header = ({ setSelectedKey, collapsed, setCollapsed, hideMenu = fal
         <img
           className="logo_hospital"
           onClick={() => setSelectedKey("1")}
-          src="/logoOñativia.png"
-          alt="Logo Hospital Oñativia"
+          src="/logo-onativia.png"
+          alt="Logo del Hospital Dr. Arturo Oñativia"
           onError={(e) => {
-            e.target.style.display = 'none';
-            e.target.parentElement.style.display = 'flex';
-            e.target.parentElement.innerHTML = '<span class="logo-placeholder">HOSPITAL OÑATIVIA</span>';
+            // Solo ocultamos la imagen: el nombre del hospital ya se muestra al lado.
+            e.currentTarget.style.display = "none";
           }}
         />
-        <p className="titulo">HOSPITAL OÑATIVIA</p>
+        <p className="titulo">Hospital Dr. Arturo Oñativia</p>
       </div>
       <div className="header-info">
         <span className="header-info-item">
@@ -103,6 +105,15 @@ export const Header = ({ setSelectedKey, collapsed, setCollapsed, hideMenu = fal
           </div>
         </Dropdown>
       )}
+      <MisDatosModal open={misDatos} onClose={() => setMisDatos(false)} />
+      <VentEmergConfirmacion
+        isOpen={confirmLogout}
+        onClose={() => setConfirmLogout(false)}
+        title="¿Cerrar sesión?"
+        mje={`Vas a salir de la cuenta «${usuario}». Si tenés un formulario abierto sin guardar, esos cambios se pierden. Para volver a entrar necesitás tu usuario y contraseña.`}
+        confirmText="Cerrar sesión"
+        handleSi={handleLogout}
+      />
     </div>
   );
 };

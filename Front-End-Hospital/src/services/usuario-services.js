@@ -1,130 +1,23 @@
-import { entorno } from "./config";
+import { apiFetch } from "./http";
 
-export const getAllUsuarios = async () => {
-  console.log("antes del fetch get all usuarios");
-  const res = await fetch(`${entorno}/usuarios`);
-  const data = await res.json();
-  return data;
-};
-/* 
-export const getPatologiaToUsuarioEdit = async () => {
-  console.log("antes del fetch get all usuarios");
-  const res = await fetch(`${entorno}/usuarios`);
-  const data = await res.json();
-  return data;
-};
- */
-export const getUsuarioById = async (id) => {
-  console.log("se trae al usuario con id: ", id);
-  const res = await fetch(`${entorno}/usuarios/${id}`);
-  const data = await res.json();
-  return data;
-};
+// Todas las funciones lanzan ApiError con un mensaje claro si algo falla.
+export const getAllUsuarios = () => apiFetch("/usuarios");
+export const getUsuarioById = (id) => apiFetch(`/usuarios/${id}`);
+export const getMe = () => apiFetch("/usuarios/me");
+export const getAllRoles = () => apiFetch("/usuarios/rol");
+export const getProfesionales = () => apiFetch("/usuarios/profesionales/lista");
 
-export const getAllRoles = async () => {
-  console.log("se trae roles del usuario: ");
-  const res = await fetch(`${entorno}/usuarios/rol`);
-  const data = await res.json();
-  return data;
-};
+export const insertUsuario = (usuario) => apiFetch("/usuarios", { method: "POST", body: usuario });
+export const updateUsuario = (usuario) => apiFetch(`/usuarios/${usuario.id}`, { method: "PUT", body: usuario });
 
-export const getAllRolesToEdit = async (idRol) => {
-  //traera los otros roles que no son el que tiene actualmente
-  console.log("se trae roles del usuario: ");
-  const res = await fetch(`${entorno}/usuarios/rol/edit/${idRol}`);
-  const data = await res.json();
-  return data;
-};
+// Restablecer la contraseña de otra cuenta (solo administradores)
+export const blanquearUsuario = (usuario) => apiFetch(`/usuarios/blanquear/${usuario.id}`, { method: "PUT" });
 
-export const getRolByUser = async (user) => {
-  console.log("se trae roles del usuario: ", user);
-  const res = await fetch(`${entorno}/usuarios/rol/${user}`);
-  const data = await res.json();
-  return data;
-};
+// Cambiar la contraseña propia
+export const updatePassword = (id, newPassword, passwordActual) =>
+  apiFetch(`/usuarios/password/${id}`, { method: "PUT", body: { newPassword, passwordActual } });
 
-export const updateUsuario = async (usuario) => {
-  console.log("se esta por actualizar el usuario: ",usuario)
-  const res = await fetch(`${entorno}/usuarios/${usuario.id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(usuario),
-  });
-  const data = await res.json();
-  return data;
-};
+export const inhabilitarUsuario = (id) => apiFetch(`/usuarios/inhabilitar/${id}`, { method: "PUT" });
+export const habilitarUsuario = (id) => apiFetch(`/usuarios/habilitar/${id}`, { method: "PUT" });
 
-export const insertUsuario = async (usuario) => {
-  const res = await fetch(`${entorno}/usuarios`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(usuario),
-  });
-  const data = await res.json();
-  return data;
-};
-
-export const blanquearUsuario = async (usuario) => {
-  const res = await fetch(`${entorno}/usuarios/blanquear/${usuario.id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const data = await res.json();
-  return data;
-};
-
-export const updatePassword = async (id, newPassword) => {
-  const res = await fetch(`${entorno}/usuarios/password/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ newPassword }),
-  });
-  const data = await res.json();
-  return data;
-};
-
-export const getJwtToken = async (usuario, password) => {
-  const res = await fetch(`${entorno}/usuarios/jwtToken`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      usuario,
-      password,
-    }),
-  });
-  const data = await res.json();
-  return data;
-};
-
-
-
-export const inhabilitarUsuario = async (
-  id
-) => {
-  const res = await fetch(`${entorno}/usuarios/inhabilitar/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const data = await res.json();
-  return data;
-};
-
-
-export const getPatologiaToUsuarioEdit = async (id) => {
-  console.log("se trae al usuario con id: ", id);
-  const res = await fetch(`${entorno}/usuarios/patologia/edit/${id}`);
-  const data = await res.json();
-  return data;
-};
+export const getPatologiaToUsuarioEdit = (id) => apiFetch(`/usuarios/patologia/edit/${id}`);

@@ -1,3 +1,5 @@
+import { YoutubeEmbed } from "./YoutubeEmbed";
+import { ModoLecturaNota } from "./ModoLecturaNota";
 import {
   Button,
   ButtonGroup,
@@ -13,6 +15,7 @@ import { Space, Upload, Select } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import "../style.css";
 import ReactPlayer from "react-player";
+import { MediaNoDisponible } from "./MediaNoDisponible";
 
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 
@@ -20,8 +23,13 @@ import EjerciciosContext from "../Contexts/EjercicioContext";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@chakra-ui/react";
 import { entorno, getMediaUrl } from "../services/config";
+import { notify } from "../ui/notify";
 
-export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
+// Envoltorio: si todavía no hay registro no se monta el formulario, así los hooks
+// de adentro se llaman siempre en el mismo orden (reglas de hooks de React).
+export const EditEjercicio = (props) => (props.ejercicio ? <EditEjercicioForm {...props} /> : null);
+
+const EditEjercicioForm = ({ ejercicio, onCloseEdit, onModoChange }) => {
   /* console.log(
     "edit ejercicio: ",
     ejercicio,
@@ -34,6 +42,11 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
   };
 
   const [bandEdit, setBandEdit] = useState(false);
+  // Avisamos al modal si estamos en modo lectura o edición (para el título)
+  const cambiarModo = (v) => {
+    setBandEdit(v);
+    onModoChange?.(v);
+  };
   const [bandUpdated, setBandUpdated] = useState(false);
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
@@ -41,6 +54,8 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
     ejercicio?.urlVideo ? getMediaUrl(ejercicio.urlVideo) : null
   );
   const [urlVideo, setUrlVideo] = useState("");
+  const [previewError, setPreviewError] = useState(false);
+  useEffect(() => setPreviewError(false), [previewUrl]);
 
   const [fileList, setFileList] = useState(
     ejercicio.urlVideo
@@ -77,17 +92,13 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
     handleChangeSelectCategorias,
     loadingAction,
   } = useContext(EjerciciosContext);
-  if (!ejercicio) {
-    return null;
-  }
 
-  console.log("ejercicio:", ejercicio);
 
   const sharedProps = {
     mode: "multiple",
     style: { width: "100%" },
     options: opcionesPatologias,
-    placeholder: "Seleccione una Patología",
+    placeholder: "Elegí una patología",
     maxTagCount: "responsive",
     value: selectedPatologias,
     renderOptionLabel: (option) => (
@@ -101,7 +112,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
     mode: "multiple",
     style: { width: "100%" },
     options: opcionesCategorias,
-    placeholder: "Seleccione una Categoria",
+    placeholder: "Elegí una categoría",
     maxTagCount: "responsive",
     value: selectedCategorias,
     renderOptionLabel: (option) => (
@@ -229,16 +240,23 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
       const file = newFileList[0].originFileObj;
       const url = URL.createObjectURL(file);
       console.log(url);
+      // Solo para la vista previa: la dirección «blob:» vive en este navegador y no se guarda.
+      // La dirección definitiva la devuelve el servidor al subir el archivo al guardar.
       setPreviewUrl(url);
-      handleChangeInput({ target: { name: "urlVideo", value: url } });
+    } else if (newFileList.length === 0) {
+      setPreviewUrl(urlVideo ? (urlVideo.includes("<iframe") ? urlVideo : getMediaUrl(urlVideo)) : null);
     }
   };
   const beforeUpload = (file) => {
-    const isImageOrVideo =
-      file.type.startsWith("image/") || file.type.startsWith("video/");
-
-    if (!isImageOrVideo) {
-      console.error("Solo se permiten archivos de imagen o video");
+    const esImagen = file.type.startsWith("image/");
+    const esVideo = file.type.startsWith("video/");
+    if (!esImagen && !esVideo) {
+      notify.error("Ese tipo de archivo no está permitido. Subí un video (MP4, WEBM o MOV) o una imagen (JPG, PNG o WEBP).");
+      return Upload.LIST_IGNORE;
+    }
+    const maxMB = esVideo ? 200 : 5;
+    if (file.size > maxMB * 1024 * 1024) {
+      notify.error(`El archivo es demasiado pesado: el máximo es ${maxMB} MB para ${esVideo ? "videos" : "imágenes"}. Elegí uno más liviano o comprimilo.`);
       return Upload.LIST_IGNORE;
     }
     return true;
@@ -253,7 +271,10 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
         body: formData,
       });
       const data = await response.json();
-      return data.url; // Suponiendo que el backend devuelve la URL de la imagen
+      if (!data?.url || String(data.url).startsWith("blob:")) {
+        throw new Error("No pudimos subir el archivo. Probá de nuevo o elegí otro.");
+      }
+      return data.url;
     } catch (error) {
       console.error("Error uploading file:", error);
       throw error;
@@ -287,14 +308,16 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
         descripcion: cleanTextFields(ejercicioToUpdate.descripcion),
       };
       
-      handleUpdate(ejercicioLimpio);
+      await handleUpdate(ejercicioLimpio);
     } catch (error) {
       console.error("Error updating recipe:", error);
+      throw error;
     }
   };
 
   return (
     <div className="form">
+      <ModoLecturaNota editando={bandEdit} />
       <Grid
         className="grid_chackra"
         templateColumns={{
@@ -327,29 +350,27 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
           (previewUrl.includes("<iframe") ? (
               <GridItem colSpan={{ base: 1, md: 2 }}>
                 <div style={{ position: 'relative', paddingTop: '56.25%', width: '100%', marginBottom: '1rem', background: 'var(--gray-100)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-                  <div
-                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                    dangerouslySetInnerHTML={{
-                      __html: previewUrl.replace(
-                        "<iframe",
-                        "<iframe style='width: 100%; height: 100%; border: none;'"
-                      ),
-                    }}
-                  />
+                  <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+  <YoutubeEmbed valor={previewUrl} />
+</div>
                 </div>
               </GridItem>
             ) : (
               <GridItem colSpan={{ base: 1, md: 2 }}>
                 <div style={{ position: 'relative', paddingTop: '56.25%', width: '100%', marginBottom: '1rem', background: 'var(--gray-100)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-                  <ReactPlayer width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }} controls url={previewUrl} />
+                  {previewError ? (
+                    <MediaNoDisponible detalle="Elegí otro archivo o pegá un enlace de YouTube para reemplazarlo." style={{ position: 'absolute', inset: 0 }} />
+                  ) : (
+                    <ReactPlayer width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }} controls src={previewUrl} onError={() => setPreviewError(true)} />
+                  )}
                 </div>
               </GridItem>
             ))}
         <GridItem colSpan={{ base: 1, md: 2 }}>
           <Tabs variant="enclosed">
             <TabList>
-              <Tab>Subir/Actualizar Video</Tab>
-              <Tab>Actualizar Iframe</Tab>
+              <Tab>Reemplazar archivo</Tab>
+              <Tab>Enlace de YouTube</Tab>
             </TabList>
             <TabPanels>
               <TabPanel className="tab_video_iframe">
@@ -377,7 +398,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
                       // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
                       const imgWindow = window.open();
                       imgWindow.document.write(
-                        `<img src="${preview}" alt="preview" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:red;text-align:center;padding:20px;\'>Error al cargar la imagen</p>'" />`
+                        `<img src="${preview}" alt="preview" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:#475569;text-align:center;padding:20px;\'>Este archivo no está disponible</p>'" />`
                       );
                     }
                   }}
@@ -389,7 +410,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
                   }}
                   onChange={handleFileChange}
                 >
-                  {"Subir Video"}
+                  {"Tocá para elegir otro video o imagen"}
                 </Upload>
               </TabPanel>
               <TabPanel>
@@ -400,7 +421,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
                     disabled={!bandEdit}
                     value={urlVideo}
                     onChange={(e) => setUrlVideo(e.target.value)}
-                    placeholder="Ingrese la URL del iframe"
+                    placeholder="Pegá la URL o el código del video (iframe)"
                   />
                 </FormControl>
               </TabPanel>
@@ -411,7 +432,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
         <GridItem colSpan={{ base: 1, md: 1 }}>
           {/* SELECT DE LAS PATOLOGIAS */}
           <FormControl isRequired>
-            <FormLabel>Patologias</FormLabel>
+            <FormLabel>Patologías</FormLabel>
             <Select
               disabled={!bandEdit}
               name="idPatologias"
@@ -428,7 +449,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
         <GridItem colSpan={{ base: 1, md: 1 }}>
           {/* SELECT DE LAS CATEGORIAS */}
           <FormControl isRequired>
-            <FormLabel>Categorias</FormLabel>
+            <FormLabel>Categorías</FormLabel>
             <Select
               disabled={!bandEdit}
               name="idCategorias"
@@ -493,7 +514,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
           >
             <Textarea
               className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
-              label="Descripcion"
+              label="Descripción"
               name="descripcion"
               size="sm"
               variant="outlined"
@@ -502,7 +523,7 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
               value={ejercicio.descripcion ? ejercicio.descripcion : ""}
               onChange={(e) => handleChangeInput(e)}
             />
-            <FormLabel>Descripcion</FormLabel>
+            <FormLabel>Descripción</FormLabel>
           </FormControl>
         </GridItem>
       </Grid>
@@ -512,8 +533,8 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
           <Button
             className="btn_accion_edit_ejercicio"
             /* variant="outlined" */
-            colorScheme="blue"
-            onClick={() => setBandEdit(true)}
+            colorScheme="blue" variant="outline"
+            onClick={() => cambiarModo(true)}
           >
             Editar
           </Button>
@@ -521,8 +542,8 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
           <Button
             className="btn_accion_edit_ejercicio"
             /* variant="contained" */
-            color="info"
-            onClick={() => setBandEdit(false)}
+            colorScheme="gray"
+            onClick={() => cambiarModo(false)}
           >
             Cancelar
           </Button>
@@ -531,11 +552,11 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
         {bandUpdated ? (
           <Button
             className="btn_accion_edit_ejercicio"
-            colorScheme="green"
+            colorScheme="blue"
             onClick={() => setShowVentEmergenteConfirmacion(true)}
             isLoading={loadingAction}
           >
-            Actualizar
+            Guardar cambios
           </Button>
         ) : null}
       </div>
@@ -543,7 +564,10 @@ export const EditEjercicio = ({ ejercicio, onCloseEdit }) => {
       <VentEmergConfirmacion
         onClosePadre={onCloseEdit}
         onClose={() => setShowVentEmergenteConfirmacion(false)}
-        mje={"¿Está seguro de actualizar los datos del ejercicio?"}
+        title={`¿Guardar los cambios del ejercicio «${ejercicio?.nombre || ""}»?`}
+        mje="Los pacientes van a ver la versión actualizada en la sección Ejercicios."
+        confirmText="Guardar cambios"
+        errorFallback="No pudimos guardar los cambios"
         handleSi={async () => {
           await handleUpdateWithImage();
         }}

@@ -71,7 +71,7 @@ export const AddFAQ = ({ onClosePadre }) => {
             <Select
               style={{ width: "100%" }}
               options={CATEGORIAS}
-              placeholder="Seleccione una categoría"
+              placeholder="Elegí una categoría"
               value={faqToInsert?.categoria || undefined}
               onChange={handleChangeSelectCategoriaInsert}
             />
@@ -86,13 +86,21 @@ export const AddFAQ = ({ onClosePadre }) => {
             width="100%"
             mt={4}
           >
-            Guardar Pregunta
+            Guardar pregunta
           </Button>
+          {!bandInsert && (
+            <p style={{ fontSize: 13, color: "var(--gray-500)", marginTop: 6, textAlign: "center" }}>
+              Completá los campos obligatorios para habilitar el botón.
+            </p>
+          )}
         </GridItem>
       </Grid>
 
       <VentEmergConfirmacion
-        mje="¿Está seguro de agregar esta pregunta?"
+        title={`¿Publicar la pregunta «${faqToInsert?.pregunta || ""}»?`}
+        mje="Se va a mostrar en Preguntas frecuentes para todos los usuarios."
+        confirmText="Publicar pregunta"
+        errorFallback="No pudimos guardar los cambios"
         isOpen={showVentEmergenteConfirmacion}
         onClose={() => setShowVentEmergenteConfirmacion(false)}
         handleSi={async () => {

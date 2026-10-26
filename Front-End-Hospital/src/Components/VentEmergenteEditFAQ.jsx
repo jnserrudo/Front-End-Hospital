@@ -9,7 +9,7 @@ export const VentEmergenteEditFAQ = ({ isOpen, faqSelected, onClose }) => {
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <EditOutlined style={{ color: "var(--primary)" }} />
-          <span>Editar Pregunta Frecuente</span>
+          <span>Editar pregunta frecuente{faqSelected?.pregunta ? `: ${faqSelected.pregunta}` : ""}</span>
         </div>
       }
       open={isOpen}

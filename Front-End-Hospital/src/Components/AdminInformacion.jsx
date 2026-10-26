@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 
 import InformacionContext from "../Contexts/InformacionContext";
@@ -7,6 +7,8 @@ import { VentEmergenteEditInformacion } from "./VentEmergenteEditInformacion";
 import { inhabilitarInformacion } from "../services/informacion-services";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { AdminEntityList } from "./AdminEntityList";
+import { filterBySearch } from "../utils/search";
+import { notify } from "../ui/notify";
 
 export const AdminInformacion = () => {
   const {
@@ -25,6 +27,7 @@ export const AdminInformacion = () => {
     setShowVentEmergenteDelete,
     loading = false,
     loadingAction = false,
+    recargar,
   } = useContext(InformacionContext);
 
   const inhabilitarRegistro = async (id) => {
@@ -33,28 +36,32 @@ export const AdminInformacion = () => {
 
   const [informacionSearch, setInformacionSearch] = useState("");
 
+  const lista = useMemo(() => filterBySearch(db || [], informacionSearch), [db, informacionSearch]);
+  const itemNombre = (db || []).find((x) => x.id === idInformacion)?.nombre || "seleccionada";
+
   return (
     <>
       <AdminEntityList
         title="Listado de Información"
-        count={db.length}
+        count={db?.length || 0}
         searchProps={{
           placeholder: "Buscar información...",
           value: informacionSearch,
           onChange: (e) => {
             setInformacionSearch(e.target.value);
-            handleSearch(e.target.value, db);
           },
         }}
         addButton={{
-          label: "Agregar Información",
+          label: "Agregar información",
           icon: <PlusOutlined />,
           onClick: () => setShowVentEmergenteAddInformacion(true),
           loading: loadingAction,
           disabled: loadingAction,
         }}
         columns={columns}
-        dataSource={dbSearch.length > 0 ? dbSearch : db}
+        dataSource={lista}
+        loadingText="Cargando información…"
+        estado={{ entidad: "informacion", singular: "información", articulo: "la", onRestored: () => recargar?.() }}
         loading={loading}
         rowKey="id"
       />
@@ -71,10 +78,18 @@ export const AdminInformacion = () => {
       />
 
       <VentEmergConfirmacion
-        mje={"¿Está seguro de eliminar este registro?"}
+        title={`¿Deshabilitar la información «${itemNombre}»?`}
+        mje={"Deja de mostrarse en la sección Información para todos los pacientes. Los datos no se borran y se puede volver a habilitar desde el filtro «Deshabilitados»."}
+        confirmText="Deshabilitar"
+        danger
+        errorFallback="No pudimos deshabilitar la información"
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
-        handleSi={() => inhabilitarRegistro(idInformacion)}
+        handleSi={async () => {
+          const nombreItem = itemNombre;
+          await inhabilitarRegistro(idInformacion);
+          notify.success(`Información «${nombreItem}» deshabilitada. Ya no se muestra en la app.`);
+        }}
       />
     </>
   );

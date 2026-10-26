@@ -9,33 +9,19 @@ export default defineConfig({
       manifest: {
         display: "standalone",
         display_override: ["window-controls-overlay"],
-        lang: "es-ES",
-        name: "Hospital Oñativia",
+        lang: "es-AR",
+        name: "Hospital Dr. Arturo Oñativia",
         short_name: "H. Oñativia",
-        description: "Sistema para el Hospital Oñativia",
-        theme_color: "#19223c",
-        background_color: "#d4d4d4",
+        description: "Plataforma de salud del Hospital Dr. Arturo Oñativia",
+        theme_color: "#0369a1",
+        background_color: "#f0f9ff",
         //start_url: "/",
         icons: [
-          {
-						src: 'logo oñativia.png',
-						sizes: '64x64',
-						type: 'image/png',
-					},
-					{
-						src: 'logo oñativia.png',
-						sizes: '192x192',
-						type: 'image/png',
-						purpose: 'any',
-					},
-					{
-						src: 'logo oñativia.png',
-						sizes: '512x512',
-						type: 'image/png',
-						purpose: 'maskable',
-					},
+          { src: "logo-onativia-app-64.png", sizes: "64x64", type: "image/png" },
+          { src: "logo-onativia-app-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "logo-onativia-app-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: "logo-onativia-app-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
-        
       },
      /*  registerType: "autoUpdate", // Actualización automática del service worker
       devOptions: {

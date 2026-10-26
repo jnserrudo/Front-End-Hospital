@@ -1,3 +1,4 @@
+import { ModoLecturaNota } from "./ModoLecturaNota";
 import {
   Button,
   ButtonGroup,
@@ -16,31 +17,35 @@ import PatologiasContext from "../Contexts/PatologiaContext";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@chakra-ui/react";
 
-export const EditPatologia = ({ patologia, onCloseEdit }) => {
-  console.log("edit patologia: ", patologia);
-
+export const EditPatologia = ({ patologia, onCloseEdit, onModoChange }) => {
   const navigate = useNavigate();
   const handleShowConsulta = (ndocu) => {
     navigate("/patologia/" + ndocu);
   };
 
   const [bandEdit, setBandEdit] = useState(false);
+  // Avisamos al modal si estamos en modo lectura o edición (para el título)
+  const cambiarModo = (v) => {
+    setBandEdit(v);
+    onModoChange?.(v);
+  };
   const [bandUpdated, setBandUpdated] = useState(false);
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
 
   const { handleChangeInput, handleUpdate } = useContext(PatologiasContext);
-  if (!patologia) {
-    return null;
-  }
-
-  console.log("viendo al patologia: ", patologia);
   useEffect(() => {
     setBandUpdated(bandEdit);
   }, [bandEdit]);
 
+  // El retorno temprano va después de todos los hooks (reglas de hooks de React).
+  if (!patologia) {
+    return null;
+  }
+
   return (
     <div className="form">
+      <ModoLecturaNota editando={bandEdit} />
       <Grid
         className="grid_chackra"
         templateColumns={{
@@ -78,7 +83,7 @@ export const EditPatologia = ({ patologia, onCloseEdit }) => {
           >
             <Textarea
               className={`input_floating ${!bandEdit ? "input_disabled" : ""}`}
-              label="Descripcion"
+              label="Descripción"
               name="descripcion"
               size="sm"
               variant="outlined"
@@ -97,8 +102,8 @@ export const EditPatologia = ({ patologia, onCloseEdit }) => {
           <Button
             className="btn_accion_edit_patologia"
             /* variant="outlined" */
-            colorScheme="blue"
-            onClick={() => setBandEdit(true)}
+            colorScheme="blue" variant="outline"
+            onClick={() => cambiarModo(true)}
           >
             Editar
           </Button>
@@ -106,8 +111,8 @@ export const EditPatologia = ({ patologia, onCloseEdit }) => {
           <Button
             className="btn_accion_edit_patologia"
             /* variant="contained" */
-            color="info"
-            onClick={() => setBandEdit(false)}
+            colorScheme="gray"
+            onClick={() => cambiarModo(false)}
           >
             Cancelar
           </Button>
@@ -116,12 +121,12 @@ export const EditPatologia = ({ patologia, onCloseEdit }) => {
         {bandUpdated ? (
           <Button
             className="btn_accion_edit_patologia"
-            colorScheme="green"
+            colorScheme="blue"
             /* variant="contained"
           style={{ margin: "1rem auto 0" }} */
             onClick={() => setShowVentEmergenteConfirmacion(true)}
           >
-            Actualizar
+            Guardar cambios
           </Button>
         ) : null}
       </div>
@@ -129,13 +134,10 @@ export const EditPatologia = ({ patologia, onCloseEdit }) => {
       <VentEmergConfirmacion
         onClosePadre={onCloseEdit}
         onClose={() => setShowVentEmergenteConfirmacion(false)}
-        mje={
-          "Esta seguro de actualizar los datos del patologia " +
-          /*  patologia?.nombre?.toUpperCase() +
-          ", " +
-          patologia?.apellido?.toUpperCase() + */
-          " ?"
-        }
+        title={`¿Guardar los cambios de la patología «${patologia?.nombre || ""}»?`}
+        mje="Los pacientes y contenidos que tienen esta patología van a mostrar el dato actualizado."
+        confirmText="Guardar cambios"
+        errorFallback="No pudimos guardar los cambios"
         handleSi={async () => {
           await handleUpdate(patologia);
           setShowVentEmergenteConfirmacion(false);

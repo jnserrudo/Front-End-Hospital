@@ -111,11 +111,11 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
     }
     
     if (selectedPatologias.length === 0) {
-      newErrors.idPatologias = "Seleccione al menos una patología";
+      newErrors.idPatologias = "Elegí al menos una patología";
     }
     
     if (selectedCategorias.length === 0) {
-      newErrors.idCategorias = "Seleccione al menos una categoría";
+      newErrors.idCategorias = "Elegí al menos una categoría";
     }
     
     setErrors(newErrors);
@@ -158,6 +158,9 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
         body: formData,
       });
       const data = await response.json();
+      if (!data?.url || String(data.url).startsWith("blob:")) {
+        throw new Error("No pudimos subir el archivo. Probá de nuevo o elegí otro.");
+      }
       return data.url;
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -168,12 +171,12 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
   const beforeUpload = (file) => {
     const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/jpg" || file.type === "image/webp";
     if (!isJpgOrPng) {
-      toast.error("Solo se permiten archivos de imagen (jpeg, jpg, png, webp)");
+      toast.error("Solo se permiten imágenes JPG, PNG o WEBP. Elegí otro archivo.");
       return Upload.LIST_IGNORE;
     }
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
-      toast.error("La imagen debe ser menor a 5MB");
+      toast.error("La imagen tiene que pesar menos de 5 MB. Elegí una más liviana.");
       return Upload.LIST_IGNORE;
     }
     return true;
@@ -191,8 +194,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
 
   const handleUpdateWithImage = async () => {
     if (!validateForm()) {
-      toast.error("Por favor, corrija los errores en el formulario");
-      return;
+      throw new Error("Hay campos con errores: revisá los marcados en rojo y volvé a intentar.");
     }
 
     try {
@@ -217,10 +219,10 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
         idsCategorias: selectedCategorias  // Backend espera "idsCategorias"
       };
       
-      handleUpdate(recetaTransformed);
+      await handleUpdate(recetaTransformed);
     } catch (error) {
-      console.error("Error updating recipe:", error);
-      toast.error("Error al subir la imagen");
+      console.error("Error al actualizar la receta:", error);
+      throw error;
     }
   };
 
@@ -243,7 +245,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
         {/* TAB 1: BÁSICO */}
         <TabPane tab="Básico" key="1">
           <div className="section-guide">
-             Complete la información básica de la receta
+             Completá la información básica de la receta
           </div>
 
           <div className="form-section">
@@ -425,7 +427,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
                   </label>
                   <Select
                     mode="multiple"
-                    placeholder="Seleccione patologías"
+                    placeholder="Elegí patologías"
                     value={selectedPatologias}
                     onChange={(value) => {
                       handleChangeSelect({
@@ -460,7 +462,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
                   </label>
                   <Select
                     mode="multiple"
-                    placeholder="Seleccione categorías"
+                    placeholder="Elegí categorías"
                     value={selectedCategorias}
                     onChange={(value) => {
                       handleChangeSelectCategorias({
@@ -497,7 +499,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
         {/* TAB 2: INGREDIENTES & PREPARACIÓN */}
         <TabPane tab="Ingredientes & Preparación" key="2">
           <div className="section-guide">
-             Presiona Enter para numerar automáticamente los pasos.
+             Presioná Enter para numerar automáticamente los pasos.
           </div>
 
           <div className="form-section">
@@ -509,7 +511,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
                 onChange={handleChangeInput}
                 name="ingredientes"
                 placeholder="Ejemplo: 1 taza de harina&#10;65 gr de zapallo&#10;50 gr de pimiento"
-                helpText="Presiona Enter para numerar automáticamente"
+                helpText="Presioná Enter para numerar automáticamente"
                 required={true}
               />
               {errors.ingredientes && <div className="error-message"> {errors.ingredientes}</div>}
@@ -527,7 +529,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
                 onChange={handleChangeInput}
                 name="preparacion"
                 placeholder="Ejemplo: Cortar el choclo en trozos&#10;Cocinar el zapallo&#10;Mezclar todos los ingredientes"
-                helpText="Describe paso a paso. Presiona Enter para numerar."
+                helpText="Describí paso a paso. Presioná Enter para numerar."
                 required={true}
               />
               {errors.preparacion && <div className="error-message"> {errors.preparacion}</div>}
@@ -585,6 +587,11 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
         </TabPane>
       </Tabs>
 
+      <p className="form-step-hint">
+        {activeTab === "1" && "Paso 1 de 3: datos básicos (nombre, foto, patologías y categorías). Tocá «Siguiente» para seguir."}
+        {activeTab === "2" && "Paso 2 de 3: ingredientes y preparación. Tocá «Siguiente» para cargar la información nutricional."}
+        {activeTab === "3" && "Paso 3 de 3: nutrición y consejos (opcionales). Revisá todo y tocá «Guardar cambios»; podés volver a cualquier pestaña antes de guardar."}
+      </p>
       <div className="form-actions">
         <Space>
           <Button onClick={onCloseEdit}>
@@ -603,7 +610,7 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
               }
             }}
           >
-            {activeTab === "3" ? "Guardar Cambios" : "Siguiente"}
+            {activeTab === "3" ? "Guardar cambios" : "Siguiente"}
           </Button>
         </Space>
       </div>
@@ -611,7 +618,10 @@ export const EditReceta = ({ receta, onCloseEdit }) => {
       <VentEmergConfirmacion
         onClosePadre={onCloseEdit}
         onClose={handleCloseVentEmergente}
-        mje="¿Está seguro de actualizar esta receta?"
+        title={`¿Guardar los cambios de la receta «${receta?.nombre || ""}»?`}
+        mje="Los pacientes van a ver la versión actualizada en la sección Recetas."
+        confirmText="Guardar cambios"
+        errorFallback="No pudimos guardar los cambios"
         handleSi={handleUpdateWithImage}
         isOpen={showVentEmergenteConfirmacion}
       />

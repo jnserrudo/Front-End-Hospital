@@ -43,7 +43,7 @@ export const AddCategoria = ({ onClosePadre }) => {
         label: "Recetas",
       },
     ],
-    placeholder: "Seleccione una Tipo",
+    placeholder: "Elegí un tipo",
     maxTagCount: "responsive",
   };
 
@@ -115,21 +115,28 @@ export const AddCategoria = ({ onClosePadre }) => {
         </GridItem>
       </Grid>
 
-      {bandInsert ? (
+      <div style={{ textAlign: "center" }}>
         <Button
           className="btn_accion_edit_categoria"
-          colorScheme="green"
+          colorScheme="blue"
           style={{ margin: "1rem auto 0" }}
           onClick={() => setShowVentEmergenteConfirmacion(true)}
+          isDisabled={!bandInsert}
         >
-          Agregar Categoria
+          Guardar categoría
         </Button>
-      ) : null}
+        {!bandInsert && (
+          <p style={{ fontSize: 13, color: "var(--gray-500)", marginTop: 6 }}>Completá el nombre, la descripción y el tipo para poder guardar.</p>
+        )}
+      </div>
 
       <VentEmergConfirmacion
         onClosePadre={onClosePadre}
         onClose={handleCloseVentEmergente}
-        mje={"Esta seguro de agregar a la categoria? "}
+        title={`¿Crear la categoría «${categoriaToInsert?.nombre || ""}»?`}
+        mje="Va a quedar disponible para clasificar recetas, ejercicios e información."
+        confirmText="Crear categoría"
+        errorFallback="No pudimos guardar los cambios"
         handleSi={handleInsert}
         isOpen={showVentEmergenteConfirmacion}
       />

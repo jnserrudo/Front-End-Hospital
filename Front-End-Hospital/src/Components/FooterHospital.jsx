@@ -14,15 +14,14 @@ export const FooterHospital = ({ setSelectedKey, isHome = false }) => {
         <img
           className="logo_hospital_footer"
           onClick={() => setSelectedKey("1")}
-          src="/logoOñativia.png"
-          alt="Logo Hospital Oñativia"
+          src="/logo-onativia.png"
+          alt="Logo del Hospital Dr. Arturo Oñativia"
           onError={(e) => {
-            e.target.style.display = 'none';
-            e.target.parentElement.style.display = 'flex';
-            e.target.parentElement.innerHTML = '<span class="logo-placeholder">Hospital Oñativia</span>';
+            // Solo ocultamos la imagen: el nombre del hospital queda visible al lado.
+            e.currentTarget.style.display = "none";
           }}
         />
-        <p className="footer-name">Hospital Oñativia</p>
+        <p className="footer-name">Hospital Dr. Arturo Oñativia</p>
       </div>
 
       <div className="footer-section">
@@ -44,7 +43,7 @@ export const FooterHospital = ({ setSelectedKey, isHome = false }) => {
       </div>
 
       <div className="footer-copy">
-        Hospital Oñativia © {new Date().getFullYear()} · Desarrollado por JNSIX
+        Hospital Dr. Arturo Oñativia © {new Date().getFullYear()} · Desarrollado por JNSIX
       </div>
     </div>
   );

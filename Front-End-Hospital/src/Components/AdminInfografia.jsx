@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { Button as AntButton, Space, Popconfirm, message, Tag } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import React, { useState, useEffect, useMemo } from "react";
+import { Tag } from "antd";
+import { EditOutlined, StopOutlined, PlusOutlined } from "@ant-design/icons";
+import { RowActions } from "./RowActions";
 import { getAllInfografias, disableInfografia } from "../services/infografia-services";
 import { VentEmergenteAddInfografia } from "./VentEmergenteAddInfografia";
 import { VentEmergenteEditInfografia } from "./VentEmergenteEditInfografia";
 import { AdminEntityList } from "./AdminEntityList";
+import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
+import { filterBySearch } from "../utils/search";
+import { notify } from "../ui/notify";
 
 export const AdminInfografia = () => {
   const [infografias, setInfografias] = useState([]);
-  const [infografiasFiltradas, setInfografiasFiltradas] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [aDeshabilitar, setADeshabilitar] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [selectedInfografia, setSelectedInfografia] = useState(null);
@@ -21,39 +25,29 @@ export const AdminInfografia = () => {
 
   const cargarInfografias = async () => {
     setLoading(true);
-    const data = await getAllInfografias();
-    setInfografias(data);
-    setInfografiasFiltradas(data);
-    setLoading(false);
-  };
-
-  const handleSearch = (value) => {
-    setSearchText(value);
-    if (value === "") {
-      setInfografiasFiltradas(infografias);
-    } else {
-      const filtradas = infografias.filter(
-        (item) =>
-          item.titulo.toLowerCase().includes(value.toLowerCase()) ||
-          item.categoria.toLowerCase().includes(value.toLowerCase())
-      );
-      setInfografiasFiltradas(filtradas);
+    try {
+      const data = await getAllInfografias();
+      setInfografias(Array.isArray(data) ? data : []);
+    } catch (err) {
+      notify.error(err, "No pudimos cargar las infografías");
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleSearch = (value) => setSearchText(value);
+  const infografiasFiltradas = useMemo(() => filterBySearch(infografias, searchText), [infografias, searchText]);
 
   const handleEdit = (record) => {
     setSelectedInfografia(record);
     setShowEdit(true);
   };
 
-  const handleDelete = async (id) => {
-    const result = await disableInfografia(id);
-    if (result.id) {
-      message.success("Infografía inhabilitada correctamente");
-      cargarInfografias();
-    } else {
-      message.error("Error al inhabilitar la infografía");
-    }
+  const handleDelete = async () => {
+    const r = aDeshabilitar;
+    await disableInfografia(r.id);
+    notify.success(`Infografía «${r.titulo}» deshabilitada. Ya no se muestra en la app.`);
+    await cargarInfografias();
   };
 
   const columns = [
@@ -88,23 +82,14 @@ export const AdminInfografia = () => {
     {
       title: "Acciones",
       key: "acciones",
+      align: "center",
       render: (_, record) => (
-        <Space>
-          <AntButton
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            size="small"
-          />
-          <Popconfirm
-            title="¿Estás seguro de inhabilitar esta infografía?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Sí"
-            cancelText="No"
-          >
-            <AntButton type="primary" danger icon={<DeleteOutlined />} size="small" />
-          </Popconfirm>
-        </Space>
+        <RowActions
+          actions={[
+            { key: "edit", label: "Editar", icon: <EditOutlined />, onClick: () => handleEdit(record) },
+            { key: "off", label: "Deshabilitar", icon: <StopOutlined />, danger: true, onClick: () => setADeshabilitar(record) },
+          ]}
+        />
       ),
     },
   ];
@@ -120,14 +105,27 @@ export const AdminInfografia = () => {
           onChange: (e) => handleSearch(e.target.value),
         }}
         addButton={{
-          label: "Agregar Infografía",
+          label: "Agregar infografía",
           icon: <PlusOutlined />,
           onClick: () => setShowAdd(true),
         }}
         columns={columns}
         dataSource={infografiasFiltradas}
+        loadingText="Cargando infografías…"
+        estado={{ entidad: "infografias", singular: "infografía", articulo: "la", onRestored: cargarInfografias }}
         loading={loading}
         rowKey="id"
+      />
+
+      <VentEmergConfirmacion
+        isOpen={Boolean(aDeshabilitar)}
+        onClose={() => setADeshabilitar(null)}
+        title={`¿Deshabilitar la infografía «${aDeshabilitar?.titulo || ""}»?`}
+        mje="Deja de mostrarse en la sección Infografías para todos. Los datos no se borran y se puede volver a habilitar desde el filtro «Deshabilitados»."
+        confirmText="Deshabilitar"
+        danger
+        errorFallback="No pudimos deshabilitar la infografía"
+        handleSi={handleDelete}
       />
 
       {showAdd && (

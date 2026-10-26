@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Modal } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 import { EditPatologia } from "./EditPatologia";
 
 export const VentEmergenteEditPatologia = ({
@@ -8,12 +8,18 @@ export const VentEmergenteEditPatologia = ({
   onClose,
   patologiaSelected,
 }) => {
+  // El modal abre en modo lectura; el formulario nos avisa cuando pasa a edición.
+  const [editando, setEditando] = useState(false);
+  useEffect(() => {
+    if (isOpen) setEditando(false);
+  }, [isOpen]);
+  const nombreItem = patologiaSelected?.nombre ? `: ${patologiaSelected.nombre}` : "";
   return (
     <Modal
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <EditOutlined style={{ color: "var(--primary)" }} />
-          <span>Editar Patología</span>
+          {editando ? <EditOutlined style={{ color: "var(--primary)" }} /> : <EyeOutlined style={{ color: "var(--primary)" }} />}
+          <span>{editando ? "Editar patología" : "Detalle de patología"}{nombreItem}</span>
         </div>
       }
       open={isOpen}
@@ -23,7 +29,7 @@ export const VentEmergenteEditPatologia = ({
       styles={{ header: { borderBottom: "1px solid var(--gray-200)", paddingBottom: 12 } }}
       destroyOnClose
     >
-      <EditPatologia onCloseEdit={onClose} patologia={patologiaSelected} />
+      <EditPatologia onCloseEdit={onClose} onModoChange={setEditando} patologia={patologiaSelected} />
     </Modal>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 
 import PatologiaContext from "../Contexts/PatologiaContext";
@@ -7,6 +7,8 @@ import { VentEmergenteEditPatologia } from "./VentEmergenteEditPatologia";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { inhabilitarPatologia } from "../services/patologia-services";
 import { AdminEntityList } from "./AdminEntityList";
+import { filterBySearch } from "../utils/search";
+import { notify } from "../ui/notify";
 
 export const AdminPatologia = () => {
   const {
@@ -25,6 +27,7 @@ export const AdminPatologia = () => {
     dbSearch,
     loading = false,
     loadingAction = false,
+    recargar,
   } = useContext(PatologiaContext);
 
   const inhabilitarRegistro = async (id) => {
@@ -33,28 +36,32 @@ export const AdminPatologia = () => {
 
   const [patologiaSearch, setPatologiaSearch] = useState("");
 
+  const lista = useMemo(() => filterBySearch(db || [], patologiaSearch), [db, patologiaSearch]);
+  const itemNombre = (db || []).find((x) => x.id === idPatologia)?.nombre || "seleccionada";
+
   return (
     <>
       <AdminEntityList
         title="Listado de Patologías"
-        count={db.length}
+        count={db?.length || 0}
         searchProps={{
           placeholder: "Buscar patología...",
           value: patologiaSearch,
           onChange: (e) => {
             setPatologiaSearch(e.target.value);
-            handleSearch(e.target.value);
           },
         }}
         addButton={{
-          label: "Agregar Patología",
+          label: "Agregar patología",
           icon: <PlusOutlined />,
           onClick: () => setShowVentEmergenteAddPatologia(true),
           loading: loadingAction,
           disabled: loadingAction,
         }}
         columns={columns}
-        dataSource={dbSearch.length > 0 ? dbSearch : db}
+        dataSource={lista}
+        loadingText="Cargando patologías…"
+        estado={{ entidad: "patologias", singular: "patología", articulo: "la", onRestored: () => recargar?.() }}
         loading={loading}
         rowKey="id"
       />
@@ -71,10 +78,18 @@ export const AdminPatologia = () => {
       />
 
       <VentEmergConfirmacion
-        mje={"¿Está seguro de eliminar este registro?"}
+        title={`¿Deshabilitar la patología «${itemNombre}»?`}
+        mje={"Ya no se va a poder asignar a pacientes ni a contenidos nuevos. Los pacientes y contenidos que ya la tienen no se borran. Podés volver a habilitarla desde el filtro «Deshabilitados»."}
+        confirmText="Deshabilitar"
+        danger
+        errorFallback="No pudimos deshabilitar la patología"
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
-        handleSi={() => inhabilitarRegistro(idPatologia)}
+        handleSi={async () => {
+          const nombreItem = itemNombre;
+          await inhabilitarRegistro(idPatologia);
+          notify.success(`Patología «${nombreItem}» deshabilitada. Ya no se muestra en la app.`);
+        }}
       />
     </>
   );

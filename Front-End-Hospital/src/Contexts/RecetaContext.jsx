@@ -1,6 +1,8 @@
+import { RowActions } from "../Components/RowActions";
 import React, { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
+import { notify } from "../ui/notify";
+import { EditOutlined, DragOutlined, DeleteOutlined, StopOutlined } from "@ant-design/icons";
 import {
   getAllRecetas,
   getAllRecetasFiltro,
@@ -45,7 +47,7 @@ export const RecetaProvider = ({ children }) => {
   const [idsCategoriasFiltro, setIdsCategoriasFiltro] = useState([]);
 
   // Estados de loading
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // true: evita mostrar «vacío» antes de cargar
   const [loadingAction, setLoadingAction] = useState(false);
 
   const validationsForm = (form) => {
@@ -238,12 +240,12 @@ export const RecetaProvider = ({ children }) => {
       console.log("se esta por actualizar este receta: ", receta);
       const update = await updateReceta(receta);
       console.log("update: ", update);
-      toast.success("Receta actualizada exitosamente");
+      notify.success(`Receta «${receta?.nombre || ""}» actualizada. Los pacientes ya ven los cambios.`);
       await getallRecetas();
       handleCloseVentEmergenteEditReceta();
     } catch (error) {
       console.error("Error al actualizar receta:", error);
-      toast.error("Error al actualizar la receta");
+      throw error;
     } finally {
       setLoadingAction(false);
     }
@@ -372,7 +374,7 @@ export const RecetaProvider = ({ children }) => {
       align: "start",
     },
     {
-      title: "Calorias",
+      title: "Calorías",
       dataIndex: "calorias",
       align: "start",
     },
@@ -387,20 +389,12 @@ export const RecetaProvider = ({ children }) => {
       key: "acciones",
       align: "center",
       render: (_, record) => (
-        <div className="cont_acciones">
-          {/* <EditOutlined
-            className="icon_accion"
-            onClick={(e) => handleEditPacient(record)}
-          /> */}
-          <DragOutlined
-            className="icon_accion"
-            onClick={(e) => handleEditReceta(record)}
-          />
-          <DeleteOutlined
-            className="icon_accion"
-            onClick={(e) => handleDelete(record)}
-          />
-        </div>
+        <RowActions
+          actions={[
+            { key: "edit", label: "Editar", icon: <EditOutlined />, onClick: () => handleEditReceta(record) },
+            { key: "off", label: "Deshabilitar", icon: <StopOutlined />, danger: true, onClick: () => handleDelete(record) },
+          ]}
+        />
       ),
     },
   ];
@@ -416,7 +410,7 @@ export const RecetaProvider = ({ children }) => {
         if (resultInsert.err) {
           throw new Error(resultInsert.err.message || "Error al crear la receta");
         }
-        // Toast se maneja en el componente con toast.promise
+        notify.success(`Receta «${recetaToSave?.nombre || ""}» creada. Ya aparece en la sección Recetas.`);
         await getallRecetas();
         handleCloseVentEmergenteConfReceta();
         handleCloseVentEmergenteAddReceta();
@@ -427,6 +421,8 @@ export const RecetaProvider = ({ children }) => {
       } finally {
         setLoadingAction(false);
       }
+    } else {
+      throw new Error("Faltan datos obligatorios: completá los campos marcados y volvé a intentar.");
     }
   };
   const addReceta = async (receta) => {
@@ -446,16 +442,22 @@ export const RecetaProvider = ({ children }) => {
       setDb(recetas);
     } catch (error) {
       console.error("Error al cargar recetas:", error);
-      toast.error("Error al cargar las recetas");
+      notify.error(error, "No pudimos cargar las recetas");
     } finally {
       setLoading(false);
     }
   };
 
   let getallRecetasbypaciente = async () => {
-    let recetas = await getRecetaByPaciente(ndocuPaciente);
-    console.log(recetas);
-    setDb(recetas);
+    setLoading(true);
+    try {
+      const recetas = await getRecetaByPaciente(ndocuPaciente);
+      setDb(Array.isArray(recetas) ? recetas : []);
+    } catch (error) {
+      notify.error(error, "No pudimos cargar tus recetas");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -481,6 +483,7 @@ export const RecetaProvider = ({ children }) => {
   }, [recetaToInsert]);
 
   let data = {
+    recargar: getallRecetas,
     db: db,
     columns: columns,
     recetaSelected: recetaSelected,

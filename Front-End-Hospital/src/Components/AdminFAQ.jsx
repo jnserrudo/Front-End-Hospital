@@ -1,10 +1,12 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import FAQContext from "../Contexts/FAQContext";
 import { VentEmergenteAddFAQ } from "./VentEmergenteAddFAQ";
 import { VentEmergenteEditFAQ } from "./VentEmergenteEditFAQ";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { AdminEntityList } from "./AdminEntityList";
+import { filterBySearch } from "../utils/search";
+import { notify } from "../ui/notify";
 
 export const AdminFAQ = () => {
   const {
@@ -24,32 +26,37 @@ export const AdminFAQ = () => {
     loading = false,
     loadingAction = false,
     inhabilitarFAQ,
+    recargar,
   } = useContext(FAQContext);
 
   const [faqSearch, setFaqSearch] = useState("");
+
+  const lista = useMemo(() => filterBySearch(db || [], faqSearch), [db, faqSearch]);
+  const itemNombre = (db || []).find((x) => x.id === idFAQ)?.pregunta || "seleccionada";
 
   return (
     <>
       <AdminEntityList
         title="Listado de Preguntas Frecuentes"
-        count={db.length}
+        count={db?.length || 0}
         searchProps={{
           placeholder: "Buscar pregunta...",
           value: faqSearch,
           onChange: (e) => {
             setFaqSearch(e.target.value);
-            handleSearch(e.target.value);
           },
         }}
         addButton={{
-          label: "Agregar Pregunta",
+          label: "Agregar pregunta",
           icon: <PlusOutlined />,
           onClick: () => setShowVentEmergenteAddFAQ(true),
           loading: loadingAction,
           disabled: loadingAction,
         }}
         columns={columns}
-        dataSource={dbSearch.length > 0 ? dbSearch : db}
+        dataSource={lista}
+        loadingText="Cargando preguntas…"
+        estado={{ entidad: "faq", singular: "pregunta", articulo: "la", onRestored: () => recargar?.() }}
         loading={loading}
         rowKey="id"
       />
@@ -66,10 +73,18 @@ export const AdminFAQ = () => {
       />
 
       <VentEmergConfirmacion
-        mje={"¿Está seguro de eliminar esta pregunta?"}
+        title={`¿Deshabilitar la pregunta frecuente «${itemNombre}»?`}
+        mje={"Deja de mostrarse en Preguntas frecuentes. Los datos no se borran y se puede volver a habilitar desde el filtro «Deshabilitados»."}
+        confirmText="Deshabilitar"
+        danger
+        errorFallback="No pudimos deshabilitar la pregunta frecuente"
         isOpen={showVentEmergenteDelete}
         onClose={() => setShowVentEmergenteDelete(false)}
-        handleSi={() => inhabilitarFAQ(idFAQ)}
+        handleSi={async () => {
+          const nombreItem = itemNombre;
+          await inhabilitarFAQ(idFAQ);
+          notify.success(`Pregunta frecuente «${nombreItem}» deshabilitada. Ya no se muestra en la app.`);
+        }}
       />
     </>
   );

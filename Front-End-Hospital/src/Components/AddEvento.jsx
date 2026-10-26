@@ -70,7 +70,7 @@ export const AddEvento = ({ onClosePadre }) => {
             <Select
               style={{ width: "100%" }}
               options={TIPOS_EVENTO}
-              placeholder="Seleccione un tipo"
+              placeholder="Elegí un tipo"
               value={eventoToInsert?.tipo || undefined}
               onChange={handleChangeSelectTipoInsert}
             />
@@ -99,13 +99,21 @@ export const AddEvento = ({ onClosePadre }) => {
             width="100%"
             mt={4}
           >
-            Guardar Evento
+            Guardar evento
           </Button>
+          {!bandInsert && (
+            <p style={{ fontSize: 13, color: "var(--gray-500)", marginTop: 6, textAlign: "center" }}>
+              Completá los campos obligatorios para habilitar el botón.
+            </p>
+          )}
         </GridItem>
       </Grid>
 
       <VentEmergConfirmacion
-        mje="¿Está seguro de agregar este evento?"
+        title={`¿Agregar el evento «${eventoToInsert?.titulo || ""}» al calendario?`}
+        mje="Se va a mostrar en el calendario de la app."
+        confirmText="Agregar evento"
+        errorFallback="No pudimos guardar los cambios"
         isOpen={showVentEmergenteConfirmacion}
         onClose={() => setShowVentEmergenteConfirmacion(false)}
         handleSi={async () => {

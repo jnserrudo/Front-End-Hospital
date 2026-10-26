@@ -92,7 +92,7 @@ export const normalizeAdminColumns = (columns = []) =>
     if (isActionsColumn(col)) {
       return {
         ...col,
-        width: col.width ?? 112,
+        width: col.width ?? 88,
         fixed: "right",
         align: col.align ?? "center",
         className: "admin-col-actions",

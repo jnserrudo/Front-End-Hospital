@@ -9,7 +9,7 @@ export const VentEmergenteAddFAQ = ({ isOpen, onClose }) => {
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <QuestionCircleOutlined style={{ color: "var(--primary)" }} />
-          <span>Agregar Pregunta Frecuente</span>
+          <span>Agregar pregunta frecuente</span>
         </div>
       }
       open={isOpen}

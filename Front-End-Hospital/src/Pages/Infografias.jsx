@@ -1,10 +1,13 @@
+import { ImagenSegura } from "../Components/MediaNoDisponible";
 import React, { useState, useEffect } from "react";
-import { Card, Select, Input, Spin, Row, Col, Tag, Empty, Badge, Alert, Button } from "antd";
-import { PictureOutlined, FilePdfOutlined, SearchOutlined, ExportOutlined, InfoCircleOutlined, SettingOutlined } from "@ant-design/icons";
+import { Card, Select, Input, Spin, Row, Col, Tag, Empty, Badge } from "antd";
+import { FilePdfOutlined, SearchOutlined, ExportOutlined } from "@ant-design/icons";
 import { getAllInfografias, getInfografiasByCategoria } from "../services/infografia-services";
 import { getMediaUrl } from "../services/config";
 import { HospitalIcon } from "../Components/HospitalIcon";
 import { PageHeader } from "../Components/PageHeader";
+import { SectionHelp } from "../Components/SectionHelp";
+import { AdminShortcut } from "../Components/AdminShortcut";
 
 const { Meta } = Card;
 
@@ -32,8 +35,6 @@ export const Infografias = ({ setSelectedKey }) => {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("todas");
   
   // Verificar si el usuario es administrador o profesional
-  const rol = localStorage.getItem("rol");
-  const isAdmin = rol === "1" || rol === "2" || rol === 1 || rol === 2 || parseInt(rol) === 1 || parseInt(rol) === 2;
   const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => { cargarInfografias(); }, []);
@@ -101,8 +102,8 @@ export const Infografias = ({ setSelectedKey }) => {
   return (
     <div className="page-wrapper">
       <PageHeader
-        icon={<HospitalIcon name="platoNutricion" size={32} alt="Infografías" />}
-        title="Infografías de Dietas"
+        icon={<HospitalIcon name="platoNutricion" size={32} alt="" />}
+        title="Infografías de dietas"
         subtitle={
           <>
             Material visual sobre nutrición y planes alimentarios
@@ -114,18 +115,7 @@ export const Infografias = ({ setSelectedKey }) => {
             )}
           </>
         }
-        actions={
-          isAdmin && setSelectedKey ? (
-            <Button
-              type="primary"
-              icon={<SettingOutlined />}
-              onClick={() => setSelectedKey("19")}
-              className="admin-action-btn"
-            >
-              <span className="btn-text">Administrar</span>
-            </Button>
-          ) : null
-        }
+        actions={<AdminShortcut adminKey="19" setSelectedKey={setSelectedKey} />}
       />
 
       <div className="filter-bar">
@@ -145,15 +135,11 @@ export const Infografias = ({ setSelectedKey }) => {
         />
       </div>
 
-      <Alert
-        message="¿Cómo usar esta sección?"
-        description="Explora infografías sobre diferentes tipos de dietas y planes alimentarios. Filtra por categoría o busca por nombre. Haz clic en una infografía para verla en tamaño completo o descargarla."
-        type="info"
-        icon={<InfoCircleOutlined />}
-        showIcon
-        closable
-        style={{ marginBottom: 24, borderRadius: "var(--radius-md)" }}
-      />
+      <SectionHelp>
+        Las infografías resumen en una imagen o PDF los distintos tipos de dietas y planes alimentarios que usa el
+        equipo de nutrición. Buscá por nombre o filtrá por categoría, y tocá una tarjeta para verla en tamaño completo
+        o descargarla y tenerla a mano.
+      </SectionHelp>
 
       {loading ? (
         <div style={{ textAlign: "center", padding: "4rem" }}>
@@ -184,13 +170,10 @@ export const Infografias = ({ setSelectedKey }) => {
                     </div>
                   ) : (
                     <div style={{ height: 180, overflow: "hidden", background: "var(--gray-100)" }}>
-                      <img
+                      <ImagenSegura
                         src={getUrl(inf)}
                         alt={inf.titulo}
                         style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s" }}
-                        onError={(e) => {
-                          e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY0NzQ4YiIgc3Ryb2tlLXdpZHRoPSIxLjUiPjxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIi8+PGNpcmNsZSBjeD0iOC41IiBjeT0iOC41IiByPSIxLjUiLz48cG9seWxpbmUgcG9pbnRzPSIyMSAxNSAxNiAxMCA1IDIxIi8+PC9zdmc+';
-                        }}
                       />
                     </div>
                   )

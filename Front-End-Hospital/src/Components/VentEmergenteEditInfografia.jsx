@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Form, Input, Select, message } from "antd";
+import { Modal, Form, Input, Select } from "antd";
+import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
+import { notify } from "../ui/notify";
 import { updateInfografia } from "../services/infografia-services";
 import { UploadHibrido } from "./UploadHibrido";
 
@@ -8,6 +10,7 @@ const { TextArea } = Input;
 export const VentEmergenteEditInfografia = ({ show, handleClose, infografia }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [pendiente, setPendiente] = useState(null);
   const [urlArchivo, setUrlArchivo] = useState("");
   const [tipoAlmacenamiento, setTipoAlmacenamiento] = useState("local");
 
@@ -28,31 +31,38 @@ export const VentEmergenteEditInfografia = ({ show, handleClose, infografia }) =
     }
   }, [infografia, form]);
 
+  // 1) validamos, 2) pedimos confirmación, 3) guardamos.
   const handleSubmit = async () => {
+    let values;
     try {
-      const values = await form.validateFields();
-      setLoading(true);
+      values = await form.validateFields();
+    } catch {
+      notify.warning("Revisá los campos marcados en rojo antes de guardar.");
+      return;
+    }
+    if (!urlArchivo) {
+      notify.warning("Falta el archivo: subí una imagen/PDF o pegá un enlace externo.");
+      return;
+    }
+    setPendiente({
+      titulo: values.titulo,
+      descripcion: values.descripcion,
+      categoria: values.categoria,
+      tipoArchivo: values.tipoArchivo,
+      tipoAlmacenamiento: tipoAlmacenamiento,
+      urlArchivo: tipoAlmacenamiento === "local" ? urlArchivo : null,
+      urlExterna: tipoAlmacenamiento === "externa" ? urlArchivo : null,
+    });
+  };
 
-      const infografiaData = {
-        titulo: values.titulo,
-        descripcion: values.descripcion,
-        categoria: values.categoria,
-        tipoArchivo: values.tipoArchivo,
-        tipoAlmacenamiento: tipoAlmacenamiento,
-        urlArchivo: tipoAlmacenamiento === "local" ? urlArchivo : null,
-        urlExterna: tipoAlmacenamiento === "externa" ? urlArchivo : null,
-      };
-
-      const result = await updateInfografia(infografia.id, infografiaData);
-
-      if (result.id) {
-        message.success("Infografía actualizada correctamente");
-        handleClose();
-      } else {
-        message.error("Error al actualizar la infografía");
-      }
-    } catch (error) {
-      console.error("Error:", error);
+  const guardar = async () => {
+    const datos = pendiente;
+    setLoading(true);
+    try {
+      await updateInfografia(infografia.id, datos);
+      notify.success(`Infografía «${datos.titulo}» actualizada.`);
+      setPendiente(null);
+      handleClose();
     } finally {
       setLoading(false);
     }
@@ -70,7 +80,7 @@ export const VentEmergenteEditInfografia = ({ show, handleClose, infografia }) =
 
   return (
     <Modal
-      title="Editar Infografía"
+      title={`Editar infografía${infografia?.titulo ? `: ${infografia.titulo}` : ""}`}
       open={show}
       onOk={handleSubmit}
       onCancel={handleClose}
@@ -101,7 +111,7 @@ export const VentEmergenteEditInfografia = ({ show, handleClose, infografia }) =
           name="categoria"
           rules={[{ required: true, message: "La categoría es requerida" }]}
         >
-          <Select placeholder="Selecciona una categoría">
+          <Select placeholder="Elegí una categoría">
             <Select.Option value="vegetariana">Vegetariana</Select.Option>
             <Select.Option value="cetogenica">Cetogénica</Select.Option>
             <Select.Option value="mediterranea">Mediterránea</Select.Option>
@@ -117,7 +127,7 @@ export const VentEmergenteEditInfografia = ({ show, handleClose, infografia }) =
           name="tipoArchivo"
           rules={[{ required: true, message: "El tipo de archivo es requerido" }]}
         >
-          <Select placeholder="Selecciona el tipo">
+          <Select placeholder="Elegí el tipo">
             <Select.Option value="imagen">Imagen</Select.Option>
             <Select.Option value="pdf">PDF</Select.Option>
           </Select>
@@ -133,6 +143,15 @@ export const VentEmergenteEditInfografia = ({ show, handleClose, infografia }) =
           />
         </Form.Item>
       </Form>
+      <VentEmergConfirmacion
+        isOpen={Boolean(pendiente)}
+        onClose={() => setPendiente(null)}
+        title={`¿Guardar los cambios de «${pendiente?.titulo || ""}»?`}
+        mje={"Los pacientes van a ver la versión actualizada en la sección Infografías."}
+        confirmText={"Guardar cambios"}
+        errorFallback="No pudimos guardar la infografía"
+        handleSi={guardar}
+      />
     </Modal>
   );
 };

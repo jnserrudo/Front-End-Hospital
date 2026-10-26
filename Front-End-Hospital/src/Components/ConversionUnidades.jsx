@@ -7,7 +7,6 @@ import {
   Col,
   Divider,
   Segmented,
-  Alert,
 } from "antd";
 import {
   SwapOutlined,
@@ -15,6 +14,8 @@ import {
   TableOutlined,
 } from "@ant-design/icons";
 import { HospitalIcon } from "./HospitalIcon";
+import { PageHeader } from "./PageHeader";
+import { SectionHelp } from "./SectionHelp";
 
 const { Option } = Select;
 
@@ -101,42 +102,20 @@ export const ConversionUnidades = () => {
   }, [valor, unidadOrigen, unidadDestino, categoria]);
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px", width: "100%", boxSizing: "border-box" }}>
-      <nav className="nav_recetas">
-        <div
-          style={{
-            width: 56,
-            height: 56,
-            borderRadius: "var(--radius-md)",
-            background: "var(--primary-100)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          <HospitalIcon name="conversor" size={36} alt="Conversor" />
-        </div>
-        <div className="cont_sel_recetas">
-          <div className="page-header-main">
-            <div className="page-header-text">
-              <p className="titulo_see">Conversor de Unidades</p>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <Alert
-        message="¿Cómo usar esta sección?"
-        description="Convierte unidades de medida para cocina y nutrición. Selecciona la categoría (masa o volumen), ingresa el valor y elige las unidades de origen y destino. El resultado se calcula automáticamente."
-        type="info"
-        icon={<InfoCircleOutlined />}
-        showIcon
-        closable
-        style={{ margin: "24px 0", borderRadius: "var(--radius-md)" }}
+    <div className="page-wrapper">
+      <PageHeader
+        icon={<HospitalIcon name="conversor" size={32} alt="" />}
+        title="Conversor de unidades"
+        subtitle="Pasá gramos, tazas, cucharadas y otras medidas de cocina de una unidad a otra"
       />
 
-      <Row gutter={[24, 24]} style={{ marginTop: 24, marginBottom: 48 }}>
+      <SectionHelp>
+        Sirve para seguir las recetas y las indicaciones del plan alimentario aunque uses otras medidas en tu cocina.
+        Elegí si querés convertir masa o volumen, ingresá el valor y las unidades de origen y destino: el resultado se
+        calcula solo. Al costado (o debajo, en el celular) tenés las equivalencias y las medidas caseras más usadas.
+      </SectionHelp>
+
+      <Row gutter={[24, 24]} style={{ marginBottom: 48 }}>
         {/* Columna Izquierda: Calculadora */}
         <Col xs={24} lg={12}>
           <div className="converter-card">
@@ -161,7 +140,7 @@ export const ConversionUnidades = () => {
                 className="converter-input"
                 value={valor}
                 onChange={(e) => setValor(e.target.value)}
-                placeholder="Ingrese el valor (ej. 100)"
+                placeholder="Ingresá el valor (ej.: 100)"
               />
             </div>
 

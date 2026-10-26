@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { YoutubeEmbed } from "./YoutubeEmbed";
 import { Tabs, Tab, TabList, TabPanel, TabPanels } from "@chakra-ui/react";
 
 import {
@@ -17,8 +18,9 @@ import { Input } from "@chakra-ui/react";
 import ReactPlayer from "react-player";
 
 
-import { Upload, Select } from "antd";
+import { Upload, Select, Button as AntButton, Alert as AntAlert } from "antd";
 import { entorno } from "../services/config";
+import { notify } from "../ui/notify";
 
 export const AddEjercicio = ({ onClosePadre }) => {
   const {
@@ -40,7 +42,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
       width: "100%",
     },
     options: patologiasxEjercicioAdd,
-    placeholder: "Seleccione una Patología",
+    placeholder: "Elegí una patología",
     maxTagCount: "responsive",
   };
 
@@ -50,7 +52,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
       width: "100%",
     },
     options: categoriasxInformacionAdd,
-    placeholder: "Seleccione una Categoría",
+    placeholder: "Elegí una categoría",
     maxTagCount: "responsive",
   };
 
@@ -111,18 +113,25 @@ export const AddEjercicio = ({ onClosePadre }) => {
         body: formData,
       });
       const data = await response.json();
-      return data.url; // Suponiendo que el backend devuelve la URL del video
+      if (!data?.url || String(data.url).startsWith("blob:")) {
+        throw new Error("No pudimos subir el archivo. Probá de nuevo o elegí otro.");
+      }
+      return data.url;
     } catch (error) {
       console.error("Error uploading file:", error);
       throw error;
     }
   };
   const beforeUpload = (file) => {
-    const isImageOrVideo =
-      file.type.startsWith("image/") || file.type.startsWith("video/");
-
-    if (!isImageOrVideo) {
-      console.error("Solo se permiten archivos de imagen o video");
+    const esImagen = file.type.startsWith("image/");
+    const esVideo = file.type.startsWith("video/");
+    if (!esImagen && !esVideo) {
+      notify.error("Ese tipo de archivo no está permitido. Subí un video (MP4, WEBM o MOV) o una imagen (JPG, PNG o WEBP).");
+      return Upload.LIST_IGNORE;
+    }
+    const maxMB = esVideo ? 200 : 5;
+    if (file.size > maxMB * 1024 * 1024) {
+      notify.error(`El archivo es demasiado pesado: el máximo es ${maxMB} MB para ${esVideo ? "videos" : "imágenes"}. Elegí uno más liviano o comprimilo.`);
       return Upload.LIST_IGNORE;
     }
     return true;
@@ -155,11 +164,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
         descripcion: cleanTextFields(ejercicioToInsert.descripcion),
       };
 
-      await toast.promise(handleInsert(fullEjercicio), {
-        loading: "Cargando Ejercicio...",
-        success: <b>Se agregó el Ejercicio!</b>,
-        error: <b>No se pudo agregar el ejercicio.</b>,
-      });
+      await handleInsert(fullEjercicio);
     } catch (error) {
       console.error("Error inserting ejercicio:", error);
       throw error;
@@ -210,8 +215,8 @@ export const AddEjercicio = ({ onClosePadre }) => {
         <GridItem colSpan={{ base: 1, md: 2 }}>
           <Tabs>
             <TabList>
-              <Tab>Cargar Video</Tab>
-              <Tab>Youtube</Tab>
+              <Tab>Subir archivo</Tab>
+              <Tab>Enlace de YouTube</Tab>
             </TabList>
             <TabPanels>
               <TabPanel className="tab_video_iframe">
@@ -222,7 +227,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
                       height="100%"
                       style={{ position: 'absolute', top: 0, left: 0 }}
                       controls
-                      url={previewUrl}
+                      src={previewUrl}
                     />
                   </div>
                 )}
@@ -252,7 +257,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
                         // Abre una nueva ventana y escribe la previsualización del archivo en la ventana
                         const imgWindow = window.open();
                         imgWindow.document.write(
-                          `<img src="${preview}" alt="preview" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:red;text-align:center;padding:20px;\'>Error al cargar la imagen</p>'" />`
+                          `<img src="${preview}" alt="preview" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:#475569;text-align:center;padding:20px;\'>Este archivo no está disponible</p>'" />`
                         );
                       }
                     }}
@@ -263,8 +268,21 @@ export const AddEjercicio = ({ onClosePadre }) => {
                     }}
                     onChange={handleFileChange}
                   >
-                    {/* fileList.length < 1 &&  */ "Subir Video"}
+                    {/* fileList.length < 1 &&  */ "Tocá para elegir un video o una imagen"}
                   </Upload>
+                  {disableFileUpload && (
+                    <AntAlert
+                      type="info"
+                      showIcon
+                      style={{ marginTop: 8 }}
+                      message="La subida de archivo está bloqueada porque ya pegaste un video de YouTube. Borrá el código de YouTube si preferís subir un archivo."
+                    />
+                  )}
+                  {fileList.length > 0 && (
+                    <AntButton size="small" style={{ marginTop: 8 }} onClick={() => handleFileChange({ fileList: [] })}>
+                      Quitar archivo elegido
+                    </AntButton>
+                  )}
                 </GridItem>
               </TabPanel>
               <TabPanel>
@@ -286,19 +304,21 @@ export const AddEjercicio = ({ onClosePadre }) => {
                     />
                     <FormLabel>Iframe YouTube</FormLabel>
                   </FormControl>
+                  {disableYoutubeInput && (
+                    <AntAlert
+                      type="info"
+                      showIcon
+                      style={{ marginTop: 8 }}
+                      message="Este campo está bloqueado porque ya elegiste un archivo de video. Tocá «Quitar archivo elegido» en la otra pestaña si preferís usar YouTube."
+                    />
+                  )}
                 </GridItem>
                 {iframeUrl && (
                   <GridItem colSpan={{ base: 1, md: 2 }}>
                     <div style={{ position: 'relative', paddingTop: '56.25%', width: '100%', marginTop: '1rem', background: 'var(--gray-100)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-                      <div
-                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                        dangerouslySetInnerHTML={{
-                          __html: iframeUrl.replace(
-                            "<iframe",
-                            "<iframe style='width: 100%; height: 100%; border: none;'"
-                          ),
-                        }}
-                      />
+                      <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+  <YoutubeEmbed valor={iframeUrl} />
+</div>
                     </div>
                   </GridItem>
                 )}
@@ -309,7 +329,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
         <GridItem colSpan={{ base: 1, md: 1 }}>
           {/* SELECT DE LAS PATOLOGIAS */}
           <FormControl isRequired>
-            <FormLabel>Patologias</FormLabel>
+            <FormLabel>Patologías</FormLabel>
             <Select
               name="idPatologias"
               {...sharedProps}
@@ -322,7 +342,7 @@ export const AddEjercicio = ({ onClosePadre }) => {
         <GridItem colSpan={{ base: 1, md: 1 }}>
           {/* SELECT DE LAS CATEGORIAS */}
           <FormControl isRequired>
-            <FormLabel>Categorias</FormLabel>
+            <FormLabel>Categorías</FormLabel>
             <Select
               name="idCategorias"
               {...sharedPropsCategorias}
@@ -392,22 +412,26 @@ export const AddEjercicio = ({ onClosePadre }) => {
               }
               onChange={(e) => handleChangeInputInsert(e)}
             />
-            <FormLabel>Descripcion</FormLabel>
+            <FormLabel>Descripción</FormLabel>
           </FormControl>
         </GridItem>
       </Grid>
 
-      {bandInsert ? (
+      <div style={{ textAlign: "center" }}>
         <Button
           className="btn_accion_edit_ejercicio"
-          colorScheme="green"
+          colorScheme="blue"
           style={{ margin: "1rem auto 0" }}
           onClick={() => setShowVentEmergenteConfirmacion(true)}
           isLoading={loadingAction}
+          isDisabled={!bandInsert}
         >
-          Agregar Ejercicio
+          Guardar ejercicio
         </Button>
-      ) : null}
+        {!bandInsert && (
+          <p style={{ fontSize: 13, color: "var(--gray-500)", marginTop: 6 }}>Completá los campos obligatorios (nombre, descripción y video) para poder guardar.</p>
+        )}
+      </div>
 
       {/* <VentEmergConfirmacion
         onClosePadre={onClosePadre}
@@ -419,7 +443,10 @@ export const AddEjercicio = ({ onClosePadre }) => {
       <VentEmergConfirmacion
         onClosePadre={onClosePadre}
         onClose={handleCloseVentEmergente}
-        mje={"Esta seguro de agregar a la ejercicio? "}
+        title={`¿Publicar el ejercicio «${ejercicioToInsert?.nombre || ""}»?`}
+        mje="Lo van a ver en la sección Ejercicios los pacientes con las patologías que elegiste (o todos, si no elegiste ninguna)."
+        confirmText="Publicar ejercicio"
+        errorFallback="No pudimos guardar los cambios"
         handleSi={handleInsertWithVideo}
         isOpen={showVentEmergenteConfirmacion}
       />

@@ -3,6 +3,12 @@ import ReactDOM from 'react-dom/client'
 import { Toaster } from 'react-hot-toast'
 import App from './App.jsx'
 import './index.css'
+import { installFetchInterceptor } from './services/http'
+import { installGlobalErrorNotifier } from './ui/notify'
+
+// Token en todas las llamadas a la API + manejo central de errores/sesión.
+installFetchInterceptor()
+installGlobalErrorNotifier()
 
 if (typeof document !== 'undefined') {
   document.addEventListener('click', (e) => {

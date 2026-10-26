@@ -1,5 +1,8 @@
+import { faqCategoriaLabel } from "../utils/faqCategorias";
+import { RowActions } from "../Components/RowActions";
 import React, { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { notify } from "../ui/notify";
 import {
   getAllFAQs,
   getFAQById,
@@ -7,7 +10,7 @@ import {
   updateFAQ,
   disableFAQ,
 } from "../services/faq-services";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, StopOutlined } from "@ant-design/icons";
 
 const FAQContext = createContext();
 
@@ -25,7 +28,7 @@ export const FAQProvider = ({ children }) => {
   const [bandInsert, setBandInsert] = useState(false);
   const [showVentEmergenteConfFAQ, setShowVentEmergenteConfFAQ] = useState(false);
   const [bandLoader, setBandLoader] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // true: evita mostrar «vacío» antes de cargar
   const [loadingAction, setLoadingAction] = useState(false);
 
   const validationsForm = (form) => {
@@ -115,14 +118,13 @@ export const FAQProvider = ({ children }) => {
       console.log("Resultado de updateFAQ:", result);
       
       // Si handleResponse no lanzó error, la operación fue exitosa
-      toast.success("Pregunta actualizada exitosamente");
+      notify.success(`Pregunta «${faq?.pregunta || ""}» actualizada. Ya se ve con los cambios.`);
       
       // Recargar datos para mostrar los cambios
       await getallFAQs();
       handleCloseVentEmergenteEditFAQ();
     } catch (error) {
       console.error("Error al actualizar pregunta:", error);
-      toast.error(error.message || "Error al actualizar pregunta");
       throw error;
     } finally {
       setLoadingAction(false);
@@ -135,14 +137,13 @@ export const FAQProvider = ({ children }) => {
       console.log("Resultado de insertFAQ:", result);
       
       // Si handleResponse no lanzó error, la operación fue exitosa
-      toast.success("Pregunta agregada exitosamente");
+      notify.success(`Pregunta «${faqToInsert?.pregunta || ""}» publicada. Ya aparece en Preguntas frecuentes.`);
       
       // Recargar datos para mostrar la nueva pregunta
       await getallFAQs();
       handleCloseVentEmergenteAddFAQ();
     } catch (error) {
       console.error("Error al agregar pregunta:", error);
-      toast.error(error.message || "Error al agregar pregunta");
       throw error;
     }
   };
@@ -153,22 +154,25 @@ export const FAQProvider = ({ children }) => {
       console.log("Resultado de disableFAQ:", result);
       
       // Si handleResponse no lanzó error, la operación fue exitosa
-      toast.success("Pregunta eliminada exitosamente");
       
       // Recargar datos para actualizar la lista
       await getallFAQs();
     } catch (error) {
       console.error("Error al eliminar pregunta:", error);
-      toast.error(error.message || "Error al eliminar pregunta");
       throw error;
     }
   };
 
   const getallFAQs = async () => {
     setLoading(true);
-    const data = await getAllFAQs();
-    setDb(data);
-    setLoading(false);
+    try {
+      const data = await getAllFAQs();
+      setDb(Array.isArray(data) ? data : []);
+    } catch (error) {
+      notify.error(error, "No pudimos cargar la lista");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -203,26 +207,24 @@ export const FAQProvider = ({ children }) => {
   const columns = [
     { title: "ID", dataIndex: "id", key: "id", width: 60 },
     { title: "Pregunta", dataIndex: "pregunta", key: "pregunta" },
-    { title: "Categoría", dataIndex: "categoria", key: "categoria" },
+    { title: "Categoría", dataIndex: "categoria", key: "categoria", render: (c) => faqCategoriaLabel(c) },
     {
       title: "Acciones",
       key: "acciones",
+      align: "center",
       render: (_, record) => (
-        <div style={{ display: "flex", gap: 8 }}>
-          <EditOutlined
-            style={{ color: "var(--primary)", cursor: "pointer" }}
-            onClick={() => handleEditFAQ(record)}
-          />
-          <DeleteOutlined
-            style={{ color: "var(--danger)", cursor: "pointer" }}
-            onClick={() => handleDelete(record)}
-          />
-        </div>
+        <RowActions
+          actions={[
+            { key: "edit", label: "Editar", icon: <EditOutlined />, onClick: () => handleEditFAQ(record) },
+            { key: "off", label: "Deshabilitar", icon: <StopOutlined />, danger: true, onClick: () => handleDelete(record) },
+          ]}
+        />
       ),
     },
   ];
 
   const data = {
+    recargar: getallFAQs,
     db,
     dbSearch,
     faqSelected,

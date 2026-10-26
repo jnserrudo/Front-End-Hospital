@@ -82,21 +82,28 @@ export const AddPatologia = ({ onClosePadre }) => {
         </GridItem>
       </Grid>
 
-      {bandInsert ? (
+      <div style={{ textAlign: "center" }}>
         <Button
           className="btn_accion_edit_patologia"
-          colorScheme="green"
+          colorScheme="blue"
           style={{ margin: "1rem auto 0" }}
           onClick={() => setShowVentEmergenteConfirmacion(true)}
+          isDisabled={!bandInsert}
         >
-          Agregar Patologia
+          Guardar patología
         </Button>
-      ) : null}
+        {!bandInsert && (
+          <p style={{ fontSize: 13, color: "var(--gray-500)", marginTop: 6 }}>Completá el nombre y la descripción para poder guardar.</p>
+        )}
+      </div>
 
       <VentEmergConfirmacion
         onClosePadre={onClosePadre}
         onClose={handleCloseVentEmergente}
-        mje={"Esta seguro de agregar a la patologia? "}
+        title={`¿Crear la patología «${patologiaToInsert?.nombre || ""}»?`}
+        mje="Se va a poder asignar a pacientes y a contenidos para personalizar lo que ve cada uno."
+        confirmText="Crear patología"
+        errorFallback="No pudimos guardar los cambios"
         handleSi={handleInsert}
         isOpen={showVentEmergenteConfirmacion}
       />

@@ -1,5 +1,7 @@
+import { RowActions } from "../Components/RowActions";
 import React, { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { notify } from "../ui/notify";
 import {
   getAllInformacions,
   getAllInformacionsFiltro,
@@ -11,7 +13,7 @@ import {
   insertInformacion,
   updateInformacion,
 } from "../services/informacion-services";
-import { EditOutlined, DragOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DragOutlined, DeleteOutlined, StopOutlined } from "@ant-design/icons";
 const InformacionContext = createContext();
 export const InformacionProvider = ({ children }) => {
   const [db, setDb] = useState([]);
@@ -37,7 +39,7 @@ export const InformacionProvider = ({ children }) => {
   const [bandLoader, setBandLoader] = useState(false);
 
   // Estados de loading
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // true: evita mostrar «vacío» antes de cargar
   const [loadingAction, setLoadingAction] = useState(false);
 
   const [patologiasxInformacionAdd, setPatologiasxInformacionAdd] = useState(
@@ -227,12 +229,11 @@ export const InformacionProvider = ({ children }) => {
       console.log("se esta por actualizar este informacion: ", informacion);
       const update = await updateInformacion(informacion);
       console.log("update: ", update);
-      toast.success("Información actualizada exitosamente");
+      notify.success(`Información «${informacion?.nombre || ""}» actualizada. Los pacientes ya ven los cambios.`);
       await getallInformacions();
       handleCloseVentEmergenteEditInformacion();
     } catch (error) {
       console.error("Error al actualizar información:", error);
-      toast.error("Error al actualizar información");
       throw error;
     } finally {
       setLoadingAction(false);
@@ -373,7 +374,7 @@ export const InformacionProvider = ({ children }) => {
       align: "start",
     },
     {
-      title: "Descripcion",
+      title: "Descripción",
       dataIndex: "descripcion",
       align: "start",
     },
@@ -383,20 +384,12 @@ export const InformacionProvider = ({ children }) => {
       key: "acciones",
       align: "center",
       render: (_, record) => (
-        <div className="cont_acciones">
-          {/* <EditOutlined
-            className="icon_accion"
-            onClick={(e) => handleEditInformacion(record)}
-          /> */}
-          <DragOutlined
-            className="icon_accion"
-            onClick={(e) => handleEditInformacion(record)}
-          />
-          <DeleteOutlined
-            className="icon_accion"
-            onClick={(e) => handleDelete(record)}
-          />
-        </div>
+        <RowActions
+          actions={[
+            { key: "edit", label: "Ver detalle y editar", icon: <EditOutlined />, onClick: () => handleEditInformacion(record) },
+            { key: "off", label: "Deshabilitar", icon: <StopOutlined />, danger: true, onClick: () => handleDelete(record) },
+          ]}
+        />
       ),
     },
   ];
@@ -414,17 +407,18 @@ export const InformacionProvider = ({ children }) => {
         if (resultInsert.err) {
           throw new Error(resultInsert.err.message);
         }
-        toast.success("Información creada exitosamente");
+        notify.success(`Información «${dataToInsert?.nombre || ""}» creada. Ya aparece en la sección Información.`);
         await getallInformacions();
         handleCloseVentEmergenteConfInformacion();
         handleCloseVentEmergenteAddInformacion();
       } catch (error) {
         console.error("Error al crear información:", error);
-        toast.error("Error al crear información");
         throw error;
       } finally {
         setLoadingAction(false);
       }
+    } else {
+      throw new Error("Faltan datos obligatorios: completá los campos marcados y volvé a intentar.");
     }
   };
   const addInformacion = async (informacion) => {
@@ -448,7 +442,7 @@ export const InformacionProvider = ({ children }) => {
       setDb(informacions);
     } catch (error) {
       console.error("Error al cargar información:", error);
-      toast.error("Error al cargar información");
+      notify.error(error, "No pudimos cargar información");
     } finally {
       setLoading(false);
     }
@@ -472,6 +466,7 @@ export const InformacionProvider = ({ children }) => {
   }, [informacionToInsert]);
 
   let data = {
+    recargar: getallInformacions,
     db: db,
     columns: columns,
     informacionSelected: informacionSelected,

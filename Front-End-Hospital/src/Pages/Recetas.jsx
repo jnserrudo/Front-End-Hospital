@@ -1,12 +1,16 @@
+import { ImagenSegura } from "../Components/MediaNoDisponible";
 import React, { useContext, useEffect, useState } from "react";
-import { Select, Input, Empty, Pagination, Alert, Button } from "antd";
-import { PictureOutlined, InfoCircleOutlined, SettingOutlined } from "@ant-design/icons";
+import { Select, Input, Empty, Pagination } from "antd";
+import { PictureOutlined, SearchOutlined } from "@ant-design/icons";
 import { VentEmergenteRecetaSee } from "../Components/VentEmergRecetaSee";
 import RecetaContext from "../Contexts/RecetaContext";
 import { getAllPatologias } from "../services/patologia-services";
 import { getRecetaByPatologia } from "../services/recetas-services";
-import { entorno, getMediaUrl } from "../services/config";
+import { getMediaUrl } from "../services/config";
 import { HospitalIcon } from "../Components/HospitalIcon";
+import { PageHeader } from "../Components/PageHeader";
+import { SectionHelp } from "../Components/SectionHelp";
+import { AdminShortcut } from "../Components/AdminShortcut";
 import "../style.css";
 
 export const Recetas = ({ setSelectedKey }) => {
@@ -16,8 +20,6 @@ export const Recetas = ({ setSelectedKey }) => {
   const [pageSize, setPageSize] = useState(12);
   
   // Verificar si el usuario es administrador o profesional
-  const rol = localStorage.getItem("rol");
-  const isAdmin = rol === "1" || rol === "2" || rol === 1 || rol === 2 || parseInt(rol) === 1 || parseInt(rol) === 2;
 
   const {
     db,
@@ -79,31 +81,17 @@ export const Recetas = ({ setSelectedKey }) => {
   const paginatedRecetas = listaRecetas.slice(startIndex, endIndex);
 
   return (
-    <div className="recetas-page">
-      <div className="recetas-header">
-        <div className="page-header-top" style={{ marginBottom: 12 }}>
-          <div className="page-header-main">
-            <HospitalIcon name="recetas" size={40} alt="Recetas" />
-            <div className="page-header-text">
-              <h1 className="recetas-title" style={{ margin: 0 }}>Recetas Saludables</h1>
-            </div>
-          </div>
-          {isAdmin && setSelectedKey && (
-            <div className="page-header-actions">
-              <Button
-                type="primary"
-                icon={<SettingOutlined />}
-                onClick={() => setSelectedKey("7")}
-                className="admin-action-btn"
-              >
-                <span className="btn-text">Administrar</span>
-              </Button>
-            </div>
-          )}
-        </div>
-        <div className="recetas-filters">
+    <div className="page-wrapper">
+        <PageHeader
+          icon={<HospitalIcon name="recetas" size={32} alt="" />}
+          title="Recetas saludables"
+          subtitle="Ideas de comidas pensadas para tu salud, con ingredientes, preparación e información nutricional"
+          actions={<AdminShortcut adminKey="7" setSelectedKey={setSelectedKey} />}
+        />
+        <div className="filter-bar">
           <Input
-            placeholder="Buscar receta..."
+            prefix={<SearchOutlined style={{ color: "var(--gray-400)" }} />}
+            placeholder="Buscar receta por nombre..."
             value={recetaSearch}
             onChange={(e) => {
               setRecetaSearch(e.target.value);
@@ -111,31 +99,29 @@ export const Recetas = ({ setSelectedKey }) => {
               setCurrentPage(1);
             }}
             allowClear
-            className="recetas-search"
           />
           <Select
-            className="recetas-filter"
             name="idCategorias"
             {...sharedPropsCategorias}
-            onChange={handleChangeSelectCategoriasFiltrar}
+            style={{ flex: "1 1 200px", minWidth: 0 }}
+            allowClear
+            notFoundContent="Todavía no hay categorías cargadas"
+            onChange={(v) => {
+              handleChangeSelectCategoriasFiltrar(v);
+              setCurrentPage(1);
+            }}
           />
         </div>
-      </div>
 
-      <Alert
-        message="¿Cómo usar esta sección?"
-        description="Explora recetas saludables filtrando por categoría o buscando por nombre. Haz clic en cualquier receta para ver ingredientes, preparación e información nutricional completa."
-        type="info"
-        icon={<InfoCircleOutlined />}
-        showIcon
-        closable
-        style={{ marginBottom: 24, borderRadius: "var(--radius-md)" }}
-      />
+      <SectionHelp>
+        Acá encontrás recetas saludables recomendadas por el equipo del hospital. Buscá por nombre o filtrá por
+        categoría, y tocá una receta para ver los ingredientes, la preparación y su información nutricional.
+      </SectionHelp>
 
       <div className="recetas-grid">
         {listaRecetas.length === 0 ? (
           <div className="recetas-empty">
-            <Empty description="No se encontraron recetas" />
+            <Empty description="No encontramos recetas para mostrar. Probá con otra búsqueda o quitá el filtro de categoría." />
           </div>
         ) : (
           paginatedRecetas.map((receta) => (
@@ -146,29 +132,25 @@ export const Recetas = ({ setSelectedKey }) => {
             >
               <div className="receta-card-image-minimal">
                 {receta?.urlFoto ? (
-                  <img
+                  <ImagenSegura
                     src={getMediaUrl(receta.urlFoto)}
                     alt=""
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextElementSibling.style.display = 'flex';
-                    }}
+                    compacto
                     style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
                   />
-                ) : null}
-                <div 
-                  className="receta-image-placeholder"
-                  style={{ display: receta?.urlFoto ? 'none' : 'flex' }}
-                >
-                  <PictureOutlined style={{ fontSize: 36, color: 'var(--gray-400)' }} />
-                  <span>Sin imagen</span>
-                </div>
+                ) : (
+                  <div className="receta-image-placeholder" style={{ display: 'flex' }}>
+                    <PictureOutlined style={{ fontSize: 36, color: 'var(--gray-400)' }} />
+                    <span>Sin imagen</span>
+                  </div>
+                )}
               </div>
               <div className="receta-card-content-minimal">
                 <h3 className="receta-card-title-minimal">{receta.nombre}</h3>
                 <div className="receta-card-info-minimal">
-                  <span>{receta.porciones} porciones</span>
-                  <span>{receta.calorias} kcal</span>
+                  {/* Si el dato ya trae la unidad (p. ej. «1 porción», «100 cal») no la repetimos */}
+                  <span>{/^\s*\d+([.,]\d+)?\s*$/.test(String(receta.porciones ?? "")) ? `${receta.porciones} porciones` : receta.porciones}</span>
+                  <span>{/^\s*\d+([.,]\d+)?\s*$/.test(String(receta.calorias ?? "")) ? `${receta.calorias} kcal` : receta.calorias}</span>
                   <span>{receta.tiempo}</span>
                 </div>
               </div>

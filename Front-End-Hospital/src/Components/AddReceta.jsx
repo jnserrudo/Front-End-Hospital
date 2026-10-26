@@ -94,11 +94,11 @@ export const AddReceta = ({ onClosePadre }) => {
     }
     
     if (!recetaToInsert?.idPatologias || recetaToInsert.idPatologias.length === 0) {
-      newErrors.idPatologias = "Seleccione al menos una patología";
+      newErrors.idPatologias = "Elegí al menos una patología";
     }
     
     if (!recetaToInsert?.idCategorias || recetaToInsert.idCategorias.length === 0) {
-      newErrors.idCategorias = "Seleccione al menos una categoría";
+      newErrors.idCategorias = "Elegí al menos una categoría";
     }
     
     setErrors(newErrors);
@@ -141,6 +141,9 @@ export const AddReceta = ({ onClosePadre }) => {
         body: formData,
       });
       const data = await response.json();
+      if (!data?.url || String(data.url).startsWith("blob:")) {
+        throw new Error("No pudimos subir el archivo. Probá de nuevo o elegí otro.");
+      }
       return data.url;
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -151,12 +154,12 @@ export const AddReceta = ({ onClosePadre }) => {
   const beforeUpload = (file) => {
     const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/jpg" || file.type === "image/webp";
     if (!isJpgOrPng) {
-      toast.error("Solo se permiten archivos de imagen (jpeg, jpg, png, webp)");
+      toast.error("Solo se permiten imágenes JPG, PNG o WEBP. Elegí otro archivo.");
       return Upload.LIST_IGNORE;
     }
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
-      toast.error("La imagen debe ser menor a 5MB");
+      toast.error("La imagen tiene que pesar menos de 5 MB. Elegí una más liviana.");
       return Upload.LIST_IGNORE;
     }
     return true;
@@ -174,8 +177,7 @@ export const AddReceta = ({ onClosePadre }) => {
 
   const handleInsertWithImage = async () => {
     if (!validateForm()) {
-      toast.error("Por favor, corrija los errores en el formulario");
-      return;
+      throw new Error("Hay campos con errores: revisá los marcados en rojo y volvé a intentar.");
     }
 
     try {
@@ -203,11 +205,7 @@ export const AddReceta = ({ onClosePadre }) => {
       };
 
       // Llamar a handleInsert con toast.promise
-      await toast.promise(handleInsert(fullReceta), {
-        loading: "Guardando receta...",
-        success: <b>Se agregó la receta!</b>,
-        error: <b>No se pudo agregar la receta.</b>,
-      });
+      await handleInsert(fullReceta);
     } catch (error) {
       console.error("Error inserting recipe:", error);
       throw error;
@@ -233,7 +231,7 @@ export const AddReceta = ({ onClosePadre }) => {
         {/* TAB 1: BÁSICO */}
         <TabPane tab="Básico" key="1">
           <div className="section-guide">
-             Complete la información básica de la receta
+             Completá la información básica de la receta
           </div>
 
           <div className="form-section">
@@ -415,7 +413,7 @@ export const AddReceta = ({ onClosePadre }) => {
                   </label>
                   <Select
                     mode="multiple"
-                    placeholder="Seleccione patologías"
+                    placeholder="Elegí patologías"
                     value={recetaToInsert?.idPatologias || []}
                     onChange={(value) =>
                       handleChangeSelectInsert({
@@ -436,7 +434,7 @@ export const AddReceta = ({ onClosePadre }) => {
                   </label>
                   <Select
                     mode="multiple"
-                    placeholder="Seleccione categorías"
+                    placeholder="Elegí categorías"
                     value={recetaToInsert?.idCategorias || []}
                     onChange={(value) =>
                       handleChangeSelectCategoriasInsert({
@@ -459,7 +457,7 @@ export const AddReceta = ({ onClosePadre }) => {
         {/* TAB 2: INGREDIENTES & PREPARACIÓN */}
         <TabPane tab="Ingredientes & Preparación" key="2">
           <div className="section-guide">
-             Presiona Enter para numerar automáticamente. Mínimo 3 ingredientes y 3 pasos.
+             Presioná Enter para numerar automáticamente. Mínimo 3 ingredientes y 3 pasos.
           </div>
 
           <div className="form-section">
@@ -471,7 +469,7 @@ export const AddReceta = ({ onClosePadre }) => {
                 onChange={handleChangeInputInsert}
                 name="ingredientes"
                 placeholder="Ejemplo: 1 taza de harina&#10;65 gr de zapallo&#10;50 gr de pimiento"
-                helpText="Presiona Enter para numerar automáticamente"
+                helpText="Presioná Enter para numerar automáticamente"
                 required={true}
               />
               {errors.ingredientes && <div className="error-message"> {errors.ingredientes}</div>}
@@ -489,7 +487,7 @@ export const AddReceta = ({ onClosePadre }) => {
                 onChange={handleChangeInputInsert}
                 name="preparacion"
                 placeholder="Ejemplo: Cortar el choclo en trozos&#10;Cocinar el zapallo&#10;Mezclar todos los ingredientes"
-                helpText="Describe paso a paso. Presiona Enter para numerar."
+                helpText="Describí paso a paso. Presioná Enter para numerar."
                 maxItems={20}
                 required={true}
               />
@@ -548,6 +546,11 @@ export const AddReceta = ({ onClosePadre }) => {
         </TabPane>
       </Tabs>
 
+      <p className="form-step-hint">
+        {activeTab === "1" && "Paso 1 de 3: datos básicos (nombre, foto, patologías y categorías). Tocá «Siguiente» para seguir."}
+        {activeTab === "2" && "Paso 2 de 3: ingredientes y preparación. Tocá «Siguiente» para cargar la información nutricional."}
+        {activeTab === "3" && "Paso 3 de 3: nutrición y consejos (opcionales). Revisá todo y tocá «Guardar receta»; podés volver a cualquier pestaña antes de guardar."}
+      </p>
       <div className="form-actions">
         <Space>
           <Button onClick={onClosePadre}>
@@ -567,7 +570,7 @@ export const AddReceta = ({ onClosePadre }) => {
               }
             }}
           >
-            {activeTab === "3" ? "Guardar Receta" : "Siguiente"}
+            {activeTab === "3" ? "Guardar receta" : "Siguiente"}
           </Button>
         </Space>
       </div>
@@ -575,7 +578,10 @@ export const AddReceta = ({ onClosePadre }) => {
       <VentEmergConfirmacion
         onClosePadre={onClosePadre}
         onClose={handleCloseVentEmergente}
-        mje="¿Está seguro de agregar esta receta?"
+        title={`¿Publicar la receta «${recetaToInsert?.nombre || ""}»?`}
+        mje="La van a ver en la sección Recetas los pacientes con las patologías que elegiste (o todos, si no elegiste ninguna)."
+        confirmText="Publicar receta"
+        errorFallback="No pudimos guardar los cambios"
         handleSi={handleInsertWithImage}
         isOpen={showVentEmergenteConfirmacion}
       />

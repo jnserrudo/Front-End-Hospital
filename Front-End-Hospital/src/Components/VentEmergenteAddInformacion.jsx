@@ -9,7 +9,7 @@ export const VentEmergenteAddInformacion = ({ isOpen, onClose }) => {
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <PlusOutlined style={{ color: "var(--primary)" }} />
-          <span>Agregar Información</span>
+          <span>Agregar información</span>
         </div>
       }
       open={isOpen}

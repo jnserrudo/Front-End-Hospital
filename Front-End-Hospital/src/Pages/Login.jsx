@@ -1,174 +1,186 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Button, Input, Form, Alert } from "antd";
-import { UserOutlined, LockOutlined, LoginOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
-import {
-  getJwtToken,
-  getRolByUser,
-  updatePassword,
-} from "../services/usuario-services.js";
-import UsuarioContext from "../Contexts/UsuarioContext.jsx";
-import toast from "react-hot-toast";
+import React, { useEffect, useState } from "react";
+import { Button, Input, Alert, Modal } from "antd";
+import { UserOutlined, LockOutlined, LoginOutlined, CheckCircleFilled, CloseCircleFilled, QuestionCircleOutlined, PhoneOutlined } from "@ant-design/icons";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { entorno } from "../services/config.js";
+import { friendlyMessage } from "../services/http.js";
+import { isSessionValid, setSession } from "../services/session.js";
+import { notify } from "../ui/notify.js";
+import { reglasPassword } from "../utils/password.js";
+import { RecuperarPasswordModal } from "../Components/RecuperarPasswordModal.jsx";
+
+const MOTIVOS = {
+  inactividad: { type: "warning", text: "Cerramos tu sesión porque pasaron 30 minutos sin actividad. Ingresá de nuevo para continuar." },
+  "sesion-vencida": { type: "warning", text: "Tu sesión venció. Ingresá de nuevo para continuar." },
+  "cuenta-deshabilitada": { type: "error", text: "Tu cuenta está deshabilitada. Comunicate con el hospital para volver a habilitarla." },
+  "otra-pestana": { type: "info", text: "Cerraste sesión en otra pestaña. Ingresá de nuevo para continuar." },
+  "sin-sesion": { type: "info", text: "Ingresá con tu usuario y contraseña para usar la aplicación." },
+  logout: { type: "success", text: "Cerraste sesión correctamente." },
+};
+
+
+// Las llamadas del login no usan la sesión guardada: el token del cambio
+// obligatorio vive solo en memoria hasta que la contraseña se cambia.
+const postJson = async (url, body, token, method = "POST") => {
+  const res = await fetch(url, {
+    method,
+    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    body: JSON.stringify(body),
+  });
+  return res.json();
+};
 
 export const Login = () => {
   const navigate = useNavigate();
-
-  const [bandAuth, setBandAuth] = useState(false);
-  const [bandAuthProccess, setBandAuthProccess] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const motivo = MOTIVOS[searchParams.get("motivo")] || null;
 
   const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
-
   const [nuevoPassword, setNuevoPassword] = useState("");
   const [confirmarPassword, setConfirmarPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const [bandBlanqueado, setBandBlanqueado] = useState(false);
-
-  const { dniUsuario, setRolUsuario } = useContext(UsuarioContext);
-
-  const [idUsuario, setIdUsuario] = useState(0);
-
-  useEffect(() => {
-    toast.dismiss();
-  }, []);
+  const [intentoEnviar, setIntentoEnviar] = useState(false);
+  // { tokenCambio, id, usuario, nombre, ... } mientras falta cambiar la contraseña
+  const [cambioPendiente, setCambioPendiente] = useState(null);
+  const [ayudaClave, setAyudaClave] = useState(false);
+  const [recuperar, setRecuperar] = useState(false);
 
   useEffect(() => {
-    setBandAuth(false);
-    setBandAuthProccess(false);
-  }, [usuario, password]);
+    if (isSessionValid()) navigate("/hospital", { replace: true });
+  }, [navigate]);
+
+  const limpiarMotivo = () => {
+    if (searchParams.get("motivo")) setSearchParams({}, { replace: true });
+  };
 
   const handleLogin = async () => {
-    console.log(usuario);
+    setIntentoEnviar(true);
     setError("");
-    setLoading(true);
-
-    try {
-      const { token, dni, id, blanqueado } = await getJwtToken(usuario, password);
-      //el jwt tambien me devuelve el dni para conseguir traer las patologias de ese dni en el caso que sea paciente
-
-      console.log(token, dni, id, blanqueado);
-
-      if (token && !token?.error) {
-        setIdUsuario(id);
-        localStorage.setItem("idUsuario", id);
-        localStorage.setItem("token", token);
-        setBandAuth(true);
-        let rol = await getRolByUser(usuario);
-        localStorage.setItem("usuario", usuario);
-        localStorage.setItem("rol", rol);
-        localStorage.setItem("dni", dni);
-
-        if (blanqueado === 0) {
-          setBandBlanqueado(true);
-          toast('Usuario blanqueado, debe cambiar la contraseña!');
-        } else {
-          /*  toast.success('Logeado con exito!',{
-            duration: 6000,
-          }) */
-          navigate("/hospital");
-        }
-      } else {
-        setBandAuth(false);
-        setError("Usuario o Contraseña invalidos");
-      }
-      setBandAuthProccess(true);
-    } catch (err) {
-      console.error(err);
-      setError("Error de conexión al iniciar sesión");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    if (nuevoPassword !== confirmarPassword) {
-      setError("Las contraseñas no coinciden");
+    if (!usuario.trim() || !password) {
+      setError(!usuario.trim() ? "Ingresá tu usuario." : "Ingresá tu contraseña.");
       return;
     }
-    setError("");
     setLoading(true);
-
+    limpiarMotivo();
     try {
-      const success = await updatePassword(idUsuario, nuevoPassword);
-      console.log("resultado de updatepassword: ", success);
-      if (success) {
-        setBandBlanqueado(false);
-        setNuevoPassword("");
-        setConfirmarPassword("");
-        setError("");
-        setBandAuth(false);
-        setBandAuthProccess(false);
-        toast.success('Se actualizó la Contraseña!');
-      } else {
-        setError("Error al actualizar la contraseña");
+      const data = await postJson(`${entorno}/usuarios/jwtToken`, { usuario: usuario.trim(), password });
+      if (data.debeCambiarPassword) {
+        setCambioPendiente(data);
+        setIntentoEnviar(false);
+        notify.info("Por seguridad, antes de entrar tenés que crear una contraseña nueva.");
+        return;
       }
+      setSession(data);
+      notify.success(`¡Hola, ${data.nombre || data.usuario}!`);
+      navigate("/hospital", { replace: true });
     } catch (err) {
-      console.error(err);
-      setError("Error al cambiar la contraseña");
+      setError(friendlyMessage(err, "No pudimos iniciar sesión"));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      if (bandBlanqueado) {
-        handleChangePassword();
-      } else {
-        handleLogin();
-      }
+  const reglas = reglasPassword(nuevoPassword, confirmarPassword);
+  const passwordValida = reglas.every((r) => r.ok);
+
+  const handleChangePassword = async () => {
+    setIntentoEnviar(true);
+    setError("");
+    if (!passwordValida) {
+      setError("La contraseña nueva todavía no cumple todos los requisitos de la lista.");
+      return;
     }
+    setLoading(true);
+    try {
+      const data = await postJson(
+        `${entorno}/usuarios/password/${cambioPendiente.id}`,
+        { newPassword: nuevoPassword },
+        cambioPendiente.tokenCambio,
+        "PUT"
+      );
+      setSession({ ...cambioPendiente, token: data.token });
+      setCambioPendiente(null);
+      notify.success("Listo, ya podés usar tu nueva contraseña.");
+      navigate("/hospital", { replace: true });
+    } catch (err) {
+      // El token del cambio dura 15 minutos: si venció, hay que volver a ingresar.
+      if (err?.status === 401) {
+        setCambioPendiente(null);
+        setPassword("");
+        setError("Pasó mucho tiempo desde que ingresaste. Volvé a ingresar con tu contraseña temporal.");
+      } else {
+        setError(friendlyMessage(err, "No pudimos cambiar la contraseña"));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelarCambio = () => {
+    setCambioPendiente(null);
+    setPassword("");
+    setNuevoPassword("");
+    setConfirmarPassword("");
+    setError("");
+    notify.info("No se cambió la contraseña. Para entrar vas a tener que cambiarla.");
   };
 
   return (
     <div className="cont_login">
-
-
       <div className="login-header">
         <img
-          src="/logoOñativia.png"
+          src="/logo-onativia.png"
           alt="Logo"
           style={{ width: 72, height: 72, objectFit: "contain", marginBottom: 8 }}
-          onError={(e) => e.target.style.display = 'none'}
+          onError={(e) => (e.target.style.display = "none")}
         />
-        <h2 className="login-title">Bienvenido</h2>
+        <h2 className="login-title">{cambioPendiente ? `Hola, ${cambioPendiente.nombre || cambioPendiente.usuario}` : "Bienvenido"}</h2>
         <p className="login-subtitle">
-          {bandBlanqueado ? "Cambiá tu contraseña para continuar" : "Ingresá a tu cuenta"}
+          {cambioPendiente
+            ? "Es tu primer ingreso o te restablecieron la contraseña: creá una contraseña nueva para continuar."
+            : "Ingresá a tu cuenta"}
         </p>
       </div>
 
-      {error && (
-        <Alert
-          message={error}
-          type="error"
-          showIcon
-          style={{ borderRadius: "var(--radius)", marginBottom: 8 }}
-        />
+      {!error && motivo && !cambioPendiente && (
+        <Alert message={motivo.text} type={motivo.type} showIcon style={{ borderRadius: "var(--radius)", marginBottom: 8 }} />
       )}
+      {error && <Alert message={error} type="error" showIcon style={{ borderRadius: "var(--radius)", marginBottom: 8 }} />}
 
-      {bandBlanqueado ? (
+      {cambioPendiente ? (
         <>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <Input.Password
               prefix={<LockOutlined style={{ color: "var(--gray-400)" }} />}
-              placeholder="Nueva contraseña"
+              placeholder="Contraseña nueva"
+              aria-label="Contraseña nueva"
               value={nuevoPassword}
               onChange={(e) => setNuevoPassword(e.target.value)}
               onPressEnter={handleChangePassword}
               size="large"
+              autoComplete="new-password"
               style={{ borderRadius: "var(--radius)" }}
             />
             <Input.Password
               prefix={<LockOutlined style={{ color: "var(--gray-400)" }} />}
-              placeholder="Confirmar contraseña"
+              placeholder="Repetí la contraseña nueva"
+              aria-label="Repetí la contraseña nueva"
               value={confirmarPassword}
               onChange={(e) => setConfirmarPassword(e.target.value)}
               onPressEnter={handleChangePassword}
               size="large"
+              autoComplete="new-password"
               style={{ borderRadius: "var(--radius)" }}
             />
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, fontSize: 13 }} aria-live="polite">
+              {reglas.map((r) => (
+                <li key={r.text} style={{ color: r.ok ? "var(--success, #10b981)" : intentoEnviar ? "#ef4444" : "var(--gray-500)", display: "flex", gap: 6, alignItems: "center" }}>
+                  {r.ok ? <CheckCircleFilled /> : <CloseCircleFilled />} {r.text}
+                </li>
+              ))}
+            </ul>
           </div>
           <Button
             type="primary"
@@ -178,7 +190,10 @@ export const Login = () => {
             onClick={handleChangePassword}
             style={{ borderRadius: "var(--radius)", fontWeight: 600, height: 46, marginTop: 8 }}
           >
-            Cambiar Contraseña
+            Guardar contraseña y entrar
+          </Button>
+          <Button type="link" block onClick={cancelarCambio} disabled={loading}>
+            Volver al inicio de sesión
           </Button>
         </>
       ) : (
@@ -187,19 +202,25 @@ export const Login = () => {
             <Input
               prefix={<UserOutlined style={{ color: "var(--gray-400)" }} />}
               placeholder="Usuario"
+              aria-label="Usuario"
               value={usuario}
+              status={intentoEnviar && !usuario.trim() ? "error" : ""}
               onChange={(e) => setUsuario(e.target.value)}
               onPressEnter={handleLogin}
               size="large"
+              autoComplete="username"
               style={{ borderRadius: "var(--radius)" }}
             />
             <Input.Password
               prefix={<LockOutlined style={{ color: "var(--gray-400)" }} />}
               placeholder="Contraseña"
+              aria-label="Contraseña"
               value={password}
+              status={intentoEnviar && !password ? "error" : ""}
               onChange={(e) => setPassword(e.target.value)}
               onPressEnter={handleLogin}
               size="large"
+              autoComplete="current-password"
               style={{ borderRadius: "var(--radius)" }}
             />
           </div>
@@ -214,6 +235,36 @@ export const Login = () => {
           >
             Ingresar
           </Button>
+          <div className="login-ayudas">
+            <Button type="link" icon={<QuestionCircleOutlined />} onClick={() => setRecuperar(true)}>
+              ¿Olvidaste tu contraseña?
+            </Button>
+            <Button type="link" onClick={() => setAyudaClave(true)}>
+              ¿Olvidaste tu usuario?
+            </Button>
+          </div>
+          <RecuperarPasswordModal open={recuperar} onClose={() => setRecuperar(false)} valorInicial={usuario} />
+          <Modal
+            open={ayudaClave}
+            onCancel={() => setAyudaClave(false)}
+            title="¿Olvidaste tu usuario?"
+            footer={<Button type="primary" onClick={() => setAyudaClave(false)}>Entendido</Button>}
+          >
+            <p style={{ marginBottom: 12 }}>
+              Tu usuario es el que te dieron cuando te crearon la cuenta. Si no lo recordás, tenés dos caminos:
+            </p>
+            <ul style={{ paddingLeft: 18, marginBottom: 12 }}>
+              <li>
+                Si tu cuenta tiene email cargado, usá <strong>«¿Olvidaste tu contraseña?»</strong> con tu email o tu DNI: en el email
+                te recordamos tu usuario.
+              </li>
+              <li>Si no, consultalo en el hospital o pedíselo a un administrador.</li>
+              <li>Si pusiste mal la contraseña varias veces, esperá 15 minutos antes de volver a probar.</li>
+            </ul>
+            <p style={{ margin: 0 }}>
+              <PhoneOutlined style={{ transform: "rotate(90deg)" }} /> Hospital Dr. Arturo Oñativia: <a href="tel:+543874221605">0387 422-1605</a>
+            </p>
+          </Modal>
         </>
       )}
     </div>

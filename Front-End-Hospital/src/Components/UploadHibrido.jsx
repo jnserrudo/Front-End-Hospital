@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Upload, Radio, Input } from "antd";
 import { InboxOutlined, FileTextOutlined, LinkOutlined } from "@ant-design/icons";
 import { entorno } from "../services/config";
+import { notify } from "../ui/notify";
 
 const { Dragger } = Upload;
 
@@ -32,6 +33,16 @@ export const UploadHibrido = ({
     const formData = new FormData();
     formData.append("file", file);
 
+    const esPdf = file.type === "application/pdf";
+    if (!file.type.startsWith("image/") && !esPdf) {
+      notify.error("Ese tipo de archivo no está permitido. Subí una imagen (JPG o PNG) o un PDF.");
+      return Upload.LIST_IGNORE;
+    }
+    const limite = esPdf ? Math.max(maxSize, 10) : maxSize;
+    if (file.size > limite * 1024 * 1024) {
+      notify.error(`El archivo es demasiado pesado: el máximo es ${limite} MB. Elegí uno más liviano o comprimilo.`);
+      return Upload.LIST_IGNORE;
+    }
     setUploading(true);
     try {
       const response = await fetch(entorno + uploadEndpoint, {
@@ -45,6 +56,7 @@ export const UploadHibrido = ({
       }
     } catch (error) {
       console.error("Error al subir archivo:", error);
+      notify.error(error, "No pudimos subir el archivo");
     } finally {
       setUploading(false);
     }
@@ -122,10 +134,10 @@ export const UploadHibrido = ({
             <InboxOutlined />
           </p>
           <p className="ant-upload-text">
-            Click o arrastra el archivo aquí
+            Hacé clic o arrastrá el archivo acá
           </p>
           <p className="ant-upload-hint">
-            Soporta: Imágenes (JPG, PNG) y PDF (máx. {maxSize}MB)
+            Podés subir imágenes JPG o PNG (máx. {maxSize} MB) o PDF (máx. {Math.max(maxSize, 10)} MB)
           </p>
         </Dragger>
       ) : (

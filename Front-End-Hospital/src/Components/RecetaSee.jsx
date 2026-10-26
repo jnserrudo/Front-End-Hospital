@@ -1,3 +1,4 @@
+import { MediaNoDisponible } from "./MediaNoDisponible";
 import React, { useEffect, useState } from "react";
 import { entorno, getMediaUrl } from "../services/config";
 import { Tag, Divider, Row, Col } from "antd";
@@ -51,7 +52,9 @@ export const RecetaSee = ({ receta }) => {
       <Row gutter={[16, 12]}>
         <Col xs={24} md={10}>
            <div className="receta-see-image-container-minimal">
-             {!receta?.urlFoto || imageError ? (
+             {imageError || (receta?.urlFoto && !getMediaUrl(receta.urlFoto)) ? (
+               <MediaNoDisponible />
+             ) : !receta?.urlFoto ? (
                <div className="receta-see-image-placeholder">
                  <PictureOutlined style={{ fontSize: 36, color: 'var(--gray-400)' }} />
                  <span>Sin imagen</span>

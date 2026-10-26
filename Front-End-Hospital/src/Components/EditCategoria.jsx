@@ -1,3 +1,4 @@
+import { ModoLecturaNota } from "./ModoLecturaNota";
 import {
   Button,
   Textarea,
@@ -13,11 +14,16 @@ import CategoriasContext from "../Contexts/CategoriaContext";
 import { VentEmergConfirmacion } from "./VentEmergConfirmacion";
 import { useNavigate } from "react-router-dom";
 
-export const EditCategoria = ({ categoria, onCloseEdit }) => {
+export const EditCategoria = ({ categoria, onCloseEdit, onModoChange }) => {
   const navigate = useNavigate();
   const { handleChangeInput, handleChangeSelectTipos, handleUpdate } =
     useContext(CategoriasContext);
   const [bandEdit, setBandEdit] = useState(false);
+  // Avisamos al modal si estamos en modo lectura o edición (para el título)
+  const cambiarModo = (v) => {
+    setBandEdit(v);
+    onModoChange?.(v);
+  };
   const [bandUpdated, setBandUpdated] = useState(false);
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] =
     useState(false);
@@ -38,6 +44,7 @@ export const EditCategoria = ({ categoria, onCloseEdit }) => {
 
   return (
     <div className="form">
+      <ModoLecturaNota editando={bandEdit} />
       {/* Grid responsive usando auto-fit */}
       <Grid
         className="grid_chackra"
@@ -100,21 +107,21 @@ export const EditCategoria = ({ categoria, onCloseEdit }) => {
       {/* Botones de acción */}
       <div className="action_buttons">
         {!bandEdit ? (
-          <Button colorScheme="blue" onClick={() => setBandEdit(true)}>
+          <Button colorScheme="blue" variant="outline" onClick={() => cambiarModo(true)}>
             Editar
           </Button>
         ) : (
-          <Button colorScheme="gray" onClick={() => setBandEdit(false)}>
+          <Button colorScheme="gray" onClick={() => cambiarModo(false)}>
             Cancelar
           </Button>
         )}
 
         {bandUpdated && (
           <Button
-            colorScheme="green"
+            colorScheme="blue"
             onClick={() => setShowVentEmergenteConfirmacion(true)}
           >
-            Actualizar
+            Guardar cambios
           </Button>
         )}
       </div>
@@ -122,7 +129,10 @@ export const EditCategoria = ({ categoria, onCloseEdit }) => {
       <VentEmergConfirmacion
         onClosePadre={onCloseEdit}
         onClose={() => setShowVentEmergenteConfirmacion(false)}
-        mje={`¿Está seguro de actualizar los datos de la categoría?`}
+        title={`¿Guardar los cambios de la categoría «${categoria?.nombre || ""}»?`}
+        mje="Los contenidos que usan esta categoría van a mostrar el dato actualizado."
+        confirmText="Guardar cambios"
+        errorFallback="No pudimos guardar los cambios"
         handleSi={async () => {
           await handleUpdate(categoria);
           setShowVentEmergenteConfirmacion(false);

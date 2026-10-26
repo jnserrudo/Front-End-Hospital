@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
+import { ModoLecturaNota } from "./ModoLecturaNota";
 import { Button, FormControl, FormLabel, Grid, GridItem, Textarea } from "@chakra-ui/react";
 import { Input } from "@chakra-ui/react";
 import { Select, Space } from "antd";
@@ -15,10 +16,6 @@ export const EditEvento = ({ evento, onCloseEdit }) => {
   const [bandEdit, setBandEdit] = useState(false);
   const [showVentEmergenteConfirmacion, setShowVentEmergenteConfirmacion] = useState(false);
 
-  if (!evento) {
-    return null;
-  }
-
   const handleConfirmar = () => {
     if (bandEdit) {
       setShowVentEmergenteConfirmacion(true);
@@ -29,8 +26,13 @@ export const EditEvento = ({ evento, onCloseEdit }) => {
     setBandEdit(true);
   }, [evento]);
 
+  if (!evento) {
+    return null;
+  }
+
   return (
     <div className="form_edit_receta">
+      <ModoLecturaNota editando={bandEdit} />
       <Grid
         className="grid_chackra"
         templateColumns={{ base: "1fr", md: "repeat(auto-fit, minmax(300px, 1fr))" }}
@@ -59,7 +61,7 @@ export const EditEvento = ({ evento, onCloseEdit }) => {
               variant="outlined"
               type="date"
               disabled={!bandEdit}
-              value={evento?.fecha || ""}
+              value={evento?.fecha ? String(evento.fecha).slice(0, 10) : ""}
               onChange={handleChangeInput}
             />
             <FormLabel>Fecha</FormLabel>
@@ -72,7 +74,7 @@ export const EditEvento = ({ evento, onCloseEdit }) => {
             <Select
               style={{ width: "100%" }}
               options={TIPOS_EVENTO}
-              placeholder="Seleccione un tipo"
+              placeholder="Elegí un tipo"
               value={evento?.tipo || undefined}
               onChange={handleChangeSelectTipo}
               disabled={!bandEdit}
@@ -102,13 +104,16 @@ export const EditEvento = ({ evento, onCloseEdit }) => {
             width="100%"
             mt={4}
           >
-            Actualizar Evento
+            Guardar cambios
           </Button>
         </GridItem>
       </Grid>
 
       <VentEmergConfirmacion
-        mje="¿Está seguro de actualizar este evento?"
+        title={`¿Guardar los cambios del evento «${evento?.titulo || ""}»?`}
+        mje="El calendario va a mostrar la versión actualizada."
+        confirmText="Guardar cambios"
+        errorFallback="No pudimos guardar los cambios"
         isOpen={showVentEmergenteConfirmacion}
         onClose={() => setShowVentEmergenteConfirmacion(false)}
         handleSi={async () => {

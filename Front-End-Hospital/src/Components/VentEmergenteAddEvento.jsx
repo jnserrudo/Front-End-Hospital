@@ -9,7 +9,7 @@ export const VentEmergenteAddEvento = ({ isOpen, onClose }) => {
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <CalendarOutlined style={{ color: "var(--primary)" }} />
-          <span>Agregar Evento</span>
+          <span>Agregar evento</span>
         </div>
       }
       open={isOpen}
